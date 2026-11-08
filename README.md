@@ -177,4 +177,14 @@ GPL-3.0-or-later - See [LICENSE](LICENSE) for details.
 
 ## Screenshots
 
-*Coming soon...*
+| Select Drive | Direct Install / Portable |
+| --- | --- |
+| ![Select Drive](screenshots/1.png) | ![Direct install configuration](screenshots/2.png) |
+
+| Select Image | Download Linux ISO |
+| --- | --- |
+| ![Select bootable image](screenshots/3.png) | ![Linux ISO downloader](screenshots/4.png) |
+
+| Summary | Flashing |
+| --- | --- |
+| ![Installation summary](screenshots/5.png) | ![Flash progress](screenshots/6.png) |
