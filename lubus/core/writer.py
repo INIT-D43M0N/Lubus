@@ -117,8 +117,17 @@ GRUB_DIRS = ("/usr/lib/grub/i386-pc", "/usr/lib/grub2/i386-pc", "/app/lib/grub/i
 GRUB_MODULES = ("biosdisk", "part_msdos", "ntfs", "ntldr")
 GRUB_CFG = "ntldr /bootmgr\nboot\n"
 
-# Windows installer: everything except the install image goes to the FAT32 ESP
-WIN_SKIP_PATHS = ["sources/install.wim", "sources/install.esd"]
+# Windows installer: the FAT32 boot volume carries the boot chain only.
+# Install images and Sources\SetupHost.exe stay on the NTFS media volume.
+# Windows 11 24H2+ (ConX setup) identifies the installation media by looking
+# for Sources\SetupHost.exe and then expects install.wim/esd on that *same*
+# volume. Split media (boot files on FAT32, install.wim on NTFS) makes Setup
+# show "Install driver to show hardware" / "media driver missing".
+WIN_INSTALL_IMAGES = [
+    "sources/install.wim", "sources/install.esd", "sources/install.swm",
+]
+WIN_SKIP_PATHS = list(WIN_INSTALL_IMAGES)
+WIN_BOOT_SKIP_PATHS = WIN_INSTALL_IMAGES + ["sources/setuphost.exe"]
 FAT32_MAX_FILE = (1 << 32) - 1  # FAT32 cannot store a file >= 4 GiB
 
 
@@ -399,9 +408,9 @@ def verify_image_dd(
 def _measure_iso_tree(iso_root: str, skip_paths: List[str]):
     """Measure the contents of a mounted ISO.
 
-    Returns (fat32_bytes, skipped_bytes, oversized) where:
-      - fat32_bytes: total size of files destined for the FAT32 ESP
-      - skipped_bytes: total size of the skipped files (install.wim/esd)
+    Returns (copied_bytes, skipped_bytes, oversized) where:
+      - copied_bytes: total size of files that will be copied to the volume
+      - skipped_bytes: total size of the excluded files
       - oversized: [(rel_path, size)] files >= 4 GiB (impossible on FAT32)
     """
     skip = {os.path.normpath(p).lower() for p in skip_paths}
@@ -426,23 +435,28 @@ def _measure_iso_tree(iso_root: str, skip_paths: List[str]):
     return fat32_bytes, skipped_bytes, oversized
 
 
-def _compute_esp_size(fat32_bytes: int, wim_bytes: int, drive_size: int) -> int:
+def _compute_esp_size(boot_bytes: int, media_bytes: int, drive_size: int) -> int:
     """Choose an ESP size that actually fits the ISO boot files.
 
-    Raises WriteError if the drive cannot hold boot files + install image.
+    ``media_bytes`` is the size of the complete installation tree written to
+    the NTFS partition (boot files included), so it also covers the files
+    duplicated between the FAT32 boot volume and the NTFS media volume.
+
+    Raises WriteError if the drive cannot hold the boot files and the media
+    tree.
     """
     align = 1024 * 1024
     # Slack for FAT32 metadata/cluster rounding plus the icon/autorun files
-    need = fat32_bytes + 64 * 1024 * 1024
+    need = boot_bytes + 64 * 1024 * 1024
     esp_size = max(512 * 1024 * 1024, -(-need // align) * align)
 
-    # The NTFS partition must still hold install.wim + GPT backup structures
-    max_esp = drive_size - wim_bytes - 256 * 1024 * 1024
+    # The NTFS partition must still hold the full media tree + GPT structures
+    max_esp = drive_size - media_bytes - 256 * 1024 * 1024
     if esp_size > max_esp:
         raise WriteError(
             f"Drive too small for this image: boot files need "
-            f"{format_size(esp_size)}, install image needs {format_size(wim_bytes)}, "
-            f"drive has {format_size(drive_size)}"
+            f"{format_size(esp_size)}, installation media needs "
+            f"{format_size(media_bytes)}, drive has {format_size(drive_size)}"
         )
     return esp_size
 
@@ -489,13 +503,13 @@ def write_windows_installer(
     fs = FileSystem.FAT32 if scheme == PartitionScheme.GPT else FileSystem.NTFS
 
     if scheme == PartitionScheme.GPT:
-        # Mount the ISO first and measure it: the ESP holds the whole ISO
-        # tree except install.wim (~2.5 GiB on Windows 11), so its size must
-        # come from the actual contents - a fixed 512 MiB ESP dies with
-        # ENOSPC partway through the copy.
+        # Mount the ISO first and measure it. The ESP holds the boot chain
+        # (including boot.wim), while the NTFS volume holds the complete ISO
+        # tree - install image and Sources\SetupHost.exe must live together
+        # for Windows 11 24H2+ ConX setup to recognise the media.
         with _iso_ctx() as iso_root:
-            fat32_bytes, _skipped, oversized = _measure_iso_tree(
-                iso_root, WIN_SKIP_PATHS
+            boot_bytes, media_skipped, oversized = _measure_iso_tree(
+                iso_root, WIN_BOOT_SKIP_PATHS
             )
             if oversized:
                 names = ", ".join(n for n, _ in oversized[:3])
@@ -509,9 +523,9 @@ def write_windows_installer(
                 raise WriteError(
                     "No install.wim or install.esd found in the Windows image"
                 )
-            wim_size = os.path.getsize(wim_src)
+            media_bytes = boot_bytes + media_skipped
 
-            esp_size = _compute_esp_size(fat32_bytes, wim_size, drive_size)
+            esp_size = _compute_esp_size(boot_bytes, media_bytes, drive_size)
             emit_status(f"Boot partition sized to {format_size(esp_size)}...")
 
             layout = get_windows_installer_layout(scheme, target, fs, label, drive_size, esp_size)
@@ -521,8 +535,8 @@ def write_windows_installer(
             wipe_partition_table(conn, device, scheme.value)
             created_parts = _create_partitions(conn, device, partitions, scheme)
 
-            # One meter for the complete write: boot files + install image.
-            meter = _ProgressMeter(fat32_bytes + wim_size, progress)
+            # One meter for the complete write: boot volume + media volume.
+            meter = _ProgressMeter(boot_bytes + media_bytes, progress)
 
             # Mount and copy files
             try:
@@ -530,22 +544,31 @@ def write_windows_installer(
                 esp_mount = mount_filesystem(conn, esp_part)
                 win_mount = mount_filesystem(conn, win_part)
 
-                # Copy all files except WIM to ESP (for UEFI boot)
+                # FAT32 boot volume: firmware -> bootmgr -> boot.wim. It
+                # deliberately omits SetupHost.exe so ConX setup does not
+                # mistake this incomplete volume for the installation media.
+                emit_status("Copying boot files...")
                 _copy_tree_with_progress(
                     iso_root, esp_mount,
-                    WIN_SKIP_PATHS,
+                    WIN_BOOT_SKIP_PATHS,
                     progress, stopped,
                     on_bytes=meter.add,
                 )
 
-                # Copy WIM to Windows partition (fresh NTFS: create sources/)
-                os.makedirs(os.path.join(win_mount, "sources"), exist_ok=True)
-                wim_dest = os.path.join(
-                    win_mount, "sources", os.path.basename(wim_src).lower()
+                # NTFS media volume: the complete ISO tree, including
+                # install.wim and Sources\SetupHost.exe on the same volume.
+                emit_status("Copying installation files...")
+                _copy_tree_with_progress(
+                    iso_root, win_mount,
+                    [],
+                    progress, stopped,
+                    on_bytes=meter.add,
                 )
-                _copy_file_with_progress(wim_src, wim_dest, meter.add, stopped)
 
-                if windows_options and windows_options.get("remove_defender"):
+                wim_dest = _find_install_image(win_mount)
+
+                if (wim_dest and windows_options
+                        and windows_options.get("remove_defender")):
                     from .windows_debloat import (
                         get_wim_indexes, remove_defender_from_wim,
                     )

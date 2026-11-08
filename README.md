@@ -155,6 +155,8 @@ When more than two drives are connected, use **More Drives…** to open the comp
 
 Windows Setup only ships the in-box AHCI/NVMe drivers. On systems with Intel VMD/RST or AMD RAID enabled, the target disk is not detected and Setup asks for a driver.
 
+Lubus writes the complete Windows media tree — including `sources\install.wim` and `sources\SetupHost.exe` — to the NTFS volume, and keeps only the boot chain on the FAT32 volume. Windows 11 24H2+ (ConX setup) locates the media by `SetupHost.exe` and then expects the install image on that same volume; split media would otherwise show the misleading **“Install driver to show hardware”** dialog even when the USB is fine.
+
 - In **Summary → Windows Setup → Storage Controller Drivers**, select the extracted vendor driver folder. Lubus copies it to `\drivers` on the USB so Setup's **Load driver → Browse** can use it.
 - Intel RST VMD: extract `f6vmdflpy-x64.zip` (`iaStorVD.inf`); Intel AHCI/RAID: `f6flpy-x64.zip` (`iaStorAC.inf`); AMD RAID: `rcraid.inf`, `rcbottom.inf`, `rccfg.inf`.
 - Alternatively, disable Intel VMD/RST or switch SATA mode to AHCI in the firmware before installing.

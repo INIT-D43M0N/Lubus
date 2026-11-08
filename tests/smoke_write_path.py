@@ -14,8 +14,8 @@ import warnings; warnings.filterwarnings('ignore')
 
 from lubus.core.writer import (
     _measure_iso_tree, _compute_esp_size, _copy_file_with_progress,
-    _copy_tree_with_progress, _ProgressMeter, WriteError, WIN_SKIP_PATHS,
-    FAT32_MAX_FILE,
+    _copy_tree_with_progress, _ProgressMeter, WriteError,
+    WIN_SKIP_PATHS, WIN_BOOT_SKIP_PATHS, FAT32_MAX_FILE,
 )
 
 failures = []
@@ -37,27 +37,34 @@ def sparse(path, size):
 GiB = 1024**3
 sparse(os.path.join(iso, 'sources', 'install.wim'), int(5.6 * GiB))
 sparse(os.path.join(iso, 'sources', 'boot.wim'), int(0.5 * GiB))
+sparse(os.path.join(iso, 'sources', 'SetupHost.exe'), 1 * 1024**2)
 sparse(os.path.join(iso, 'efi', 'boot', 'bootx64.efi'), 1 * 1024**2)
 sparse(os.path.join(iso, 'boot', 'memtest.efi'), 2 * 1024**2)
 sparse(os.path.join(iso, 'setup.exe'), 10 * 1024**2)
-sparse(os.path.join(iso, 'sources', 'license.txt'), int(2.0 * GiB))  # fat32 part
+sparse(os.path.join(iso, 'sources', 'license.txt'), int(2.0 * GiB))  # boot volume part
 
-fat32_bytes, wim_bytes, oversized = _measure_iso_tree(iso, WIN_SKIP_PATHS)
-print(f"  fat32_bytes={fat32_bytes/GiB:.2f} GiB, wim_bytes={wim_bytes/GiB:.2f} GiB")
-check("wim excluded from FAT32 set", wim_bytes == int(5.6 * GiB))
-check("rest measured for FAT32", fat32_bytes > int(1.9 * GiB))
+boot_bytes, media_skipped, oversized = _measure_iso_tree(
+    iso, WIN_BOOT_SKIP_PATHS
+)
+media_bytes = boot_bytes + media_skipped
+print(f"  boot_bytes={boot_bytes/GiB:.2f} GiB, "
+      f"media_bytes={media_bytes/GiB:.2f} GiB")
+check("install.wim and SetupHost excluded from the boot volume",
+      media_skipped == int(5.6 * GiB) + 1 * 1024**2)
+check("rest measured for the boot volume", boot_bytes > int(1.9 * GiB))
 check("no oversized files", not oversized)
 
-esp_size = _compute_esp_size(fat32_bytes, wim_bytes, 32 * GiB)
+esp_size = _compute_esp_size(boot_bytes, media_bytes, 32 * GiB)
 print(f"  computed ESP size = {esp_size/GiB:.2f} GiB (old code: fixed 0.50 GiB)")
-check("ESP sized to fit boot files", esp_size >= fat32_bytes + 64 * 1024**2)
+check("ESP sized to fit boot files", esp_size >= boot_bytes + 64 * 1024**2)
 check("ESP > 2 GiB (was 512 MiB)", esp_size > 2 * GiB)
-check("leaves room for wim on 32G drive", esp_size + wim_bytes + 256 * 1024**2 <= 32 * GiB)
+check("leaves room for the full media tree on 32G drive",
+      esp_size + media_bytes + 256 * 1024**2 <= 32 * GiB)
 
 # ---------------------------------------------------------------------------
 print("\n=== TEST 2: Too-small drive raises WriteError (not ENOSPC) ===")
 try:
-    _compute_esp_size(fat32_bytes, wim_bytes, 8 * GiB)
+    _compute_esp_size(boot_bytes, media_bytes, 8 * GiB)
     check("small drive rejected", False, "(no exception)")
 except WriteError as e:
     check("small drive rejected with clear message", "too small" in str(e).lower(), str(e))
@@ -133,8 +140,15 @@ with open(os.path.join(iso2, 'sources', 'install.wim'), 'wb') as f:
     f.write(b'W' * 4096)
 with open(os.path.join(iso2, 'sources', 'boot.wim'), 'wb') as f:
     f.write(b'B' * 8192)
+with open(os.path.join(iso2, 'sources', 'SetupHost.exe'), 'wb') as f:
+    f.write(b'H' * 512)
+with open(os.path.join(iso2, 'setup.exe'), 'wb') as f:
+    f.write(b'S' * 256)
 with open(os.path.join(iso2, 'efi', 'boot', 'bootx64.efi'), 'wb') as f:
     f.write(b'E' * 1024)
+
+boot_bytes2, media_skipped2, _ = _measure_iso_tree(iso2, WIN_BOOT_SKIP_PATHS)
+media_bytes2 = boot_bytes2 + media_skipped2
 
 esp_mnt = tempfile.mkdtemp(prefix='esp_')
 win_mnt = tempfile.mkdtemp(prefix='win_')
@@ -207,6 +221,12 @@ check("NTFS gets the rest (~31 GiB)", created_sizes[1] > 25 * GiB, f"got {create
 # The install.wim must land in win_mount/sources/ (dir did not exist before!)
 wim_dst = os.path.join(win_mnt, 'sources', 'install.wim')
 check("install.wim copied to NTFS partition", os.path.exists(wim_dst))
+check("Sources/SetupHost.exe copied to the NTFS media volume",
+      os.path.exists(os.path.join(win_mnt, 'sources', 'SetupHost.exe')))
+check("Sources/SetupHost.exe NOT copied to the FAT32 boot volume",
+      not os.path.exists(os.path.join(esp_mnt, 'sources', 'SetupHost.exe')))
+check("setup.exe copied to the NTFS media volume",
+      os.path.exists(os.path.join(win_mnt, 'setup.exe')))
 check("boot.wim copied to ESP", os.path.exists(os.path.join(esp_mnt, 'sources', 'boot.wim')))
 check("boot files copied to ESP", os.path.exists(os.path.join(esp_mnt, 'efi', 'boot', 'bootx64.efi')))
 check("install.wim NOT copied to ESP", not os.path.exists(os.path.join(esp_mnt, 'sources', 'install.wim')))
@@ -220,9 +240,10 @@ check("installer autounattend carries account/OOBE",
       and "<HideOnlineAccountScreens>true</HideOnlineAccountScreens>" in _at)
 check("progress reported", len(progress) > 0)
 
-# 4096-byte install.wim + 8192 boot.wim + 1024 EFI file
-expected_total = 4096 + 8192 + 1024
-check("progress total spans boot files + WIM",
+# boot volume (boot.wim + EFI + setup.exe, excluding install.wim/SetupHost)
+# plus the complete media tree written to the NTFS volume
+expected_total = boot_bytes2 + media_bytes2
+check("progress total spans boot volume + full media tree",
       progress[-1] == (expected_total, expected_total),
       str(progress[-1]))
 check("no 100% event before the final flush",
