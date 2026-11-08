@@ -1,6 +1,6 @@
 Name:           lubus
 Version:        5.0.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Create bootable USB drives on Linux (Rufus alternative)
 
 License:        GPL-3.0-or-later
@@ -46,6 +46,7 @@ Features:
 - Optional verification after write
 - Windows installer media creation
 - Windows To Go support
+- Storage-controller driver staging for Intel VMD/RST and AMD RAID systems
 - Direct drive installation / portable mode (Windows and Linux)
 - Windows GPT/UEFI + MSR, MBR/BIOS, autounattend, OOBE and Win11 bypasses
 - Optional Windows Defender removal / debloat
@@ -82,6 +83,12 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/com.githu
 %{python3_sitelib}/lubus/
 
 %changelog
+* Sun Nov 08 2026 Lubus Contributors <lubus@github.com> - 5.0.0-6
+- Stage storage-controller drivers for Intel VMD/RST and AMD RAID media
+- Keep Sources\SetupHost.exe and the install image on the same NTFS volume
+  so Windows 11 24H2+ ConX setup finds the installation media
+- Add regression tests for the Windows media layout and driver staging
+
 * Sun Nov 08 2026 Lubus Contributors <lubus@github.com> - 5.0.0-5
 - Remove the Screen 4 mini-game and the WebKitGTK runtime dependency
 - Keep the flash page focused on progress, result actions and the log
