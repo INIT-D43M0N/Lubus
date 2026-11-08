@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Lubus ISO catalog",
+  "type": "object",
+  "required": ["schema_version", "distros"],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "updated": {"type": "string"},
+    "distros": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "category", "branches"],
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "category": {"type": "string"},
+          "description": {"type": "string"},
+          "logo": {"type": "string"},
+          "tags": {"type": "array", "items": {"type": "string"}},
+          "branches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "name", "editions"],
+              "properties": {
+                "id": {"type": "string"},
+                "name": {"type": "string"},
+                "status": {"type": "string"},
+                "editions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "name", "arch", "status"],
+                    "properties": {
+                      "id": {"type": "string"},
+                      "name": {"type": "string"},
+                      "arch": {"type": "string"},
+                      "desktop": {"type": "string"},
+                      "status": {"type": "string"},
+                      "firmware": {"type": "string", "enum": ["free", "non-free"]},
+                      "base_url": {"type": "string"},
+                      "checksum_url": {"type": "string"},
+                      "filename_pattern": {"type": "string"},
+                      "url": {"type": "string"},
+                      "sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
+                      "sha256_url": {"type": "string"},
+                      "listing_url": {"type": "string"},
+                      "checksum_suffix": {"type": "string"},
+                      "notes": {"type": "string"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

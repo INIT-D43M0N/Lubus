@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Lubus — Step 3: Summary before flashing.
+
+  A destructive AdwBanner carries the "everything is erased" warning at the
+  top, followed by read-only libadwaita preference rows and the verify switch.
+-->
+<interface>
+  <object class="GtkBox" id="root">
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="AdwPreferencesPage">
+        <property name="title" translatable="yes">Summary</property>
+        <child>
+          <object class="AdwPreferencesGroup" id="target_group">
+            <property name="title" translatable="yes">Target</property>
+            <child>
+              <object class="AdwActionRow" id="drive_row">
+                <property name="title" translatable="yes">Drive</property>
+                <property name="subtitle">—</property>
+                <property name="icon-name">drive-removable-media-symbolic</property>
+                <property name="title-selectable">False</property>
+                <property name="subtitle-lines">3</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow" id="image_row">
+                <property name="title" translatable="yes">Image</property>
+                <property name="subtitle">—</property>
+                <property name="icon-name">media-optical-symbolic</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwPreferencesGroup" id="install_group">
+            <property name="title" translatable="yes">Installation</property>
+            <child>
+              <object class="AdwActionRow" id="install_mode_row">
+                <property name="title" translatable="yes">Mode</property>
+                <property name="subtitle">—</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow" id="user_row">
+                <property name="title" translatable="yes">User Account</property>
+                <property name="subtitle">—</property>
+                <property name="visible">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow" id="partition_row">
+                <property name="title" translatable="yes">Partitioning</property>
+                <property name="subtitle">—</property>
+                <property name="visible">False</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwPreferencesGroup" id="windows_group">
+            <property name="title" translatable="yes">Windows Setup</property>
+            <property name="description" translatable="yes">Applied to standard Windows installation media and direct installs.</property>
+            <property name="visible">False</property>
+            <child>
+              <object class="AdwSwitchRow" id="win_skip_oobe_row">
+                <property name="title" translatable="yes">Skip OOBE and Privacy Screens</property>
+                <property name="subtitle" translatable="yes">Skip privacy prompts and disable diagnostic telemetry on first logon.</property>
+                <property name="active">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwSwitchRow" id="win_bypass_row">
+                <property name="title" translatable="yes">Bypass Windows 11 Requirements</property>
+                <property name="subtitle" translatable="yes">Set LabConfig TPM/Secure Boot/RAM/CPU bypasses and BypassNRO.</property>
+                <property name="active">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwSwitchRow" id="win_remove_defender_row">
+                <property name="title" translatable="yes">Remove Windows Defender</property>
+                <property name="subtitle" translatable="yes">Remove Defender packages/payload when DISM is available; otherwise remove the payload and disable services on first logon.</property>
+                <property name="active">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwEntryRow" id="win_username_row">
+                <property name="title" translatable="yes">Local Username</property>
+                <property name="text">lubus</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwPasswordEntryRow" id="win_password_row">
+                <property name="title" translatable="yes">Local Password</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwEntryRow" id="win_fullname_row">
+                <property name="title" translatable="yes">Full Name</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwPreferencesGroup" id="settings_group">
+            <property name="title" translatable="yes">Write Settings</property>
+            <child>
+              <object class="AdwActionRow" id="os_row">
+                <property name="title" translatable="yes">Image Type</property>
+                <property name="subtitle">—</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow" id="edition_row">
+                <property name="title" translatable="yes">Windows Edition</property>
+                <property name="subtitle">—</property>
+                <property name="visible">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow" id="scheme_row">
+                <property name="title" translatable="yes">Partition Scheme</property>
+                <property name="subtitle">—</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow" id="target_row">
+                <property name="title" translatable="yes">Target System</property>
+                <property name="subtitle">—</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow" id="fs_row">
+                <property name="title" translatable="yes">File System</property>
+                <property name="subtitle">—</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow" id="label_row">
+                <property name="title" translatable="yes">Volume Label</property>
+                <property name="subtitle">—</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwComboRow" id="cluster_row">
+                <property name="title" translatable="yes">Cluster Size</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow" id="mode_row">
+                <property name="title" translatable="yes">Writing Mode</property>
+                <property name="subtitle">—</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwPreferencesGroup" id="verify_group">
+            <property name="title" translatable="yes">After Writing</property>
+            <child>
+              <object class="AdwSwitchRow" id="verify_row">
+                <property name="title" translatable="yes">Verify Written Data</property>
+                <property name="subtitle" translatable="yes">Compare the drive with the source image</property>
+                <property name="active">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwBanner" id="warning_banner">
+        <property name="title" translatable="yes">All data on the target drive will be permanently destroyed</property>
+        <property name="revealed">True</property>
+      </object>
+    </child>
+  </object>
+</interface>

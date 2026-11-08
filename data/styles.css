@@ -1,0 +1,87 @@
+/* Lubus stylesheet — intentionally minimal.
+
+   GNOME HIG: never restyle platform widgets. Libadwaita already provides
+   light/dark theming, adaptivity, header bars, list rows and buttons, so
+   this file only carries the few bits the toolkit has no native look for:
+   the failure-point progress bar, the details accordion and the file drop
+   highlight. (The Step 4 HDD graphic is drawn by lubus.pages.hdd.)
+
+   Spacing follows an 8px grid (8/16/24/32).
+*/
+
+/* Highlight the whole window while dragging a file over it */
+window.drop-active,
+.drop-active {
+  background-color: alpha(@accent_bg_color, 0.08);
+  transition: background-color 150ms ease-out;
+}
+
+/* ===================== flash status column ===================== */
+
+/* Caption under the progress bar: tabular figures keep the speed/ETA from
+   jittering as digits change. */
+.flash-caption {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+}
+
+.flash-error-text {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: @error_color;
+}
+
+/* ===================== progress bar with failure point ===================== */
+progressbar.flash-progress trough {
+  border-radius: 999px;
+  min-height: 6px;
+}
+
+progressbar.flash-progress progress {
+  border-radius: 999px;
+  background-image: linear-gradient(to right, @accent_bg_color, @accent_color);
+  transition: background-image 200ms ease-out;
+}
+
+/* The bar keeps the exact fraction where the write stopped, in red */
+progressbar.flash-progress.failed progress {
+  background-image: linear-gradient(to right, alpha(@error_color, 0.65), @error_color);
+}
+
+progressbar.flash-progress.success progress {
+  background-image: linear-gradient(to right, alpha(@success_color, 0.65), @success_color);
+}
+
+/* ===================== technical details accordion ===================== */
+.flash-details {
+  border: 1px solid alpha(@borders, 0.55);
+  border-radius: 12px;
+  background-color: alpha(@window_fg_color, 0.035);
+  padding: 8px;
+}
+
+/* Console inside the accordion: subtle border, high-contrast monospace */
+.flash-details .console {
+  border: 1px solid alpha(@borders, 0.45);
+  border-radius: 8px;
+  background-color: alpha(@window_fg_color, 0.02);
+}
+
+.flash-details .console textview {
+  font-family: monospace;
+  font-size: 0.875rem;
+}
+
+.flash-details .console textview > text {
+  color: @window_fg_color;
+}
+
+/* ===================== ISO downloader ===================== */
+.distro-badge {
+  min-width: 38px;
+  min-height: 38px;
+  border-radius: 50%;
+  background-color: alpha(@accent_bg_color, 0.16);
+  color: @accent_color;
+  font-weight: 700;
+}

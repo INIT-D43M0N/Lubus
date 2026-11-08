@@ -1,0 +1,35 @@
+app-id: com.github.yourusername.lubus
+runtime: org.gnome.Platform
+runtime-version: '46'
+sdk: org.gnome.Sdk
+command: lubus
+finish-args:
+  - --device=all
+  - --filesystem=host
+  - --talk-name=org.freedesktop.UDisks2
+  - --talk-name=org.freedesktop.portal.Documents
+  - --own-name=com.github.yourusername.lubus
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /man
+  - /share/doc
+  - /share/gtk-doc
+  - /share/man
+  - /share/pkgconfig
+  - '*.la'
+  - '*.a'
+
+modules:
+  - name: lubus
+    buildsystem: meson
+    config-opts:
+      - --prefix=/app
+    sources:
+      - type: dir
+        path: .
+    post-install:
+      - install -Dm644 data/com.github.yourusername.lubus.desktop /app/share/applications/com.github.yourusername.lubus.desktop
+      - install -Dm644 data/com.github.yourusername.lubus.metainfo.xml /app/share/metainfo/com.github.yourusername.lubus.metainfo.xml
+      - install -Dm644 data/icons/hicolor/scalable/apps/lubus.svg /app/share/icons/hicolor/scalable/apps/com.github.yourusername.lubus.svg
+EOF

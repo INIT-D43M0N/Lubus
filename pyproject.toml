@@ -1,0 +1,69 @@
+[build-system]
+requires = ["meson>=1.0", "ninja"]
+build-backend = "mesonbuild.mesonlib"
+
+[project]
+name = "lubus"
+version = "5.0.0"
+description = "Create bootable USB drives on Linux (Rufus alternative)"
+readme = "README.md"
+license = {text = "GPL-3.0-or-later"}
+authors = [{name = "Lubus Contributors"}]
+maintainers = [{name = "Lubus Contributors"}]
+keywords = ["usb", "bootable", "iso", "rufus", "gtk4", "libadwaita"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: X11 Applications :: GTK",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Archiving :: Backup",
+    "Topic :: System :: Installation/Setup",
+    "Topic :: Utilities",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "pygobject>=3.44",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.1",
+    "mypy>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/lubus"
+Repository = "https://github.com/yourusername/lubus"
+Issues = "https://github.com/yourusername/lubus/issues"
+
+[project.scripts]
+lubus = "lubus.main:main"
+
+[tool.meson]
+module = "lubus"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E", "F", "I", "W", "UP", "B", "C4", "PL"]
+ignore = ["E501", "B008"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true

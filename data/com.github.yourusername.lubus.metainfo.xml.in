@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.github.yourusername.lubus</id>
+  <name>Lubus</name>
+  <summary>Create bootable USB drives from ISO images</summary>
+  <description>
+    <p>Lubus is a modern, native Linux application for creating bootable USB drives, functionally identical to Rufus but built specifically for the Linux ecosystem.</p>
+    <p>Features:</p>
+    <ul>
+      <li>Automatic detection of removable USB drives and SD cards</li>
+      <li>Support for ISO, IMG, and other bootable disk images</li>
+      <li>Automatic detection of image type (Windows, Linux, hybrid)</li>
+      <li>Partition scheme selection (GPT/MBR) and target system (UEFI/BIOS)</li>
+      <li>Filesystem selection (FAT32, NTFS, exFAT, ext4, btrfs)</li>
+      <li>DD mode (block copy) and ISO extract mode</li>
+      <li>Real-time progress with speed and ETA</li>
+      <li>Optional verification after write</li>
+      <li>Windows installer media creation</li>
+      <li>Windows To Go support</li>
+      <li>Safety checks and confirmation dialogs</li>
+    </ul>
+  </description>
+  <project_license>GPL-3.0-or-later</project_license>
+  <developer_name>Lubus Contributors</developer_name>
+  <url type="homepage">https://github.com/yourusername/lubus</url>
+  <url type="bugtracker">https://github.com/yourusername/lubus/issues</url>
+  <url type="help">https://github.com/yourusername/lubus/wiki</url>
+  <url type="donation">https://github.com/sponsors/yourusername</url>
+  <metadata_license>CC0-1.0</metadata_license>
+  <provides>
+    <binary>lubus</binary>
+  </provides>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/yourusername/lubus/main/screenshots/main.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/yourusername/lubus/main/screenshots/drive_selection.png</image>
+      <caption>Select target drive</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/yourusername/lubus/main/screenshots/image_selection.png</image>
+      <caption>Select ISO image</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/yourusername/lubus/main/screenshots/flash_progress.png</image>
+      <caption>Flashing progress</caption>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="5.0.0" date="@VERSION_DATE@">
+      <description>Lubus 5.0 adds direct drive installation (portable mode)
+      with automatic/custom partitioning and user provisioning, plus
+      simultaneous flashing to multiple drives.</description>
+    </release>
+    <release version="1.0.0" date="2026-11-04">
+      <description>Initial release</description>
+    </release>
+  </releases>
+  <categories>
+    <category>System</category>
+    <category>Utility</category>
+    <category>DiskUtility</category>
+  </categories>
+  <keywords>
+    <keyword>usb</keyword>
+    <keyword>bootable</keyword>
+    <keyword>iso</keyword>
+    <keyword>rufus</keyword>
+    <keyword>flash</keyword>
+    <keyword>dd</keyword>
+  </keywords>
+  <content_rating type="oars-1.1" />
+</component>

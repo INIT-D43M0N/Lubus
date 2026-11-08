@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Lubus — Step 2: Image selection and write options.
+
+  Two states inside a GtkStack: "empty" (drop/browse an image, with the
+  interactive 3D disc that is slotted in from Python) and "image" (analysis
+  result + libadwaita preference rows). Only native Adw rows are used, so the
+  layout adapts automatically between desktop and phone widths.
+-->
+<interface>
+  <object class="GtkBox" id="root">
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="AdwBanner" id="error_banner">
+        <property name="title" translatable="yes">This image could not be analyzed</property>
+        <property name="button-label" translatable="yes">Choose Another</property>
+        <property name="revealed">False</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkStack" id="state_stack">
+        <property name="vexpand">True</property>
+        <child>
+          <object class="GtkStackPage">
+            <property name="name">empty</property>
+            <property name="child">
+              <object class="AdwClamp" id="empty_state">
+                <property name="maximum-size">420</property>
+                <property name="tightening-threshold">360</property>
+                <property name="vexpand">True</property>
+                <property name="valign">center</property>
+                <child>
+                  <object class="GtkBox" id="empty_box">
+                    <property name="orientation">vertical</property>
+                    <property name="halign">fill</property>
+                    <property name="valign">center</property>
+                    <property name="spacing">16</property>
+                    <property name="margin-top">24</property>
+                    <property name="margin-bottom">24</property>
+                    <child>
+                      <!-- Interactive disc (DiscFlip) is added from Python. -->
+                      <object class="GtkBox" id="disc_slot">
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="margin-bottom">8</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="empty_title">
+                        <property name="label" translatable="yes">Select a Bootable Image</property>
+                        <property name="halign">center</property>
+                        <property name="justify">center</property>
+                        <property name="wrap">True</property>
+                        <style><class name="title-1"/></style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="empty_description">
+                        <property name="label" translatable="yes">Drag and drop an ISO or disk image here, or choose a file.</property>
+                        <property name="halign">center</property>
+                        <property name="justify">center</property>
+                        <property name="wrap">True</property>
+                        <property name="max-width-chars">40</property>
+                        <style><class name="dim-label"/></style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="browse_btn">
+                        <property name="label" translatable="yes">Choose Image…</property>
+                        <property name="halign">center</property>
+                        <property name="valign">start</property>
+                        <property name="margin-top">8</property>
+                        <style><class name="pill"/></style>
+                        <style><class name="suggested-action"/></style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="download_btn">
+                        <property name="label" translatable="yes">Download Linux ISO</property>
+                        <property name="halign">center</property>
+                        <property name="valign">start</property>
+                        <style><class name="pill"/></style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkStackPage">
+            <property name="name">image</property>
+            <property name="title" translatable="yes">Image</property>
+            <property name="child">
+              <object class="AdwPreferencesPage">
+                <property name="title" translatable="yes">Bootable Image</property>
+                <child>
+                  <object class="AdwPreferencesGroup" id="image_group">
+                    <property name="title" translatable="yes">Image</property>
+                    <child>
+                      <object class="AdwActionRow" id="image_row">
+                        <property name="title">—</property>
+                        <property name="subtitle">—</property>
+                        <property name="icon-name">media-optical-symbolic</property>
+                        <property name="title-lines">1</property>
+                        <property name="subtitle-lines">2</property>
+                        <child type="suffix">
+                          <object class="GtkButton" id="change_btn">
+                            <property name="valign">center</property>
+                            <property name="icon-name">document-open-symbolic</property>
+                            <property name="tooltip-text" translatable="yes">Choose a different image</property>
+                            <style><class name="flat"/></style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwActionRow" id="detected_row">
+                        <property name="title" translatable="yes">Detected Image</property>
+                        <property name="subtitle">—</property>
+                        <property name="icon-name">computer-fail-symbolic</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwPreferencesGroup" id="options_group">
+                    <property name="title" translatable="yes">Write Options</property>
+                    <child>
+                      <object class="AdwComboRow" id="edition_row">
+                        <property name="title" translatable="yes">Windows Edition</property>
+                        <property name="visible">False</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwComboRow" id="scheme_row">
+                        <property name="title" translatable="yes">Partition Scheme</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwComboRow" id="target_row">
+                        <property name="title" translatable="yes">Target System</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwComboRow" id="fs_row">
+                        <property name="title" translatable="yes">File System</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwEntryRow" id="label_row">
+                        <property name="title" translatable="yes">Volume Label</property>
+                        <property name="text">LUBUS</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwComboRow" id="cluster_row">
+                        <property name="title" translatable="yes">Cluster Size</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="AdwComboRow" id="mode_row">
+                        <property name="title" translatable="yes">Writing Mode</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

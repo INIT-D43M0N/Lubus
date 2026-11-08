@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Lubus — Step 4: Flash progress and result.
+
+  Visually aligned with Step 2 ("Select a Bootable Image"):
+
+    ┌───────────────────────────────────────┐
+    │        open-HDD writing animation      │  HddAnimation (from Python)
+    │           Writing Image                │  .title-1
+    │     Do not unplug the target drive     │  .dim-label
+    ├───────────────────────────────────────┤
+    │   ───────────●───────────  68% bar     │
+    │   24.5 MB/s · ETA 03m 12s              │  stats caption
+    │   SanDisk Ultra · /dev/sdb · 32 GiB    │  target drive info
+    ├───────────────────────────────────────┤
+    │   [Try Again] View Error Logs [Close]  │  result actions
+    │   > Show Details                       │  technical log
+    └───────────────────────────────────────┘
+-->
+<interface>
+  <object class="GtkBox" id="root">
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="AdwClamp" id="column_clamp">
+        <property name="maximum-size">420</property>
+        <property name="tightening-threshold">360</property>
+        <property name="vexpand">True</property>
+        <property name="valign">center</property>
+        <child>
+          <object class="GtkBox" id="status_box">
+            <property name="orientation">vertical</property>
+            <property name="spacing">16</property>
+            <property name="margin-top">24</property>
+            <property name="margin-bottom">24</property>
+
+            <!-- ============ progress view ============ -->
+            <child>
+              <object class="GtkBox" id="progress_view">
+                <property name="orientation">vertical</property>
+                <property name="spacing">16</property>
+                <property name="valign">center</property>
+
+                <!-- Open HDD writing animation (HddAnimation is added
+                     from Python). -->
+                <child>
+                  <object class="GtkBox" id="hdd_slot">
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="margin-bottom">8</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel" id="status_heading">
+                    <property name="label" translatable="yes">Writing Image</property>
+                    <property name="halign">center</property>
+                    <property name="justify">center</property>
+                    <property name="single-line-mode">True</property>
+                    <style><class name="title-1"/></style>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel" id="status_message">
+                    <property name="label" translatable="yes">Do not unplug the target drive.</property>
+                    <property name="halign">center</property>
+                    <property name="justify">center</property>
+                    <property name="wrap">True</property>
+                    <property name="max-width-chars">40</property>
+                    <style><class name="dim-label"/></style>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel" id="phase_label">
+                    <property name="label"></property>
+                    <property name="halign">center</property>
+                    <property name="justify">center</property>
+                    <property name="wrap">True</property>
+                    <property name="max-width-chars">40</property>
+                    <property name="visible">False</property>
+                    <style><class name="caption"/></style>
+                    <style><class name="dim-label"/></style>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel" id="error_detail">
+                    <property name="label">—</property>
+                    <property name="halign">center</property>
+                    <property name="justify">center</property>
+                    <property name="wrap">True</property>
+                    <property name="max-width-chars">40</property>
+                    <property name="selectable">True</property>
+                    <style><class name="flash-error-text"/></style>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <!-- ============ progress bar ============ -->
+            <child>
+              <object class="GtkBox" id="progress_box">
+                <property name="orientation">vertical</property>
+                <property name="spacing">10</property>
+                <property name="valign">end</property>
+                <child>
+                  <object class="GtkProgressBar" id="progress_bar">
+                    <property name="show-text">False</property>
+                    <property name="width-request">260</property>
+                    <property name="halign">center</property>
+                    <style><class name="flash-progress"/></style>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <!-- ============ stats + target drive ============ -->
+            <child>
+              <object class="GtkBox" id="stats_box">
+                <property name="orientation">vertical</property>
+                <property name="spacing">4</property>
+                <child>
+                  <object class="GtkLabel" id="status_caption">
+                    <property name="label">Starting…</property>
+                    <property name="halign">center</property>
+                    <property name="single-line-mode">True</property>
+                    <style><class name="caption"/></style>
+                    <style><class name="dim-label"/></style>
+                    <style><class name="flash-caption"/></style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="drive_info">
+                    <property name="label">—</property>
+                    <property name="halign">center</property>
+                    <property name="single-line-mode">True</property>
+                    <property name="ellipsize">end</property>
+                    <style><class name="caption"/></style>
+                    <style><class name="dim-label"/></style>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <!-- ============ result actions ============ -->
+            <child>
+              <object class="GtkBox" id="action_box">
+                <property name="orientation">horizontal</property>
+                <property name="spacing">8</property>
+                <property name="halign">center</property>
+                <child>
+                  <object class="GtkButton" id="retry_btn">
+                    <property name="label" translatable="yes">Try Again</property>
+                    <property name="visible">False</property>
+                    <style><class name="pill"/></style>
+                    <style><class name="suggested-action"/></style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="logs_btn">
+                    <property name="label" translatable="yes">View Error Logs</property>
+                    <property name="visible">False</property>
+                    <style><class name="flat"/></style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="close_btn">
+                    <property name="label" translatable="yes">Close</property>
+                    <property name="visible">False</property>
+                    <style><class name="flat"/></style>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <!-- ============ technical details ============ -->
+            <child>
+              <object class="GtkExpander" id="details_expander">
+                <property name="label" translatable="yes">Show Details</property>
+                <property name="halign">fill</property>
+                <property name="margin-top">8</property>
+                <style><class name="flash-details"/></style>
+                <child>
+                  <object class="GtkBox" id="details_box">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">8</property>
+                    <child>
+                      <object class="GtkBox" id="details_toolbar">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkLabel" id="details_hint">
+                            <property name="label" translatable="yes">Technical log</property>
+                            <property name="hexpand">True</property>
+                            <property name="halign">start</property>
+                            <style><class name="caption"/></style>
+                            <style><class name="dim-label"/></style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="copy_log_btn">
+                            <property name="label" translatable="yes">Copy Log</property>
+                            <property name="halign">end</property>
+                            <style><class name="flat"/></style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow" id="console_scrolled">
+                        <property name="height-request">160</property>
+                        <property name="hexpand">True</property>
+                        <property name="hscrollbar-policy">never</property>
+                        <property name="vscrollbar-policy">automatic</property>
+                        <style><class name="console"/></style>
+                        <child>
+                          <object class="GtkTextView" id="console_view">
+                            <property name="editable">False</property>
+                            <property name="cursor-visible">False</property>
+                            <property name="monospace">True</property>
+                            <property name="wrap-mode">word-char</property>
+                            <property name="left-margin">12</property>
+                            <property name="right-margin">12</property>
+                            <property name="top-margin">10</property>
+                            <property name="bottom-margin">10</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

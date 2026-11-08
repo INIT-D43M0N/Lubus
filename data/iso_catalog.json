@@ -1,0 +1,1285 @@
+{
+  "schema_version": 1,
+  "updated": "2026-11-08",
+  "distros": [
+    {
+      "id": "debian",
+      "name": "Debian",
+      "category": "Desktop / Server",
+      "logo": "debian",
+      "description": "The universal operating system. Stable, Testing and Unstable branches with free and non-free firmware images.",
+      "tags": [
+        "Desktop",
+        "Server",
+        "Rolling/Unstable",
+        "Daily Build"
+      ],
+      "branches": [
+        {
+          "id": "stable",
+          "name": "Debian 13 (Trixie) \u2014 Stable",
+          "status": "Stable",
+          "editions": [
+            {
+              "id": "netinst",
+              "name": "Netinst (standard)",
+              "arch": "x86_64",
+              "desktop": "Netinst",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/",
+              "checksum_url": "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/SHA256SUMS",
+              "filename_pattern": "debian-13\\..*-amd64-netinst\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "netinst-firmware",
+              "name": "Netinst + non-free firmware",
+              "arch": "x86_64",
+              "desktop": "Netinst",
+              "status": "Stable",
+              "firmware": "non-free",
+              "base_url": "https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/current/amd64/iso-cd/",
+              "checksum_url": "https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/current/amd64/iso-cd/SHA256SUMS",
+              "filename_pattern": "debian-13\\..*-amd64-netinst\\+nonfree\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "live-gnome",
+              "name": "Live GNOME",
+              "arch": "x86_64",
+              "desktop": "GNOME",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/",
+              "checksum_url": "https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/SHA256SUMS",
+              "filename_pattern": "debian-live-13\\..*-amd64-gnome\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "live-kde",
+              "name": "Live KDE Plasma",
+              "arch": "x86_64",
+              "desktop": "KDE Plasma",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/",
+              "checksum_url": "https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/SHA256SUMS",
+              "filename_pattern": "debian-live-13\\..*-amd64-kde\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "live-xfce",
+              "name": "Live XFCE",
+              "arch": "x86_64",
+              "desktop": "XFCE",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/",
+              "checksum_url": "https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/SHA256SUMS",
+              "filename_pattern": "debian-live-13\\..*-amd64-xfce\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "live-cinnamon",
+              "name": "Live Cinnamon",
+              "arch": "x86_64",
+              "desktop": "Cinnamon",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/",
+              "checksum_url": "https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/SHA256SUMS",
+              "filename_pattern": "debian-live-13\\..*-amd64-cinnamon\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "live-lxqt",
+              "name": "Live LXQt",
+              "arch": "x86_64",
+              "desktop": "LXQt",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/",
+              "checksum_url": "https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/SHA256SUMS",
+              "filename_pattern": "debian-live-13\\..*-amd64-lxqt\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "testing",
+          "name": "Debian Testing \u2014 Weekly",
+          "status": "Testing",
+          "editions": [
+            {
+              "id": "testing-netinst",
+              "name": "Testing Netinst (weekly)",
+              "arch": "x86_64",
+              "desktop": "Netinst",
+              "status": "Testing (weekly)",
+              "firmware": "free",
+              "base_url": "https://cdimage.debian.org/cdimage/weekly-builds/amd64/iso-cd/",
+              "checksum_url": "https://cdimage.debian.org/cdimage/weekly-builds/amd64/iso-cd/SHA256SUMS",
+              "filename_pattern": "debian-testing-amd64-netinst\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "testing-live-gnome",
+              "name": "Testing Live GNOME (weekly)",
+              "arch": "x86_64",
+              "desktop": "GNOME",
+              "status": "Testing (weekly)",
+              "firmware": "free",
+              "base_url": "https://cdimage.debian.org/cdimage/weekly-live-builds/amd64/iso-hybrid/",
+              "checksum_url": "https://cdimage.debian.org/cdimage/weekly-live-builds/amd64/iso-hybrid/SHA256SUMS",
+              "filename_pattern": "debian-live-testing-amd64-gnome\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "sid",
+          "name": "Debian Unstable (Sid) \u2014 Daily",
+          "status": "Rolling/Unstable",
+          "editions": [
+            {
+              "id": "sid-netinst",
+              "name": "Unstable Netinst (daily)",
+              "arch": "x86_64",
+              "desktop": "Netinst",
+              "status": "Daily build",
+              "firmware": "free",
+              "base_url": "https://cdimage.debian.org/cdimage/daily-builds/sid_d-i/arch-latest/amd64/iso-cd/",
+              "checksum_url": "https://cdimage.debian.org/cdimage/daily-builds/sid_d-i/arch-latest/amd64/iso-cd/SHA256SUMS",
+              "filename_pattern": "debian-sid-amd64-netinst\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "sid-netinst-firmware",
+              "name": "Unstable Netinst + firmware (daily)",
+              "arch": "x86_64",
+              "desktop": "Netinst",
+              "status": "Daily build",
+              "firmware": "non-free",
+              "base_url": "https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/daily-builds/sid_d-i/arch-latest/amd64/iso-cd/",
+              "checksum_url": "https://cdimage.debian.org/cdimage/unofficial/non-free/cd-including-firmware/daily-builds/sid_d-i/arch-latest/amd64/iso-cd/SHA256SUMS",
+              "filename_pattern": "debian-sid-amd64-netinst\\+nonfree\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ubuntu",
+      "name": "Ubuntu",
+      "category": "Desktop / Server",
+      "logo": "ubuntu",
+      "description": "Canonical Ubuntu LTS and interim releases with the GNOME desktop and server images.",
+      "tags": [
+        "Desktop",
+        "Server",
+        "LTS"
+      ],
+      "branches": [
+        {
+          "id": "2404",
+          "name": "Ubuntu 24.04.x LTS",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "24.04.3-desktop",
+              "name": "Desktop 24.04.3",
+              "arch": "x86_64",
+              "desktop": "GNOME",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://releases.ubuntu.com/24.04.3/",
+              "checksum_url": "https://releases.ubuntu.com/24.04.3/SHA256SUMS",
+              "filename_pattern": "ubuntu-24\\.04\\.3\\..*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "24.04.3-server",
+              "name": "Server 24.04.3",
+              "arch": "x86_64",
+              "desktop": "Server",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://releases.ubuntu.com/24.04.3/",
+              "checksum_url": "https://releases.ubuntu.com/24.04.3/SHA256SUMS",
+              "filename_pattern": "ubuntu-24\\.04\\.3\\..*-live-server-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "2604",
+          "name": "Ubuntu 26.04 LTS",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "26.04-desktop",
+              "name": "Desktop 26.04",
+              "arch": "x86_64",
+              "desktop": "GNOME",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://releases.ubuntu.com/26.04/",
+              "checksum_url": "https://releases.ubuntu.com/26.04/SHA256SUMS",
+              "filename_pattern": "ubuntu-26\\.04\\..*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "26.04-server",
+              "name": "Server 26.04",
+              "arch": "x86_64",
+              "desktop": "Server",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://releases.ubuntu.com/26.04/",
+              "checksum_url": "https://releases.ubuntu.com/26.04/SHA256SUMS",
+              "filename_pattern": "ubuntu-26\\.04\\..*-live-server-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "2510",
+          "name": "Ubuntu 25.10",
+          "status": "Stable",
+          "editions": [
+            {
+              "id": "25.10-desktop",
+              "name": "Desktop 25.10",
+              "arch": "x86_64",
+              "desktop": "GNOME",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "https://releases.ubuntu.com/25.10/",
+              "checksum_url": "https://releases.ubuntu.com/25.10/SHA256SUMS",
+              "filename_pattern": "ubuntu-25\\.10\\..*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "25.10-server",
+              "name": "Server 25.10",
+              "arch": "x86_64",
+              "desktop": "Server",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "https://releases.ubuntu.com/25.10/",
+              "checksum_url": "https://releases.ubuntu.com/25.10/SHA256SUMS",
+              "filename_pattern": "ubuntu-25\\.10\\..*-live-server-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kubuntu",
+      "name": "Kubuntu",
+      "category": "Desktop",
+      "logo": "kubuntu",
+      "description": "Official Ubuntu Kubuntu flavor (KDE Plasma) built on Ubuntu LTS.",
+      "tags": [
+        "Desktop",
+        "Ubuntu Flavor",
+        "LTS"
+      ],
+      "branches": [
+        {
+          "id": "24.04.3",
+          "name": "Kubuntu 24.04.3",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "24.04.3-desktop",
+              "name": "Desktop 24.04.3",
+              "arch": "x86_64",
+              "desktop": "KDE Plasma",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/kubuntu/releases/24.04.3/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/kubuntu/releases/24.04.3/release/SHA256SUMS",
+              "filename_pattern": "kubuntu-24\\.04\\.3.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "26.04",
+          "name": "Kubuntu 26.04",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "26.04-desktop",
+              "name": "Desktop 26.04",
+              "arch": "x86_64",
+              "desktop": "KDE Plasma",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/kubuntu/releases/26.04/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/kubuntu/releases/26.04/release/SHA256SUMS",
+              "filename_pattern": "kubuntu-26\\.04.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "xubuntu",
+      "name": "Xubuntu",
+      "category": "Desktop",
+      "logo": "xubuntu",
+      "description": "Official Ubuntu Xubuntu flavor (XFCE) built on Ubuntu LTS.",
+      "tags": [
+        "Desktop",
+        "Ubuntu Flavor",
+        "LTS"
+      ],
+      "branches": [
+        {
+          "id": "24.04.3",
+          "name": "Xubuntu 24.04.3",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "24.04.3-desktop",
+              "name": "Desktop 24.04.3",
+              "arch": "x86_64",
+              "desktop": "XFCE",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/xubuntu/releases/24.04.3/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/xubuntu/releases/24.04.3/release/SHA256SUMS",
+              "filename_pattern": "xubuntu-24\\.04\\.3.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "26.04",
+          "name": "Xubuntu 26.04",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "26.04-desktop",
+              "name": "Desktop 26.04",
+              "arch": "x86_64",
+              "desktop": "XFCE",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/xubuntu/releases/26.04/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/xubuntu/releases/26.04/release/SHA256SUMS",
+              "filename_pattern": "xubuntu-26\\.04.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lubuntu",
+      "name": "Lubuntu",
+      "category": "Desktop",
+      "logo": "lubuntu",
+      "description": "Official Ubuntu Lubuntu flavor (LXQt) built on Ubuntu LTS.",
+      "tags": [
+        "Desktop",
+        "Ubuntu Flavor",
+        "LTS"
+      ],
+      "branches": [
+        {
+          "id": "24.04.3",
+          "name": "Lubuntu 24.04.3",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "24.04.3-desktop",
+              "name": "Desktop 24.04.3",
+              "arch": "x86_64",
+              "desktop": "LXQt",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/lubuntu/releases/24.04.3/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/lubuntu/releases/24.04.3/release/SHA256SUMS",
+              "filename_pattern": "lubuntu-24\\.04\\.3.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "26.04",
+          "name": "Lubuntu 26.04",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "26.04-desktop",
+              "name": "Desktop 26.04",
+              "arch": "x86_64",
+              "desktop": "LXQt",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/lubuntu/releases/26.04/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/lubuntu/releases/26.04/release/SHA256SUMS",
+              "filename_pattern": "lubuntu-26\\.04.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ubuntubudgie",
+      "name": "Ubuntu Budgie",
+      "category": "Desktop",
+      "logo": "ubuntubudgie",
+      "description": "Official Ubuntu Ubuntu Budgie flavor (Budgie) built on Ubuntu LTS.",
+      "tags": [
+        "Desktop",
+        "Ubuntu Flavor",
+        "LTS"
+      ],
+      "branches": [
+        {
+          "id": "24.04.3",
+          "name": "Ubuntu Budgie 24.04.3",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "24.04.3-desktop",
+              "name": "Desktop 24.04.3",
+              "arch": "x86_64",
+              "desktop": "Budgie",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/ubuntubudgie/releases/24.04.3/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/ubuntubudgie/releases/24.04.3/release/SHA256SUMS",
+              "filename_pattern": "ubuntubudgie-24\\.04\\.3.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "26.04",
+          "name": "Ubuntu Budgie 26.04",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "26.04-desktop",
+              "name": "Desktop 26.04",
+              "arch": "x86_64",
+              "desktop": "Budgie",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/ubuntubudgie/releases/26.04/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/ubuntubudgie/releases/26.04/release/SHA256SUMS",
+              "filename_pattern": "ubuntubudgie-26\\.04.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ubuntumate",
+      "name": "Ubuntu MATE",
+      "category": "Desktop",
+      "logo": "ubuntumate",
+      "description": "Official Ubuntu Ubuntu MATE flavor (MATE) built on Ubuntu LTS.",
+      "tags": [
+        "Desktop",
+        "Ubuntu Flavor",
+        "LTS"
+      ],
+      "branches": [
+        {
+          "id": "24.04.3",
+          "name": "Ubuntu MATE 24.04.3",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "24.04.3-desktop",
+              "name": "Desktop 24.04.3",
+              "arch": "x86_64",
+              "desktop": "MATE",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/ubuntumate/releases/24.04.3/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/ubuntumate/releases/24.04.3/release/SHA256SUMS",
+              "filename_pattern": "ubuntumate-24\\.04\\.3.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "26.04",
+          "name": "Ubuntu MATE 26.04",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "26.04-desktop",
+              "name": "Desktop 26.04",
+              "arch": "x86_64",
+              "desktop": "MATE",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/ubuntumate/releases/26.04/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/ubuntumate/releases/26.04/release/SHA256SUMS",
+              "filename_pattern": "ubuntumate-26\\.04.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ubuntustudio",
+      "name": "Ubuntu Studio",
+      "category": "Desktop",
+      "logo": "ubuntustudio",
+      "description": "Official Ubuntu Ubuntu Studio flavor (KDE Plasma) built on Ubuntu LTS.",
+      "tags": [
+        "Desktop",
+        "Ubuntu Flavor",
+        "LTS"
+      ],
+      "branches": [
+        {
+          "id": "24.04.3",
+          "name": "Ubuntu Studio 24.04.3",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "24.04.3-desktop",
+              "name": "Desktop 24.04.3",
+              "arch": "x86_64",
+              "desktop": "KDE Plasma",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/ubuntustudio/releases/24.04.3/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/ubuntustudio/releases/24.04.3/release/SHA256SUMS",
+              "filename_pattern": "ubuntustudio-24\\.04\\.3.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "26.04",
+          "name": "Ubuntu Studio 26.04",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "26.04-desktop",
+              "name": "Desktop 26.04",
+              "arch": "x86_64",
+              "desktop": "KDE Plasma",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/ubuntustudio/releases/26.04/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/ubuntustudio/releases/26.04/release/SHA256SUMS",
+              "filename_pattern": "ubuntustudio-26\\.04.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ubuntuunity",
+      "name": "Ubuntu Unity",
+      "category": "Desktop",
+      "logo": "ubuntuunity",
+      "description": "Official Ubuntu Ubuntu Unity flavor (Unity) built on Ubuntu LTS.",
+      "tags": [
+        "Desktop",
+        "Ubuntu Flavor",
+        "LTS"
+      ],
+      "branches": [
+        {
+          "id": "24.04.3",
+          "name": "Ubuntu Unity 24.04.3",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "24.04.3-desktop",
+              "name": "Desktop 24.04.3",
+              "arch": "x86_64",
+              "desktop": "Unity",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/ubuntuunity/releases/24.04.3/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/ubuntuunity/releases/24.04.3/release/SHA256SUMS",
+              "filename_pattern": "ubuntuunity-24\\.04\\.3.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "26.04",
+          "name": "Ubuntu Unity 26.04",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "26.04-desktop",
+              "name": "Desktop 26.04",
+              "arch": "x86_64",
+              "desktop": "Unity",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/ubuntuunity/releases/26.04/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/ubuntuunity/releases/26.04/release/SHA256SUMS",
+              "filename_pattern": "ubuntuunity-26\\.04.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ubuntucinnamon",
+      "name": "Ubuntu Cinnamon",
+      "category": "Desktop",
+      "logo": "ubuntucinnamon",
+      "description": "Official Ubuntu Ubuntu Cinnamon flavor (Cinnamon) built on Ubuntu LTS.",
+      "tags": [
+        "Desktop",
+        "Ubuntu Flavor",
+        "LTS"
+      ],
+      "branches": [
+        {
+          "id": "24.04.3",
+          "name": "Ubuntu Cinnamon 24.04.3",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "24.04.3-desktop",
+              "name": "Desktop 24.04.3",
+              "arch": "x86_64",
+              "desktop": "Cinnamon",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/ubuntucinnamon/releases/24.04.3/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/ubuntucinnamon/releases/24.04.3/release/SHA256SUMS",
+              "filename_pattern": "ubuntucinnamon-24\\.04\\.3.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "id": "26.04",
+          "name": "Ubuntu Cinnamon 26.04",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "26.04-desktop",
+              "name": "Desktop 26.04",
+              "arch": "x86_64",
+              "desktop": "Cinnamon",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "https://cdimage.ubuntu.com/ubuntucinnamon/releases/26.04/release/",
+              "checksum_url": "https://cdimage.ubuntu.com/ubuntucinnamon/releases/26.04/release/SHA256SUMS",
+              "filename_pattern": "ubuntucinnamon-26\\.04.*-desktop-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "linuxmint",
+      "name": "Linux Mint",
+      "category": "Desktop",
+      "logo": "linuxmint",
+      "description": "Ubuntu-based desktop distribution focused on ease of use and stability.",
+      "tags": [
+        "Desktop",
+        "Stable"
+      ],
+      "branches": [
+        {
+          "id": "223",
+          "name": "Linux Mint 22.3",
+          "status": "Stable",
+          "editions": [
+            {
+              "id": "cinnamon",
+              "name": "Cinnamon",
+              "arch": "x86_64",
+              "desktop": "Cinnamon",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "https://mirrors.kernel.org/linuxmint/stable/22.3/",
+              "checksum_url": "https://mirrors.kernel.org/linuxmint/stable/22.3/sha256sum.txt",
+              "filename_pattern": "linuxmint-22\\.3-cinnamon-64bit\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "mate",
+              "name": "MATE",
+              "arch": "x86_64",
+              "desktop": "MATE",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "https://mirrors.kernel.org/linuxmint/stable/22.3/",
+              "checksum_url": "https://mirrors.kernel.org/linuxmint/stable/22.3/sha256sum.txt",
+              "filename_pattern": "linuxmint-22\\.3-mate-64bit\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "xfce",
+              "name": "XFCE",
+              "arch": "x86_64",
+              "desktop": "XFCE",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "https://mirrors.kernel.org/linuxmint/stable/22.3/",
+              "checksum_url": "https://mirrors.kernel.org/linuxmint/stable/22.3/sha256sum.txt",
+              "filename_pattern": "linuxmint-22\\.3-xfce-64bit\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fedora",
+      "name": "Fedora",
+      "category": "Desktop",
+      "logo": "fedora",
+      "description": "Fedora Workstation with the latest GNOME desktop and upstream technologies.",
+      "tags": [
+        "Desktop",
+        "Stable"
+      ],
+      "branches": [
+        {
+          "id": "45",
+          "name": "Fedora 45 Workstation",
+          "status": "Stable",
+          "editions": [
+            {
+              "id": "workstation",
+              "name": "Workstation (GNOME)",
+              "arch": "x86_64",
+              "desktop": "GNOME",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "https://download.fedoraproject.org/pub/fedora/linux/releases/45/Workstation/x86_64/iso/",
+              "checksum_url": "https://download.fedoraproject.org/pub/fedora/linux/releases/45/Workstation/x86_64/iso/Fedora-Workstation-45-1.6-x86_64-CHECKSUM",
+              "filename_pattern": "Fedora-Workstation-Live-x86_64-45-.*\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arch",
+      "name": "Arch Linux",
+      "category": "Desktop",
+      "logo": "arch",
+      "description": "Minimal, rolling-release distribution with a do-it-yourself philosophy.",
+      "tags": [
+        "Rolling/Unstable",
+        "CLI"
+      ],
+      "branches": [
+        {
+          "id": "latest",
+          "name": "Arch Linux (latest)",
+          "status": "Rolling/Unstable",
+          "editions": [
+            {
+              "id": "x86_64",
+              "name": "Arch Linux x86_64",
+              "arch": "x86_64",
+              "desktop": "None (CLI)",
+              "status": "Rolling/Unstable",
+              "firmware": "free",
+              "base_url": "https://mirrors.kernel.org/archlinux/iso/latest/",
+              "checksum_url": "https://mirrors.kernel.org/archlinux/iso/latest/sha256sums.txt",
+              "filename_pattern": "archlinux-x86_64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "manjaro",
+      "name": "Manjaro",
+      "category": "Desktop",
+      "logo": "manjaro",
+      "description": "Arch-based user-friendly rolling distribution with multiple desktops.",
+      "tags": [
+        "Desktop",
+        "Rolling/Unstable"
+      ],
+      "branches": [
+        {
+          "id": "stable",
+          "name": "Manjaro Stable",
+          "status": "Rolling/Stable",
+          "editions": [
+            {
+              "id": "gnome",
+              "name": "GNOME",
+              "arch": "x86_64",
+              "desktop": "GNOME",
+              "status": "Rolling/Stable",
+              "firmware": "free",
+              "base_url": "",
+              "checksum_url": "",
+              "filename_pattern": "",
+              "url": "https://download.manjaro.org/gnome/24.1.2/manjaro-gnome-24.1.2-241014-linux610.iso",
+              "sha256_url": "https://download.manjaro.org/gnome/24.1.2/manjaro-gnome-24.1.2-241014-linux610.iso.sha256",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "kde",
+              "name": "KDE Plasma",
+              "arch": "x86_64",
+              "desktop": "KDE Plasma",
+              "status": "Rolling/Stable",
+              "firmware": "free",
+              "base_url": "",
+              "checksum_url": "",
+              "filename_pattern": "",
+              "url": "https://download.manjaro.org/kde/24.1.2/manjaro-kde-24.1.2-241014-linux610.iso",
+              "sha256_url": "https://download.manjaro.org/kde/24.1.2/manjaro-kde-24.1.2-241014-linux610.iso.sha256",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "xfce",
+              "name": "XFCE",
+              "arch": "x86_64",
+              "desktop": "XFCE",
+              "status": "Rolling/Stable",
+              "firmware": "free",
+              "base_url": "",
+              "checksum_url": "",
+              "filename_pattern": "",
+              "url": "https://download.manjaro.org/xfce/24.1.2/manjaro-xfce-24.1.2-241014-linux610.iso",
+              "sha256_url": "https://download.manjaro.org/xfce/24.1.2/manjaro-xfce-24.1.2-241014-linux610.iso.sha256",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "popos",
+      "name": "Pop!_OS",
+      "category": "Desktop",
+      "logo": "popos",
+      "description": "System76's Ubuntu-based desktop distribution with a polished GNOME experience.",
+      "tags": [
+        "Desktop",
+        "LTS"
+      ],
+      "branches": [
+        {
+          "id": "2404",
+          "name": "Pop!_OS 24.04 LTS",
+          "status": "LTS",
+          "editions": [
+            {
+              "id": "standard",
+              "name": "Standard",
+              "arch": "x86_64",
+              "desktop": "COSMIC / GNOME",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "",
+              "checksum_url": "",
+              "filename_pattern": "",
+              "url": "https://iso.pop-os.org/24.04/amd64/intel/24/pop-os_24.04_amd64_intel_24.iso",
+              "sha256_url": "https://iso.pop-os.org/24.04/amd64/intel/24/pop-os_24.04_amd64_intel_24.iso.sha256",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "nvidia",
+              "name": "NVIDIA",
+              "arch": "x86_64",
+              "desktop": "COSMIC / GNOME",
+              "status": "LTS",
+              "firmware": "free",
+              "base_url": "",
+              "checksum_url": "",
+              "filename_pattern": "",
+              "url": "https://iso.pop-os.org/24.04/amd64/nvidia/24/pop-os_24.04_amd64_nvidia_24.iso",
+              "sha256_url": "https://iso.pop-os.org/24.04/amd64/nvidia/24/pop-os_24.04_amd64_nvidia_24.iso.sha256",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kali",
+      "name": "Kali Linux",
+      "category": "Privacy-Focused",
+      "logo": "kali",
+      "description": "Debian-based security and penetration-testing distribution.",
+      "tags": [
+        "Privacy-Focused",
+        "Security"
+      ],
+      "branches": [
+        {
+          "id": "current",
+          "name": "Kali Linux (current)",
+          "status": "Rolling/Unstable",
+          "editions": [
+            {
+              "id": "installer",
+              "name": "Installer",
+              "arch": "x86_64",
+              "desktop": "XFCE",
+              "status": "Rolling/Unstable",
+              "firmware": "free",
+              "base_url": "https://cdimage.kali.org/current/",
+              "checksum_url": "https://cdimage.kali.org/current/SHA256SUMS",
+              "filename_pattern": "kali-linux-.*-installer-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            },
+            {
+              "id": "live",
+              "name": "Live",
+              "arch": "x86_64",
+              "desktop": "XFCE",
+              "status": "Rolling/Unstable",
+              "firmware": "free",
+              "base_url": "https://cdimage.kali.org/current/",
+              "checksum_url": "https://cdimage.kali.org/current/SHA256SUMS",
+              "filename_pattern": "kali-linux-.*-live-amd64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tails",
+      "name": "Tails",
+      "category": "Privacy-Focused",
+      "logo": "tails",
+      "description": "Amnesic live system focused on anonymity and privacy.",
+      "tags": [
+        "Privacy-Focused",
+        "Stable"
+      ],
+      "branches": [
+        {
+          "id": "latest",
+          "name": "Tails (latest)",
+          "status": "Stable",
+          "editions": [
+            {
+              "id": "usb",
+              "name": "USB image (.img)",
+              "arch": "x86_64",
+              "desktop": "GNOME",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "",
+              "checksum_url": "",
+              "filename_pattern": "",
+              "url": "https://tails.net/install/download/tails-amd64-7.0.img",
+              "sha256_url": "https://tails.net/install/download/tails-amd64-7.0.img.sha256",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "alpine",
+      "name": "Alpine Linux",
+      "category": "Lightweight",
+      "logo": "alpine",
+      "description": "Security-oriented, lightweight distribution based on musl libc and BusyBox.",
+      "tags": [
+        "Lightweight",
+        "Server"
+      ],
+      "branches": [
+        {
+          "id": "stable",
+          "name": "Alpine Linux (latest stable)",
+          "status": "Stable",
+          "editions": [
+            {
+              "id": "standard",
+              "name": "Standard",
+              "arch": "x86_64",
+              "desktop": "None (CLI)",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "https://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/x86_64/",
+              "checksum_url": "",
+              "filename_pattern": "alpine-standard-.*-x86_64\\.iso",
+              "url": "",
+              "sha256_url": "",
+              "listing_url": "",
+              "checksum_suffix": ".sha256",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zorin",
+      "name": "Zorin OS",
+      "category": "Desktop",
+      "logo": "zorin",
+      "description": "Ubuntu-based desktop designed for users coming from Windows.",
+      "tags": [
+        "Desktop",
+        "Stable"
+      ],
+      "branches": [
+        {
+          "id": "17",
+          "name": "Zorin OS 17",
+          "status": "Stable",
+          "editions": [
+            {
+              "id": "core",
+              "name": "Core",
+              "arch": "x86_64",
+              "desktop": "GNOME",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "",
+              "checksum_url": "",
+              "filename_pattern": "",
+              "url": "https://mirrors.edge.kernel.org/zorinos/17/Zorin-OS-17-Core-64-bit-r2.iso",
+              "sha256_url": "https://mirrors.edge.kernel.org/zorinos/17/Zorin-OS-17-Core-64-bit-r2.iso.sha256",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mxlinux",
+      "name": "MX Linux",
+      "category": "Desktop",
+      "logo": "mxlinux",
+      "description": "Debian-based desktop distribution known for stability and performance.",
+      "tags": [
+        "Desktop",
+        "Stable"
+      ],
+      "branches": [
+        {
+          "id": "23",
+          "name": "MX Linux 23",
+          "status": "Stable",
+          "editions": [
+            {
+              "id": "xfce",
+              "name": "XFCE",
+              "arch": "x86_64",
+              "desktop": "XFCE",
+              "status": "Stable",
+              "firmware": "free",
+              "base_url": "",
+              "checksum_url": "",
+              "filename_pattern": "",
+              "url": "https://downloads.sourceforge.net/mx-linux/MX-23.6_x64.iso",
+              "sha256_url": "https://downloads.sourceforge.net/mx-linux/MX-23.6_x64.iso.sha256",
+              "listing_url": "",
+              "checksum_suffix": "",
+              "notes": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Lubus 5.0 — Step 1: installation mode and target drives.
+
+  Native libadwaita layout following the GNOME HIG:
+    * AdwPreferencesPage groups for installation mode, provisioning and
+      target drives;
+    * AdwComboRow / AdwSwitchRow / AdwEntryRow for every setting;
+    * a GtkListBox of AdwActionRow targets with inclusion checkboxes;
+    * a secondary "More Drives…" action that opens a native Adw.Dialog;
+    * AdwStatusPage empty state and AdwBanner safety warnings.
+
+  Multiple drives can be included for simultaneous flashing in either mode.
+-->
+<interface>
+  <object class="GtkBox" id="root">
+    <property name="orientation">vertical</property>
+
+    <child>
+      <object class="AdwBanner" id="error_banner">
+        <property name="title" translatable="yes">Could not read the drive list</property>
+        <property name="button-label" translatable="yes">Retry</property>
+        <property name="revealed">False</property>
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkStack" id="state_stack">
+        <property name="vexpand">True</property>
+
+        <child>
+          <object class="GtkStackPage">
+            <property name="name">list</property>
+            <property name="title" translatable="yes">Drives</property>
+            <property name="child">
+              <object class="AdwPreferencesPage" id="preferences_page">
+
+                <!-- ============ installation mode ============ -->
+                <child>
+                  <object class="AdwPreferencesGroup" id="mode_group">
+                    <property name="title" translatable="yes">Installation</property>
+                    <property name="description" translatable="yes">Choose how Lubus prepares the target. Live USB keeps the image intact; direct install deploys a portable system.</property>
+
+                    <child>
+                      <object class="AdwComboRow" id="install_mode_row">
+                        <property name="title" translatable="yes">Installation Mode</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="AdwComboRow" id="boot_mode_row">
+                        <property name="title" translatable="yes">Boot Type</property>
+                        <property name="visible">False</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="AdwComboRow" id="partition_mode_row">
+                        <property name="title" translatable="yes">Partitioning</property>
+                        <property name="visible">False</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="AdwComboRow" id="direct_fs_row">
+                        <property name="title" translatable="yes">Filesystem</property>
+                        <property name="visible">False</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="AdwSwitchRow" id="show_internal_row">
+                        <property name="title" translatable="yes">Show Internal Drives</property>
+                        <property name="subtitle" translatable="yes">Allow selecting secondary internal SSDs/HDDs for a direct install. The system disk and mounted disks are always excluded.</property>
+                        <property name="visible">False</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="AdwActionRow" id="partition_layout_row">
+                        <property name="title" translatable="yes">Partition Layout</property>
+                        <property name="subtitle" translatable="yes">Automatic</property>
+                        <property name="visible">False</property>
+                        <child type="suffix">
+                          <object class="GtkButton" id="configure_partitions_btn">
+                            <property name="label" translatable="yes">Configure…</property>
+                            <property name="valign">center</property>
+                            <property name="tooltip-text" translatable="yes">Choose the root, swap and EFI partition sizes</property>
+                            <style><class name="flat"/></style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+
+                <!-- ============ user provisioning ============ -->
+                <child>
+                  <object class="AdwPreferencesGroup" id="user_group">
+                    <property name="title" translatable="yes">User Account</property>
+                    <property name="description" translatable="yes">Applied on first boot of a direct installation.</property>
+                    <property name="visible">False</property>
+
+                    <child>
+                      <object class="AdwEntryRow" id="username_row">
+                        <property name="title" translatable="yes">Username</property>
+                        <property name="text">lubus</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="AdwPasswordEntryRow" id="password_row">
+                        <property name="title" translatable="yes">Password</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="AdwEntryRow" id="fullname_row">
+                        <property name="title" translatable="yes">Full Name</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="AdwEntryRow" id="hostname_row">
+                        <property name="title" translatable="yes">Hostname</property>
+                        <property name="text">lubus-pc</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="AdwEntryRow" id="timezone_row">
+                        <property name="title" translatable="yes">Timezone</property>
+                        <property name="text">UTC</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="AdwEntryRow" id="language_row">
+                        <property name="title" translatable="yes">Language</property>
+                        <property name="text">en-US</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="AdwEntryRow" id="keyboard_row">
+                        <property name="title" translatable="yes">Keyboard Layout</property>
+                        <property name="text">0409:00000409</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="AdwSwitchRow" id="bypass_win11_row">
+                        <property name="title" translatable="yes">Bypass Windows 11 Requirements</property>
+                        <property name="subtitle" translatable="yes">Skip TPM, Secure Boot, RAM and Microsoft Account checks where possible.</property>
+                        <property name="active">False</property>
+                        <property name="visible">False</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+
+                <!-- ============ target drives ============ -->
+                <child>
+                  <object class="AdwPreferencesGroup" id="drives_group">
+                    <property name="title" translatable="yes">Target Drives</property>
+                    <property name="description" translatable="yes">Select one or more drives. Every included drive will be erased. Internal disks are hidden for safety.</property>
+
+                    <child>
+                      <object class="GtkListBox" id="drive_list">
+                        <property name="selection-mode">single</property>
+                        <property name="activate-on-single-click">True</property>
+                        <style><class name="boxed-list"/></style>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkButton" id="more_btn">
+                        <property name="label" translatable="yes">More Drives…</property>
+                        <property name="halign">center</property>
+                        <property name="margin-top">6</property>
+                        <property name="visible">False</property>
+                        <property name="tooltip-text" translatable="yes">Show every connected drive and select several at once</property>
+                        <style><class name="pill"/></style>
+                        <style><class name="flat"/></style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+
+              </object>
+            </property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkStackPage">
+            <property name="name">empty</property>
+            <property name="title" translatable="yes">No drives</property>
+            <property name="child">
+              <object class="AdwStatusPage" id="empty_state">
+                <property name="vexpand">True</property>
+                <property name="icon-name">drive-removable-media-symbolic</property>
+                <property name="title" translatable="yes">No Removable Drives</property>
+                <property name="description" translatable="yes">Plug in a USB stick, SD card or external drive, then refresh the list.</property>
+                <child>
+                  <object class="GtkButton" id="refresh_btn">
+                    <property name="label" translatable="yes">Refresh</property>
+                    <property name="halign">center</property>
+                    <property name="valign">start</property>
+                    <style><class name="pill"/></style>
+                    <style><class name="suggested-action"/></style>
+                  </object>
+                </child>
+              </object>
+            </property>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+    <child>
+      <object class="AdwBanner" id="erase_banner">
+        <property name="title" translatable="yes">All data on the selected drive(s) will be permanently erased</property>
+        <property name="revealed">False</property>
+      </object>
+    </child>
+
+  </object>
+</interface>

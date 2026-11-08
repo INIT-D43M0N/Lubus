@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Lubus — keyboard shortcuts window (GNOME HIG: discoverability + Ctrl+?). -->
+<interface>
+  <object class="GtkShortcutsWindow" id="shortcuts_window">
+    <property name="modal">True</property>
+    <child>
+      <object class="GtkShortcutsSection">
+        <property name="title" translatable="yes">General</property>
+        <child>
+          <object class="GtkShortcutsGroup">
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes">Choose Image</property>
+                <property name="accelerator">&lt;Ctrl&gt;O</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes">Refresh Drive List</property>
+                <property name="accelerator">&lt;Ctrl&gt;R</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes">Preferences</property>
+                <property name="accelerator">&lt;Ctrl&gt;comma</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes">Keyboard Shortcuts</property>
+                <property name="accelerator">&lt;Ctrl&gt;question</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes">Quit</property>
+                <property name="accelerator">&lt;Ctrl&gt;Q</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

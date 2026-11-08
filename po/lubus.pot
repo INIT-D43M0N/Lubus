@@ -1,0 +1,523 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Lubus Contributors
+# This file is distributed under the same license as the Lubus package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Lubus 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/yourusername/lubus/issues\n"
+"POT-Creation-Date: 2026-11-04 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lubus/main.py:45
+msgid "Lubus - Bootable USB Creator"
+msgstr ""
+
+#: lubus/window.py:52
+msgid "Lubus - Bootable USB Creator"
+msgstr ""
+
+#: lubus/window.py:155
+msgid "Drive"
+msgstr ""
+
+#: lubus/window.py:155
+msgid "Image"
+msgstr ""
+
+#: lubus/window.py:155
+msgid "Summary"
+msgstr ""
+
+#: lubus/window.py:155
+msgid "Flash"
+msgstr ""
+
+#: lubus/window.py:174
+msgid "Back"
+msgstr ""
+
+#: lubus/window.py:186
+msgid "Next"
+msgstr ""
+
+#: lubus/window.py:189
+msgid "Start Flashing"
+msgstr ""
+
+#: lubus/pages/drive_page.py:25
+msgid "Step 1: Select Target Drive"
+msgstr ""
+
+#: lubus/pages/drive_page.py:43
+msgid "Select a USB drive or SD card to write to"
+msgstr ""
+
+#: lubus/pages/drive_page.py:47
+msgid "⚠ All data on the selected drive will be PERMANENTLY ERASED"
+msgstr ""
+
+#: lubus/pages/drive_page.py:38
+msgid "Refresh drive list"
+msgstr ""
+
+#: lubus/pages/drive_page.py:60
+msgid "No removable drives found"
+msgstr ""
+
+#: lubus/pages/image_page.py:38
+msgid "Step 2: Select Image"
+msgstr ""
+
+#: lubus/pages/image_page.py:55
+msgid "Drag and drop an ISO/IMG file here\nor click to browse"
+msgstr ""
+
+#: lubus/pages/image_page.py:63
+msgid "Browse for Image"
+msgstr ""
+
+#: lubus/pages/image_page.py:78
+msgid "Analyzing image..."
+msgstr ""
+
+#: lubus/pages/image_page.py:115
+msgid "Detected Operating System"
+msgstr ""
+
+#: lubus/pages/image_page.py:125
+msgid "Windows Edition"
+msgstr ""
+
+#: lubus/pages/image_page.py:135
+msgid "Partition Scheme"
+msgstr ""
+
+#: lubus/pages/image_page.py:145
+msgid "Target System"
+msgstr ""
+
+#: lubus/pages/image_page.py:155
+msgid "File System"
+msgstr ""
+
+#: lubus/pages/image_page.py:165
+msgid "Volume Label"
+msgstr ""
+
+#: lubus/pages/image_page.py:175
+msgid "Enter volume label (max 11 chars for FAT32)"
+msgstr ""
+
+#: lubus/pages/image_page.py:185
+msgid "Cluster Size"
+msgstr ""
+
+#: lubus/pages/image_page.py:195
+msgid "Writing Mode"
+msgstr ""
+
+#: lubus/pages/image_page.py:117
+msgid "Windows Installer"
+msgstr ""
+
+#: lubus/pages/image_page.py:118
+msgid "Linux (ISOhybrid / dd mode)"
+msgstr ""
+
+#: lubus/pages/image_page.py:119
+msgid "Linux Installer (file copy)"
+msgstr ""
+
+#: lubus/pages/image_page.py:120
+msgid "Other / Unknown"
+msgstr ""
+
+#: lubus/pages/image_page.py:137
+msgid "GPT (UEFI)"
+msgstr ""
+
+#: lubus/pages/image_page.py:138
+msgid "MBR (BIOS/CSM)"
+msgstr ""
+
+#: lubus/pages/image_page.py:147
+msgid "UEFI (non-CSM)"
+msgstr ""
+
+#: lubus/pages/image_page.py:148
+msgid "BIOS (CSM/Legacy)"
+msgstr ""
+
+#: lubus/pages/image_page.py:203
+msgid "DD Image Mode (block copy)"
+msgstr ""
+
+#: lubus/pages/image_page.py:204
+msgid "ISO Image Mode (file extraction)"
+msgstr ""
+
+#: lubus/pages/summary_page.py:22
+msgid "Step 3: Summary"
+msgstr ""
+
+#: lubus/pages/summary_page.py:25
+msgid "Target Drive"
+msgstr ""
+
+#: lubus/pages/summary_page.py:27
+msgid "Source Image"
+msgstr ""
+
+#: lubus/pages/summary_page.py:29
+msgid "Operating System"
+msgstr ""
+
+#: lubus/pages/summary_page.py:31
+msgid "Partition Scheme"
+msgstr ""
+
+#: lubus/pages/summary_page.py:33
+msgid "Target System"
+msgstr ""
+
+#: lubus/pages/summary_page.py:35
+msgid "File System"
+msgstr ""
+
+#: lubus/pages/summary_page.py:37
+msgid "Volume Label"
+msgstr ""
+
+#: lubus/pages/summary_page.py:39
+msgid "Writing Mode"
+msgstr ""
+
+#: lubus/pages/summary_page.py:41
+msgid "Windows Edition"
+msgstr ""
+
+#: lubus/pages/summary_page.py:44
+msgid "Verify after writing"
+msgstr ""
+
+#: lubus/pages/summary_page.py:45
+msgid "Compare the written data with the source image"
+msgstr ""
+
+#: lubus/pages/summary_page.py:48
+msgid "⚠ All data on the target drive will be PERMANENTLY DESTROYED"
+msgstr ""
+
+#: lubus/pages/flash_page.py:28
+msgid "Step 4: Flashing"
+msgstr ""
+
+#: lubus/pages/flash_page.py:35
+msgid "Initializing..."
+msgstr ""
+
+#: lubus/pages/flash_page.py:39
+msgid "Preparing to flash..."
+msgstr ""
+
+#: lubus/pages/flash_page.py:52
+msgid "Cancel"
+msgstr ""
+
+#: lubus/pages/flash_page.py:55
+msgid "Done"
+msgstr ""
+
+#: lubus/pages/flash_page.py:62
+msgid "Cancel Flashing?"
+msgstr ""
+
+#: lubus/pages/flash_page.py:63
+msgid "The flashing process is still running. Cancelling will leave the drive unbootable."
+msgstr ""
+
+#: lubus/pages/flash_page.py:65
+msgid "Continue Flashing"
+msgstr ""
+
+#: lubus/pages/flash_page.py:66
+msgid "Yes, Cancel"
+msgstr ""
+
+#: lubus/window.py:236
+msgid "Confirm Flash"
+msgstr ""
+
+#: lubus/window.py:237
+msgid "All data on <b>{device}</b> ({model}, {size}) will be PERMANENTLY DESTROYED.\n\nImage: <b>{image}</b>\n\nContinue?"
+msgstr ""
+
+#: lubus/window.py:240
+msgid "Cancel"
+msgstr ""
+
+#: lubus/window.py:241
+msgid "Yes, Flash It"
+msgstr ""
+
+#: lubus/window.py:278
+msgid "Image too large"
+msgstr ""
+
+#: lubus/window.py:279
+msgid "The image ({image_size}) is larger than the target drive ({drive_size})."
+msgstr ""
+
+#: lubus/window.py:306
+msgid "Flashing in Progress"
+msgstr ""
+
+#: lubus/window.py:307
+msgid "A flash operation is running. Closing now will leave the drive unbootable."
+msgstr ""
+
+#: lubus/window.py:310
+msgid "Stay"
+msgstr ""
+
+#: lubus/window.py:311
+msgid "Force Quit"
+msgstr ""
+
+#: lubus/window.py:319
+msgid "Language Changed"
+msgstr ""
+
+#: lubus/window.py:320
+msgid "The new language will be applied after restarting the application."
+msgstr ""
+
+#: lubus/window.py:328
+msgid "Preferences"
+msgstr ""
+
+#: lubus/window.py:329
+msgid "About"
+msgstr ""
+
+#: lubus/window.py:330
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: lubus/window.py:338
+msgid "Appearance"
+msgstr ""
+
+#: lubus/window.py:340
+msgid "Theme"
+msgstr ""
+
+#: lubus/window.py:341
+msgid "System"
+msgstr ""
+
+#: lubus/window.py:342
+msgid "Light"
+msgstr ""
+
+#: lubus/window.py:343
+msgid "Dark"
+msgstr ""
+
+#: lubus/window.py:345
+msgid "Language"
+msgstr ""
+
+#: lubus/window.py:346
+msgid "System Default"
+msgstr ""
+
+#: lubus/window.py:347
+msgid "English"
+msgstr ""
+
+#: lubus/window.py:348
+msgid "Português"
+msgstr ""
+
+#: lubus/window.py:349
+msgid "Русский"
+msgstr ""
+
+#: lubus/window.py:363
+msgid "General"
+msgstr ""
+
+#: lubus/core/images.py:58
+msgid "Windows Installer"
+msgstr ""
+
+#: lubus/core/images.py:59
+msgid "Linux (ISOhybrid / dd mode)"
+msgstr ""
+
+#: lubus/core/images.py:60
+msgid "Linux Installer (file copy)"
+msgstr ""
+
+#: lubus/core/images.py:61
+msgid "Other / Unknown"
+msgstr ""
+
+#: lubus/core/images.py:64
+msgid "GPT (UEFI)"
+msgstr ""
+
+#: lubus/core/images.py:65
+msgid "MBR (BIOS/CSM)"
+msgstr ""
+
+#: lubus/core/images.py:68
+msgid "UEFI (non-CSM)"
+msgstr ""
+
+#: lubus/core/images.py:69
+msgid "BIOS (CSM/Legacy)"
+msgstr ""
+
+#: lubus/core/images.py:72
+msgid "FAT32"
+msgstr ""
+
+#: lubus/core/images.py:73
+msgid "NTFS"
+msgstr ""
+
+#: lubus/core/images.py:74
+msgid "exFAT"
+msgstr ""
+
+#: lubus/core/images.py:75
+msgid "ext4"
+msgstr ""
+
+#: lubus/core/images.py:76
+msgid "btrfs"
+msgstr ""
+
+#: lubus/core/writer.py:58
+msgid "Unmounting..."
+msgstr ""
+
+#: lubus/core/writer.py:61
+msgid "Copying image..."
+msgstr ""
+
+#: lubus/core/writer.py:64
+msgid "Syncing..."
+msgstr ""
+
+#: lubus/core/writer.py:67
+msgid "Verifying..."
+msgstr ""
+
+#: lubus/core/writer.py:70
+msgid "Preparing drive..."
+msgstr ""
+
+#: lubus/core/writer.py:73
+msgid "Installing BIOS bootloader (GRUB)..."
+msgstr ""
+
+#: lubus/core/writer.py:76
+msgid "Creating partitions..."
+msgstr ""
+
+#: lubus/core/writer.py:79
+msgid "Deploying Windows (this takes a while)..."
+msgstr ""
+
+#: lubus/core/writer.py:82
+msgid "Installing UEFI bootloader..."
+msgstr ""
+
+#: lubus/core/writer.py:85
+msgid "Measuring drive speed..."
+msgstr ""
+
+#: lubus/core/windows_togo.py:38
+msgid "Drive speed test failed"
+msgstr ""
+
+#: lubus/core/verify.py:35
+msgid "Verification failed: data mismatch"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.desktop.in:4
+msgid "Bootable USB Creator"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.desktop.in:5
+msgid "Create bootable USB drives from ISO images"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:6
+msgid "Create bootable USB drives from ISO images"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:9
+msgid "Lubus is a modern, native Linux application for creating bootable USB drives, functionally identical to Rufus but built specifically for the Linux ecosystem."
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:11
+msgid "Features:"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:12
+msgid "Automatic detection of removable USB drives and SD cards"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:13
+msgid "Support for ISO, IMG, and other bootable disk images"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:14
+msgid "Automatic detection of image type (Windows, Linux, hybrid)"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:15
+msgid "Partition scheme selection (GPT/MBR) and target system (UEFI/BIOS)"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:16
+msgid "Filesystem selection (FAT32, NTFS, exFAT, ext4, btrfs)"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:17
+msgid "DD mode (block copy) and ISO extract mode"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:18
+msgid "Real-time progress with speed and ETA"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:19
+msgid "Optional verification after write"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:20
+msgid "Windows installer media creation"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:21
+msgid "Windows To Go support"
+msgstr ""
+
+#: data/com.github.yourusername.lubus.metainfo.xml.in:22
+msgid "Safety checks and confirmation dialogs"
+msgstr ""
