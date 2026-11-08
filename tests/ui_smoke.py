@@ -73,6 +73,12 @@ check("ISO downloader dialog builds",
 
 summary_page = SummaryPage(on_verify_toggled=None)
 check("SummaryPage instantiates", summary_page.widget is not None)
+check("Windows driver row is present",
+      summary_page.get("win_drivers_row") is not None)
+check("Windows options expose drivers_path",
+      "drivers_path" in summary_page.get_windows_options())
+check("Windows driver hint is present",
+      summary_page.get("win_driver_hint_row") is not None)
 
 flash_page = FlashPage(on_done=None, on_cancel=None)
 check("FlashPage instantiates", flash_page.widget is not None)

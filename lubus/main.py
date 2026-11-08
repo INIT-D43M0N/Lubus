@@ -37,6 +37,8 @@ Options:
                      Apply Windows 11 requirement bypasses
   --windows-remove-defender
                      Remove Windows Defender during image preparation
+  --windows-drivers PATH
+                     Copy an extracted storage driver folder to the USB
   --version          Show version and exit
   --help             Show this help and exit
 
@@ -163,6 +165,9 @@ class LubusApplication(Adw.Application):
         parser.add_argument("--windows-remove-defender", action="store_true",
                             default=None,
                             help="Remove Windows Defender when preparing the image")
+        parser.add_argument("--windows-drivers", type=str, default=None,
+                            metavar="PATH",
+                            help="Copy an extracted storage driver folder to the USB")
 
         try:
             parsed = parser.parse_args(args)
@@ -182,6 +187,8 @@ class LubusApplication(Adw.Application):
             self._windows_options["bypass_win11"] = True
         if parsed.windows_remove_defender is not None:
             self._windows_options["remove_defender"] = True
+        if parsed.windows_drivers:
+            self._windows_options["drivers_path"] = parsed.windows_drivers
 
         self.activate()
         return 0

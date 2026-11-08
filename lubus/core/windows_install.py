@@ -27,6 +27,7 @@ from .partitions import (
 from .provisioning import write_windows_provisioning
 from .windows_debloat import get_wim_indexes, remove_defender_from_wim
 from .windows_boot import configure_boot
+from .windows_drivers import stage_drivers
 from .windows_togo import (
     _apply_wim, _extract_boot_files, fix_ntfs_start_sector,
 )
@@ -227,6 +228,10 @@ def write_windows_direct(
                 win_mount = mount_filesystem(conn, win_part)
                 try:
                     write_windows_provisioning(win_mount, config.to_dict())
+                    if config.drivers_path:
+                        stage_drivers(
+                            config.drivers_path, win_mount, status_cb=emit
+                        )
                 finally:
                     unmount_filesystem(conn, win_part)
             except Exception as exc:  # noqa: BLE001

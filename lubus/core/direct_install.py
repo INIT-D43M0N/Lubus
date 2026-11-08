@@ -81,6 +81,7 @@ class InstallConfig:
     bypass_win11: bool = False
     skip_oobe: bool = True
     remove_defender: bool = False
+    drivers_path: str = ""
     accept_eula: bool = True
 
     @property

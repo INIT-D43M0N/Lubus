@@ -84,6 +84,39 @@
               </object>
             </child>
             <child>
+              <object class="AdwActionRow" id="win_driver_hint_row">
+                <property name="title" translatable="yes">Disk not detected in Setup?</property>
+                <property name="subtitle" translatable="yes">Disable Intel VMD / RAID in the firmware, or download the Intel RST VMD (f6vmdflpy-x64) or AMD RAID driver and load it with “Load driver”.</property>
+                <property name="subtitle-lines">4</property>
+                <property name="icon-name">dialog-warning-symbolic</property>
+                <property name="activatable">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow" id="win_drivers_row">
+                <property name="title" translatable="yes">Storage Controller Drivers</property>
+                <property name="subtitle" translatable="yes">Optional — copy an extracted driver folder to the USB so Setup can load it.</property>
+                <property name="subtitle-lines">3</property>
+                <child type="suffix">
+                  <object class="GtkButton" id="win_drivers_clear_button">
+                    <property name="icon-name">edit-clear-symbolic</property>
+                    <property name="valign">center</property>
+                    <property name="tooltip-text" translatable="yes">Remove the staged drivers</property>
+                    <property name="visible">False</property>
+                    <style><class name="flat"/></style>
+                  </object>
+                </child>
+                <child type="suffix">
+                  <object class="GtkButton" id="win_drivers_button">
+                    <property name="label" translatable="yes">Choose…</property>
+                    <property name="valign">center</property>
+                    <property name="tooltip-text" translatable="yes">Select the extracted Intel RST/VMD or AMD RAID driver folder</property>
+                    <style><class name="flat"/></style>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
               <object class="AdwEntryRow" id="win_username_row">
                 <property name="title" translatable="yes">Local Username</property>
                 <property name="text">lubus</property>

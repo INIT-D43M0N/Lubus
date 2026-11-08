@@ -573,6 +573,9 @@ class LubusWindow(Adw.ApplicationWindow):
             install_config.full_name = windows_options.get(
                 "full_name", install_config.full_name
             )
+            install_config.drivers_path = windows_options.get(
+                "drivers_path", install_config.drivers_path
+            )
         windows_options.setdefault("hostname", install_config.hostname)
         windows_options.setdefault("timezone", install_config.timezone)
         windows_options.setdefault("language", install_config.language)

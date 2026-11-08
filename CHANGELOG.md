@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UDisks2 D-Bus integration for safe disk operations
 - GTK4/Libadwaita UI with wizard-style flow
 - Support for Windows installer media (UEFI/GPT, BIOS/MBR)
+- Optional storage-controller driver staging for Intel VMD/RST and AMD RAID systems
 - Support for Linux ISOhybrid (dd mode) and installer (extract mode)
 - Windows To Go support (experimental)
 - Real-time progress tracking with speed/ETA

@@ -9,12 +9,13 @@ import os
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw
+from gi.repository import Gtk, Adw, GLib
 
 from lubus.utils.i18n import _
 from lubus.core.images import (
     FileSystem, ImageType, PartitionScheme, TargetSystem,
 )
+from lubus.core.windows_drivers import find_driver_infs
 from lubus.pages.base import UiPage
 
 
@@ -41,6 +42,11 @@ class SummaryPage(UiPage):
         self.win_skip_oobe_row = self.get("win_skip_oobe_row")
         self.win_bypass_row = self.get("win_bypass_row")
         self.win_remove_defender_row = self.get("win_remove_defender_row")
+        self.win_driver_hint_row = self.get("win_driver_hint_row")
+        self.win_drivers_row = self.get("win_drivers_row")
+        self.win_drivers_button = self.get("win_drivers_button")
+        self.win_drivers_clear_button = self.get("win_drivers_clear_button")
+        self._drivers_path = ""
         self.win_username_row = self.get("win_username_row")
         self.win_password_row = self.get("win_password_row")
         self.win_fullname_row = self.get("win_fullname_row")
@@ -59,6 +65,8 @@ class SummaryPage(UiPage):
         self.win_skip_oobe_row.connect("notify::active", self._on_windows_option_changed)
         self.win_bypass_row.connect("notify::active", self._on_windows_option_changed)
         self.win_remove_defender_row.connect("notify::active", self._on_windows_option_changed)
+        self.win_drivers_button.connect("clicked", self._on_choose_drivers)
+        self.win_drivers_clear_button.connect("clicked", self._on_clear_drivers)
         self.win_username_row.connect("changed", self._on_windows_option_changed)
         self.win_password_row.connect("changed", self._on_windows_option_changed)
         self.win_fullname_row.connect("changed", self._on_windows_option_changed)
@@ -140,6 +148,7 @@ class SummaryPage(UiPage):
                 self.win_fullname_row.set_text(
                     opts.get("full_name") or getattr(install, "full_name", "")
                 )
+                self._set_drivers_path(opts.get("drivers_path", ""))
             finally:
                 self._updating_windows = False
 
@@ -191,6 +200,7 @@ class SummaryPage(UiPage):
             "skip_oobe": bool(self.win_skip_oobe_row.get_active()),
             "bypass_win11": bool(self.win_bypass_row.get_active()),
             "remove_defender": bool(self.win_remove_defender_row.get_active()),
+            "drivers_path": self._drivers_path,
             "username": self.win_username_row.get_text().strip() or "lubus",
             "password": self.win_password_row.get_text(),
             "full_name": self.win_fullname_row.get_text().strip(),
@@ -225,6 +235,51 @@ class SummaryPage(UiPage):
             return
         if self.on_windows_options_changed:
             self.on_windows_options_changed(self.get_windows_options())
+
+    def _on_choose_drivers(self, _button):
+        dialog = Gtk.FileDialog.new()
+        dialog.set_title(_("Select Storage Driver Folder"))
+        dialog.select_folder(
+            self.widget.get_root(), None, self._on_driver_folder_selected
+        )
+
+    def _on_driver_folder_selected(self, dialog, result):
+        try:
+            folder = dialog.select_folder_finish(result)
+        except GLib.Error:
+            return
+        path = folder.get_path() if folder is not None else None
+        if not path:
+            return
+
+        if not find_driver_infs(path, limit=1):
+            self.win_drivers_row.set_subtitle(
+                _("No .inf files found — select the extracted driver folder.")
+            )
+            return
+
+        self._set_drivers_path(path)
+        self._on_windows_option_changed()
+
+    def _on_clear_drivers(self, _button):
+        self._set_drivers_path("")
+        self._on_windows_option_changed()
+
+    def _set_drivers_path(self, path: str):
+        self._drivers_path = path or ""
+        if self._drivers_path:
+            self.win_drivers_row.set_subtitle(
+                _("Will be copied to \\drivers on the USB: {path}").format(
+                    path=self._drivers_path
+                )
+            )
+            self.win_drivers_clear_button.set_visible(True)
+        else:
+            self.win_drivers_row.set_subtitle(
+                _("Optional — copy an extracted driver folder to the USB so "
+                  "Setup can load it.")
+            )
+            self.win_drivers_clear_button.set_visible(False)
 
 
 def _os_type_index(info) -> int:

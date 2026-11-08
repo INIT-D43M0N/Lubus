@@ -16,7 +16,7 @@ A modern, native Linux application for creating bootable USB drives and deployin
 - **Linux ISO downloader**: browse Debian, Ubuntu, Kubuntu, Xubuntu, Lubuntu, Ubuntu Budgie, Ubuntu MATE, Ubuntu Studio, and Ubuntu Unity editions, resolve mirrors automatically, and verify downloads with SHA-256.
 - **Live USB mode**: write a bootable installer image directly to one or more drives.
 - **Direct install / portable mode**: deploy a portable system with automatic or custom partitioning and unattended user provisioning.
-- **Windows deployment options**: create Windows installer media, configure Windows To Go-style portable installs, skip OOBE screens, bypass Windows 11 requirements, and optionally remove Windows Defender.
+- **Windows deployment options**: create Windows installer media, configure Windows To Go-style portable installs, skip OOBE screens, bypass Windows 11 requirements, optionally remove Windows Defender, and stage storage-controller drivers for Intel VMD/RST and AMD RAID systems.
 - **Writing modes**: DD block copy or ISO file extraction, depending on the image.
 - **Progress and results**: live speed, ETA, target information, result actions, and a technical log.
 - **Safety checks**: destructive confirmation, system-disk filtering, drive identity verification, safe unmounting, and optional verification after writing.
@@ -65,6 +65,7 @@ lubus/
 │   ├── windows_togo.py      # Portable Windows deployment
 │   ├── windows_boot.py      # UEFI/BIOS boot files
 │   ├── windows_debloat.py   # Optional Windows cleanup
+│   ├── windows_drivers.py   # Storage-driver staging for Setup
 │   ├── iso_catalog.py       # Distribution catalog and mirrors
 │   ├── iso_downloader.py    # Segmented downloads and SHA-256 checks
 │   ├── bcd.py               # Windows BCD handling
@@ -149,6 +150,14 @@ sudo meson install -C builddir
 4. **Flash** — start the write and follow progress until completion.
 
 When more than two drives are connected, use **More Drives…** to open the complete drive list and include several targets at once.
+
+### Windows Setup and storage drivers
+
+Windows Setup only ships the in-box AHCI/NVMe drivers. On systems with Intel VMD/RST or AMD RAID enabled, the target disk is not detected and Setup asks for a driver.
+
+- In **Summary → Windows Setup → Storage Controller Drivers**, select the extracted vendor driver folder. Lubus copies it to `\drivers` on the USB so Setup's **Load driver → Browse** can use it.
+- Intel RST VMD: extract `f6vmdflpy-x64.zip` (`iaStorVD.inf`); Intel AHCI/RAID: `f6flpy-x64.zip` (`iaStorAC.inf`); AMD RAID: `rcraid.inf`, `rcbottom.inf`, `rccfg.inf`.
+- Alternatively, disable Intel VMD/RST or switch SATA mode to AHCI in the firmware before installing.
 
 ## Safety
 

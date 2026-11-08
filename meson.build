@@ -142,6 +142,7 @@ python.install_sources(
     'lubus/core/windows_install.py',
     'lubus/core/windows_boot.py',
     'lubus/core/windows_debloat.py',
+    'lubus/core/windows_drivers.py',
     'lubus/core/multi_flash.py',
   ],
   subdir: 'lubus/core',

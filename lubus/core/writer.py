@@ -27,6 +27,7 @@ from .partitions import (
     calculate_partition_offsets, get_partition_type_guid, format_size,
 )
 from .icon_utils import get_or_create_windows_icon
+from .windows_drivers import stage_drivers
 from ..udisks.client import _get_objects, _get_bus, FILESYSTEM_IFACE, LOOP_IFACE
 
 log = get_logger(__name__)
@@ -558,6 +559,12 @@ def write_windows_installer(
                     write_installer_autounattend(esp_mount, windows_options)
                     write_installer_autounattend(win_mount, windows_options)
 
+                    drivers_path = windows_options.get("drivers_path")
+                    if drivers_path:
+                        stage_drivers(
+                            drivers_path, win_mount, status_cb=emit_status
+                        )
+
                 # Apply custom Windows icon to the Windows partition
                 _apply_windows_icon(win_mount)
 
@@ -623,6 +630,10 @@ def write_windows_installer(
                 )
             from .provisioning import write_installer_autounattend
             write_installer_autounattend(win_mount, windows_options)
+
+            drivers_path = windows_options.get("drivers_path")
+            if drivers_path:
+                stage_drivers(drivers_path, win_mount, status_cb=emit_status)
 
         # Apply custom Windows icon to the Windows partition
         _apply_windows_icon(win_mount)
