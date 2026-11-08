@@ -1,6 +1,6 @@
 [build-system]
-requires = ["meson>=1.0", "ninja"]
-build-backend = "mesonbuild.mesonlib"
+requires = ["meson-python>=0.13", "meson>=1.0", "ninja"]
+build-backend = "mesonpy"
 
 [project]
 name = "lubus"

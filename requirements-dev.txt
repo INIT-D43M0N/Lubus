@@ -13,4 +13,3 @@ ninja>=1.11
 wheel>=0.40
 build>=1.0
 twine>=4.0
-EOF
