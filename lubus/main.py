@@ -58,7 +58,7 @@ if early_result is not None:
 import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw, Gio, GLib
+from gi.repository import Gtk, Adw, Gio, GLib, Gdk
 
 from .utils.logging import setup_logging, get_logger
 from .config import load_config, APP_CONFIG
@@ -134,8 +134,8 @@ class LubusApplication(Adw.Application):
                 provider,
                 Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
             )
-        except GLib.Error as e:
-            log.debug("Custom stylesheet not loaded: %s", e.message)
+        except (GLib.Error, NameError) as e:
+            log.debug("Custom stylesheet not loaded: %s", e)
 
     def on_open(self, app, files, hint):
         """Handle files opened via D-Bus (e.g., double-click ISO)."""

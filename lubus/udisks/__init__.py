@@ -35,6 +35,8 @@ from .client import (
     DRIVE_IFACE,
     ESP_TYPE_GUID,
     BASIC_DATA,
+    UNMOUNT_TIMEOUT,
+    LOOP_DELETE_TIMEOUT,
 )
 
 # Convenient short aliases (as used by the windows_togo module)
@@ -78,6 +80,8 @@ __all__ = [
     "DRIVE_IFACE",
     "ESP_TYPE_GUID",
     "BASIC_DATA",
+    "UNMOUNT_TIMEOUT",
+    "LOOP_DELETE_TIMEOUT",
     "BLOCK",
     "FILESYSTEM",
     "PARTITION",

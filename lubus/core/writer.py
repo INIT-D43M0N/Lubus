@@ -28,9 +28,24 @@ from .partitions import (
 )
 from .icon_utils import get_or_create_windows_icon
 from .windows_drivers import stage_drivers
-from ..udisks.client import _get_objects, _get_bus, FILESYSTEM_IFACE, LOOP_IFACE
+from ..udisks.client import (
+    _get_objects, _get_bus, BLOCK_IFACE, FILESYSTEM_IFACE, LOOP_IFACE,
+    _partition_children, LOOP_DELETE_TIMEOUT,
+)
 
 log = get_logger(__name__)
+
+
+def _loop_is_attached(device: str) -> bool:
+    """True when a loop device still has a backing file attached."""
+    backing = os.path.join(
+        "/sys/block", os.path.basename(device), "loop/backing_file")
+    try:
+        with open(backing, encoding="utf-8") as handle:
+            return bool(handle.read().strip())
+    except OSError:
+        # No backing file entry at all: the device is already detached.
+        return False
 
 
 def release_stale_iso_mounts(iso_path: str = None) -> int:
@@ -68,29 +83,46 @@ def release_stale_iso_mounts(iso_path: str = None) -> int:
                     continue
 
             try:
-                if has_mount:
+                # Hybrid images (Fedora, recent Ubuntu) keep the filesystem
+                # on a child partition, so those have to be unmounted first;
+                # otherwise the loop device stays busy and cannot be deleted.
+                for _size, child, _fs_id in _partition_children(conn, obj):
+                    child_fs = objs.get(child, {}).get(FILESYSTEM_IFACE) or {}
+                    if not child_fs.get("MountPoints"):
+                        continue
                     try:
-                        conn.call_sync(
-                            "org.freedesktop.UDisks2", obj, FILESYSTEM_IFACE,
-                            "Unmount", GLib.Variant("(a{sv})", ({},)), None,
-                            Gio.DBusCallFlags.NONE, -1, None)
-                    except GLib.Error:
-                        try:
-                            force_opts = GLib.Variant("(a{sv})", ({"force": GLib.Variant("b", True)},))
-                            conn.call_sync(
-                                "org.freedesktop.UDisks2", obj, FILESYSTEM_IFACE,
-                                "Unmount", force_opts, None,
-                                Gio.DBusCallFlags.NONE, -1, None)
-                        except GLib.Error:
-                            pass
+                        unmount_filesystem(conn, child)
+                    except Exception as exc:  # noqa: BLE001 - best effort
+                        log.debug(f"Could not unmount {child}: {exc}")
+
+                if has_mount:
+                    unmount_filesystem(conn, obj)
+
                 conn.call_sync(
                     "org.freedesktop.UDisks2", obj, LOOP_IFACE,
                     "Delete", GLib.Variant("(a{sv})", ({},)), None,
-                    Gio.DBusCallFlags.NONE, -1, None)
+                    Gio.DBusCallFlags.NONE, LOOP_DELETE_TIMEOUT, None)
                 released += 1
                 log.info(f"Released stale loop mount: {obj}")
             except GLib.Error as e:
-                log.warning(f"Could not release {obj}: {e}")
+                # The loop device may already be gone (detached elsewhere or
+                # auto-released by UDisks2); that still counts as released.
+                still_there = True
+                device = ""
+                try:
+                    current = _get_objects(conn)
+                    block = current.get(obj, {}).get(BLOCK_IFACE) or {}
+                    device = _bytes_safe(block.get("Device", ""))
+                    still_there = LOOP_IFACE in current.get(obj, {})
+                except Exception:  # noqa: BLE001 - best effort
+                    still_there = True
+                if still_there and device and not _loop_is_attached(device):
+                    still_there = False
+                if still_there:
+                    log.warning(f"Could not release {obj}: {e}")
+                else:
+                    released += 1
+                    log.info(f"Released stale loop mount: {obj}")
     except Exception as e:
         log.warning(f"release_stale_iso_mounts failed: {e}")
 

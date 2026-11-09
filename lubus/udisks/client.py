@@ -48,6 +48,15 @@ MBR_LINUX = "0x83"      # Linux
 
 NO_OPTIONS = GLib.Variant("(a{sv})", ({},))
 
+# Timeout (ms) for unmount calls: a stuck device must not freeze the wizard.
+UNMOUNT_TIMEOUT = 15_000
+
+# Timeout (ms) for detaching a loop device.
+LOOP_DELETE_TIMEOUT = 15_000
+
+# /proc/mounts lines have at least "device mountpoint fstype".
+PROC_MOUNTS_MIN_FIELDS = 2
+
 
 class UDisksError(Exception):
     """Base exception for UDisks operations."""
@@ -85,6 +94,7 @@ def _call(
     args: GLib.Variant,
     reply_signature: str,
     fds: Optional[Gio.UnixFDList] = None,
+    timeout: int = GLib.MAXINT,
 ) -> Tuple[GLib.Variant, Optional[Gio.UnixFDList]]:
     """Make a D-Bus call with interactive authorization (polkit)."""
     try:
@@ -96,7 +106,7 @@ def _call(
             args,
             GLib.VariantType(reply_signature),
             Gio.DBusCallFlags.ALLOW_INTERACTIVE_AUTHORIZATION,
-            GLib.MAXINT,  # No timeout - wait for user auth
+            timeout,
             fds,
             None,
         )
@@ -499,6 +509,42 @@ def mount_filesystem(conn: Gio.DBusConnection, partition_path: str, readonly: bo
     return reply.unpack()[0]
 
 
+def _device_mount_points(conn: Gio.DBusConnection, object_path: str) -> List[str]:
+    """Mount points of a block device.
+
+    Combines the UDisks2 Filesystem interface with /proc/mounts, because
+    UDisks2 does not always expose a Filesystem interface (for instance on
+    loop devices holding a UDF filesystem).
+    """
+    points: List[str] = []
+    device = ""
+    try:
+        ifaces = _get_objects(conn).get(object_path, {})
+        fs = ifaces.get(FILESYSTEM_IFACE) or {}
+        for mount_point in fs.get("MountPoints", []) or []:
+            points.append(_bytes(mount_point))
+        block = ifaces.get(BLOCK_IFACE) or {}
+        device = _bytes(block.get("Device", ""))
+    except (UDisksError, GLib.Error, OSError):
+        device = ""
+
+    if device:
+        try:
+            with open("/proc/mounts", encoding="utf-8") as handle:
+                for line in handle:
+                    fields = line.split()
+                    if len(fields) >= PROC_MOUNTS_MIN_FIELDS and fields[0] == device:
+                        points.append(fields[1])
+        except OSError:
+            pass
+
+    unique: List[str] = []
+    for point in points:
+        if point and point not in unique:
+            unique.append(point)
+    return unique
+
+
 def unmount_filesystem(conn: Gio.DBusConnection, partition_path: str):
     """Unmount a filesystem, tolerating busy/failing devices.
 
@@ -507,7 +553,8 @@ def unmount_filesystem(conn: Gio.DBusConnection, partition_path: str):
     """
     # Attempt 1: normal unmount
     try:
-        _call(conn, partition_path, FILESYSTEM_IFACE, "Unmount", NO_OPTIONS, "()")
+        _call(conn, partition_path, FILESYSTEM_IFACE, "Unmount", NO_OPTIONS, "()",
+              timeout=UNMOUNT_TIMEOUT)
         return
     except (UDisksError, GLib.Error):
         pass
@@ -515,23 +562,23 @@ def unmount_filesystem(conn: Gio.DBusConnection, partition_path: str):
     # Attempt 2: forced unmount (UDisks2 supports the "force" option)
     try:
         force_opts = GLib.Variant("(a{sv})", ({"force": GLib.Variant("b", True)},))
-        _call(conn, partition_path, FILESYSTEM_IFACE, "Unmount", force_opts, "()")
+        _call(conn, partition_path, FILESYSTEM_IFACE, "Unmount", force_opts, "()",
+              timeout=UNMOUNT_TIMEOUT)
         return
     except (UDisksError, GLib.Error):
         pass
 
-    # Attempt 3: lazy unmount via mountpoint (detach immediately, clean up later)
-    try:
-        objs = _get_objects(conn)
-        fs = objs.get(partition_path, {}).get(FILESYSTEM_IFACE)
-        if fs and fs.get("MountPoints"):
-            mount_point = _bytes(fs["MountPoints"][0])
-            log.warning(f"Normal unmount failed for {mount_point}, trying lazy unmount")
-            subprocess.run(["umount", "-l", mount_point],
-                           capture_output=True, check=False, timeout=30)
-            return
-    except (UDisksError, GLib.Error, OSError, subprocess.SubprocessError):
-        pass
+    # Attempt 3: unmount through the mount point. This also works when the
+    # Filesystem interface is missing (UDF loop devices, for instance).
+    for mount_point in _device_mount_points(conn, partition_path):
+        for command in (["umount", mount_point], ["umount", "-l", mount_point]):
+            try:
+                result = subprocess.run(
+                    command, capture_output=True, check=False, timeout=30)
+                if result.returncode == 0:
+                    return
+            except (OSError, subprocess.SubprocessError):
+                continue
 
     # Give up quietly - a busy volume must never abort the write itself
     log.warning(f"Could not unmount {partition_path} (busy); continuing anyway")
@@ -556,6 +603,92 @@ def _wait_for_fs(conn: Gio.DBusConnection, path: str, timeout: float = 10.0) -> 
 class PortalPathError(UDisksError):
     """File is only accessible via document portal (Flatpak)."""
     pass
+
+
+def _partition_children(conn: Gio.DBusConnection, parent_path: str) -> List[Tuple[int, str, str]]:
+    """Return child partitions of a block device.
+
+    Each entry is (size, object_path, filesystem_id). Only partitions that
+    expose a Filesystem interface are returned, sorted with the ISO
+    filesystem first and the largest partition next.
+    """
+    try:
+        objs = _get_objects(conn)
+    except (UDisksError, GLib.Error) as exc:
+        log.debug(f"Could not list partitions of {parent_path}: {exc}")
+        return []
+
+    children = []
+    for obj, ifaces in objs.items():
+        part = ifaces.get(PARTITION_IFACE)
+        if not part or part.get("Table") != parent_path:
+            continue
+        if FILESYSTEM_IFACE not in ifaces:
+            continue
+        block = ifaces.get(BLOCK_IFACE) or {}
+        size = block.get("Size", 0)
+        fs_id = _bytes(block.get("Id", ""))
+        children.append((size, obj, fs_id))
+
+    def _sort_key(entry):
+        size, _obj, fs_id = entry
+        # Prefer the ISO filesystem over the (usually tiny) EFI partition.
+        preferred = 0 if fs_id.lower() in ("iso9660", "udf", "isohybrid") else 1
+        return (preferred, -size)
+
+    children.sort(key=_sort_key)
+    return children
+
+
+def _wait_partition_children(
+    conn: Gio.DBusConnection, parent_path: str, timeout: float = 5.0
+) -> List[Tuple[int, str, str]]:
+    """Wait for child partitions to show up after a loop setup."""
+    end = time.monotonic() + timeout
+    while True:
+        children = _partition_children(conn, parent_path)
+        if children or time.monotonic() >= end:
+            return children
+        time.sleep(0.2)
+
+
+def _mount_loop_filesystem(conn: Gio.DBusConnection, loop_path: str) -> Tuple[str, str]:
+    """Mount the filesystem of a loop device.
+
+    Hybrid images (Fedora, recent Ubuntu and others) carry a partition table:
+    the ISO9660 filesystem then lives in a child partition while the loop
+    node itself only exposes a PartitionTable interface. Mounting the loop
+    node directly fails with "No such interface
+    org.freedesktop.UDisks2.Filesystem", so the partitions are tried first.
+
+    Returns (mount_point, mounted_object_path).
+    """
+    try:
+        loop_ifaces = _get_objects(conn).get(loop_path, {})
+    except (UDisksError, GLib.Error):
+        loop_ifaces = {}
+
+    if PARTITION_TABLE_IFACE in loop_ifaces:
+        children = _wait_partition_children(conn, loop_path, timeout=5.0)
+    else:
+        children = _partition_children(conn, loop_path)
+
+    errors = []
+    for _size, child, _fs_id in children:
+        try:
+            return mount_filesystem(conn, child, readonly=True), child
+        except (UDisksError, GLib.Error) as exc:
+            errors.append(f"{child}: {exc}")
+
+    # No usable partition: mount the loop device itself (plain ISO9660).
+    try:
+        return mount_filesystem(conn, loop_path, readonly=True), loop_path
+    except (UDisksError, GLib.Error) as exc:
+        if errors:
+            raise UDisksError(
+                "Could not mount the image: " + "; ".join(errors)
+            ) from exc
+        raise
 
 
 @contextlib.contextmanager
@@ -587,11 +720,12 @@ def mount_iso_readonly(iso_path: str):
         )
         loop_path = reply.unpack()[0]
 
+        mounted_obj = loop_path
         try:
-            mount_point = mount_filesystem(conn, loop_path, readonly=True)
+            mount_point, mounted_obj = _mount_loop_filesystem(conn, loop_path)
             yield mount_point
         finally:
-            unmount_filesystem(conn, loop_path)
+            unmount_filesystem(conn, mounted_obj)
             # Tolerate ANY failure here: the loop device may already be gone
             # (e.g. detached by a prior cleanup) and that must never abort a flash
             try:
@@ -599,7 +733,16 @@ def mount_iso_readonly(iso_path: str):
             except (UDisksError, GLib.Error):
                 log.debug(f"Loop device {loop_path} already detached or busy; ignoring")
     finally:
-        os.close(fd)
+        # The fd is owned by the UnixFDList; steal it so it is closed once.
+        try:
+            stolen = list(fds.steal_fds())
+        except AttributeError:
+            stolen = []
+        for stolen_fd in stolen:
+            try:
+                os.close(stolen_fd)
+            except OSError:
+                pass
 
 
 def _resolve_portal_path(path: str) -> str:

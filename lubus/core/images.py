@@ -109,19 +109,101 @@ KNOWN_DISTROS = [
     (r"gparted", "GParted Live"),
 ]
 
-# Markers in ISO for OS detection
+# Markers used for the raw byte-scan fallback (non-ISO9660 images).
+# Keep these specific: bootloader binaries (GRUB, syslinux) embed generic
+# strings such as "windows", "bootmgr" and "bcd", so bare words would
+# misclassify Linux ISOs as Windows media.
 WINDOWS_MARKERS = (
     "install.wim", "install.esd", "boot.wim", "bootmgr.efi",
-    "windows", "bootmgr", "bcd", "efi/microsoft"
+    "efi/microsoft", "sources/setup.exe",
 )
 LINUX_MARKERS = (
     "isolinux", "casper", "vmlinuz", "initrd.img", "initrd",
     "grub.cfg", "grub2", "syslinux", "boot/grub", "boot/syslinux",
-    "live/", "boot/vmlinuz", "boot/initrd"
+    "live/", "boot/vmlinuz", "boot/initrd", "squashfs.img",
 )
+
+# Exact ISO9660 paths that identify the media type.
+WINDOWS_ISO_FILES = frozenset({
+    "sources/install.wim",
+    "sources/install.esd",
+    "sources/boot.wim",
+    "bootmgr",
+    "bootmgr.efi",
+})
+WINDOWS_ISO_PREFIXES = ("efi/microsoft/boot/",)
+
+LINUX_ISO_FILES = frozenset({
+    "isolinux.bin",
+    "isolinux/isolinux.bin",
+    "boot/isolinux/isolinux.bin",
+    "casper/filesystem.squashfs",
+    "casper/vmlinuz",
+    "casper/initrd",
+    "live/filesystem.squashfs",
+    "live/vmlinuz",
+    "live/initrd.img",
+    "liveos/squashfs.img",
+    "images/pxeboot/vmlinuz",
+    "images/pxeboot/initrd.img",
+    "boot/vmlinuz",
+    "boot/initrd.img",
+    "boot/grub2/grub.cfg",
+    "boot/grub/grub.cfg",
+    "efi/boot/grub.cfg",
+})
+LINUX_ISO_PREFIXES = (
+    "boot/grub/i386-pc/",
+    "boot/grub2/i386_pc/",
+    "images/pxeboot/",
+)
+
+EFI_BOOT_PATHS = frozenset({
+    "efi/boot/bootx64.efi",
+    "efi/boot/bootia32.efi",
+    "efi/boot/bootaa64.efi",
+    "efi/boot/bootarm.efi",
+    "efi/boot/grubx64.efi",
+    "efi/boot/grubia32.efi",
+    "efi/boot/grubaa64.efi",
+    "efi/boot/grub.cfg",
+    # 8.3-truncated names used by the primary tree (e.g. Fedora)
+    "efi/boot/bootx640.efi",
+    "efi/boot/bootia320.efi",
+})
+BIOS_BOOT_PATHS = frozenset({
+    "isolinux.bin",
+    "isolinux/isolinux.bin",
+    "boot/isolinux/isolinux.bin",
+    "boot/grub/grub.cfg",
+    "boot/grub2/grub.cfg",
+    "syslinux/syslinux.cfg",
+    "syslinux.cfg",
+    "bootmgr",
+    "boot/bcd",
+})
+BIOS_BOOT_PREFIXES = ("boot/grub/i386-pc/", "boot/grub2/i386_pc/")
 
 ISO_SCAN_LIMIT = 64 * 1024 * 1024  # 64 MiB
 ISO_CHUNK = 4 * 1024 * 1024  # 4 MiB
+
+ISO_BLOCK_SIZE = 2048
+ISO_MAX_DIR_BYTES = 16 * 1024 * 1024
+ISO_MAX_ENTRIES = 200_000
+ISO_MAX_DEPTH = 8
+ISO_PVD_SECTOR = 16
+ISO_MAX_VOLUME_DESCRIPTORS = 64
+
+# ISO9660 structure constants
+ISO_VD_PRIMARY = 1
+ISO_VD_SUPPLEMENTARY = 2
+ISO_VD_TERMINATOR = 255
+ISO_VD_MIN = 7
+ISO_RECORD_MIN = 33
+ISO_ROOT_RECORD_MIN = 14
+ISO_NAME_LEN_OFFSET = 32
+ISO_NAME_OFFSET = 33
+ISO_SINGLE_NAME_LEN = 1
 
 
 def read_volume_label(path: str) -> str:
@@ -159,10 +241,152 @@ def windows_name_from_editions(editions: List[Tuple[int, str, int]]) -> str:
     return "Windows"
 
 
-def scan_iso_for_markers(path: str) -> Tuple[bool, bool]:
-    """Scan ISO for Windows/Linux markers.
+def _iso_root_record(rec: bytes) -> Optional[Tuple[int, int]]:
+    """Parse a root directory record -> (extent, size).
 
-    Returns (has_windows_markers, has_linux_markers)
+    The root record carries the same single 0x00 "name" as the "." entry, so
+    it has to be decoded separately from regular directory records.
+    """
+    if len(rec) < ISO_ROOT_RECORD_MIN:
+        return None
+    extent = int.from_bytes(rec[2:6], "little")
+    size = int.from_bytes(rec[10:14], "little")
+    return extent, size
+
+
+def _iso_dir_record(rec: bytes, joliet: bool) -> Optional[Tuple[str, int, int, bool]]:
+    """Parse one ISO9660 directory record.
+
+    Returns (name, extent, size, is_directory) or None for "." / "..".
+    """
+    if len(rec) < ISO_RECORD_MIN:
+        return None
+    extent = int.from_bytes(rec[2:6], "little")
+    size = int.from_bytes(rec[10:14], "little")
+    flags = rec[25]
+    name_len = rec[ISO_NAME_LEN_OFFSET]
+    raw = rec[ISO_NAME_OFFSET:ISO_NAME_OFFSET + name_len]
+    if name_len == ISO_SINGLE_NAME_LEN and raw in (b"\x00", b"\x01"):
+        return None
+    if joliet:
+        name = raw.decode("utf-16-be", "replace")
+    else:
+        name = raw.decode("latin-1", "replace")
+    name = name.split(";", 1)[0].rstrip(".").strip()
+    if not name:
+        return None
+    return name.lower(), extent, size, bool(flags & 0x02)
+
+
+def _iso_walk(
+    f,
+    extent: int,
+    size: int,
+    prefix: str,
+    out: set,
+    seen: set,
+    depth: int,
+    joliet: bool,
+) -> None:
+    """Recursively collect lowercase paths from an ISO9660 directory tree."""
+    if depth > ISO_MAX_DEPTH or len(out) > ISO_MAX_ENTRIES:
+        return
+    key = (extent, size)
+    if key in seen or not size or size > ISO_MAX_DIR_BYTES:
+        return
+    seen.add(key)
+
+    try:
+        f.seek(extent * ISO_BLOCK_SIZE)
+        data = f.read(size)
+    except OSError:
+        return
+
+    pos = 0
+    while pos < len(data):
+        length = data[pos]
+        if length == 0:
+            # Records never straddle a sector boundary; skip the padding.
+            pos = (pos // ISO_BLOCK_SIZE + 1) * ISO_BLOCK_SIZE
+            continue
+
+        record = data[pos:pos + length]
+        pos += length
+        parsed = _iso_dir_record(record, joliet)
+        if parsed is None:
+            continue
+
+        name, child_extent, child_size, is_dir = parsed
+        full = f"{prefix}/{name}" if prefix else name
+        out.add(full)
+        if is_dir:
+            _iso_walk(f, child_extent, child_size, full, out, seen, depth + 1, joliet)
+
+
+def _iso_paths(path: str) -> Optional[set]:
+    """Return lowercase paths from an ISO9660 image, or None if not ISO9660.
+
+    Prefers the Joliet tree (which preserves long names such as
+    ``casper/filesystem.squashfs``) and falls back to the primary tree.
+    """
+    try:
+        file_size = os.path.getsize(path)
+        f = open(path, "rb")
+    except OSError:
+        return None
+
+    try:
+        primary_root = None
+        joliet_root = None
+        sector = ISO_PVD_SECTOR
+        while sector < ISO_PVD_SECTOR + ISO_MAX_VOLUME_DESCRIPTORS:
+            f.seek(sector * ISO_BLOCK_SIZE)
+            vd = f.read(ISO_BLOCK_SIZE)
+            if len(vd) < ISO_VD_MIN or vd[1:6] != b"CD001":
+                break
+            vd_type = vd[0]
+            if vd_type == ISO_VD_PRIMARY and primary_root is None:
+                primary_root = vd[156:190]
+            elif vd_type == ISO_VD_SUPPLEMENTARY and vd[88:91] in (
+                    b"%/@", b"%/C", b"%/E"):
+                joliet_root = vd[156:190]
+            if vd_type == ISO_VD_TERMINATOR:
+                break
+            sector += 1
+
+        joliet = joliet_root is not None
+        root = joliet_root if joliet else primary_root
+        if not root:
+            return None
+        root_info = _iso_root_record(root)
+        if root_info is None:
+            return None
+
+        extent, size = root_info
+        if not size or extent * ISO_BLOCK_SIZE >= file_size:
+            return None
+
+        paths = set()
+        _iso_walk(f, extent, size, "", paths, set(), 0, joliet)
+        return paths or None
+    except OSError:
+        return None
+    finally:
+        f.close()
+
+
+def _matches_paths(paths: set, files, prefixes) -> bool:
+    """True when any exact file or path prefix is present."""
+    return any(p in paths for p in files) or any(
+        p.startswith(prefix) for p in paths for prefix in prefixes
+    )
+
+
+def scan_iso_for_markers(path: str) -> Tuple[bool, bool]:
+    """Scan raw image bytes for Windows/Linux markers.
+
+    This is only a fallback for files that cannot be parsed as ISO9660.
+    Returns (has_windows_markers, has_linux_markers).
     """
     has_windows = False
     has_linux = False
@@ -204,9 +428,15 @@ def scan_iso_for_markers(path: str) -> Tuple[bool, bool]:
     return has_windows, has_linux
 
 
-def detect_image_type(path: str) -> ImageType:
-    """Detect the type of bootable image."""
-    has_windows, has_linux = scan_iso_for_markers(path)
+def _detect_image_type(path: str, paths: Optional[set]) -> ImageType:
+    if paths is not None:
+        has_windows = _matches_paths(paths, WINDOWS_ISO_FILES, WINDOWS_ISO_PREFIXES)
+        has_linux = _matches_paths(paths, LINUX_ISO_FILES, LINUX_ISO_PREFIXES)
+        if not has_windows and not has_linux:
+            # Directory tree not conclusive; try the raw scan.
+            has_windows, has_linux = scan_iso_for_markers(path)
+    else:
+        has_windows, has_linux = scan_iso_for_markers(path)
 
     if has_windows:
         return ImageType.WINDOWS_INSTALLER
@@ -222,6 +452,16 @@ def detect_image_type(path: str) -> ImageType:
         return ImageType.LINUX_INSTALLER
 
     return ImageType.UNKNOWN
+
+
+def detect_image_type(path: str) -> ImageType:
+    """Detect the type of bootable image.
+
+    ISO9660 images are inspected through their directory tree so that strings
+    embedded in bootloader binaries cannot be mistaken for media markers.
+    Raw byte scanning is kept as a fallback for other image formats.
+    """
+    return _detect_image_type(path, _iso_paths(path))
 
 
 def list_windows_editions(iso_path: str) -> List[Tuple[int, str, int]]:
@@ -250,7 +490,10 @@ def list_windows_editions(iso_path: str) -> List[Tuple[int, str, int]]:
                 capture_output=True, text=True, timeout=120, check=False
             )
             return parse_wim_info(result.stdout)
-    except (OSError, subprocess.SubprocessError, FileNotFoundError):
+    except Exception as exc:  # noqa: BLE001 - editions are optional metadata
+        # A mount/DBus failure must never abort image analysis; the caller
+        # can still flash the image without the edition list.
+        log.debug("Could not list Windows editions from %s: %s", iso_path, exc)
         return []
 
 
@@ -278,7 +521,8 @@ def analyze_image(path: str) -> ImageInfo:
     size = os.path.getsize(path)
     label = read_volume_label(path)
     filename = os.path.basename(path)
-    image_type = detect_image_type(path)
+    paths = _iso_paths(path)
+    image_type = _detect_image_type(path, paths)
     editions = []
 
     # Default suggestions
@@ -296,18 +540,23 @@ def analyze_image(path: str) -> ImageInfo:
         suggested_target = TargetSystem.UEFI
         suggested_fs = FileSystem.FAT32
 
-    # Check EFI/BIOS bootability
+    # Check EFI/BIOS bootability. For ISO9660 images the directory tree is
+    # enough; mounting is only needed for other formats (e.g. .img/.raw).
     is_efi = False
     is_bios = False
-    try:
-        from ..udisks import mount_iso_readonly
-        with mount_iso_readonly(path) as root:
-            is_efi = os.path.exists(os.path.join(root, "EFI", "BOOT", "BOOTX64.EFI")) or \
-                     os.path.exists(os.path.join(root, "EFI", "BOOT", "BOOTX64.efi"))
-            is_bios = os.path.exists(os.path.join(root, "isolinux.bin")) or \
-                      os.path.exists(os.path.join(root, "boot", "grub", "i386-pc"))
-    except Exception:
-        pass
+    if paths is not None:
+        is_efi = _matches_paths(paths, EFI_BOOT_PATHS, ())
+        is_bios = _matches_paths(paths, BIOS_BOOT_PATHS, BIOS_BOOT_PREFIXES)
+    else:
+        try:
+            from ..udisks import mount_iso_readonly
+            with mount_iso_readonly(path) as root:
+                is_efi = os.path.exists(os.path.join(root, "EFI", "BOOT", "BOOTX64.EFI")) or \
+                         os.path.exists(os.path.join(root, "EFI", "BOOT", "BOOTX64.efi"))
+                is_bios = os.path.exists(os.path.join(root, "isolinux.bin")) or \
+                          os.path.exists(os.path.join(root, "boot", "grub", "i386-pc"))
+        except Exception:
+            pass
 
     distro_name = identify_distro(label, filename) if image_type != ImageType.WINDOWS_INSTALLER else None
 

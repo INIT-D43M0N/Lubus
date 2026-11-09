@@ -33,11 +33,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-language support (English, Portuguese, Russian)
 - Theme support (System, Light, Dark)
 - Comprehensive safety checks and confirmation dialogs
+- ISO9660 directory-tree parser used for image detection and bootability checks
 
 ### Changed
 - N/A
 
 ### Fixed
+- Linux ISOs (Fedora, Ubuntu, …) are no longer misdetected as Windows media: detection reads the ISO directory tree instead of scanning raw bytes, where the GRUB binaries embedded in the image made "windows", "bootmgr" and "bcd" match
+- Image analysis no longer mounts the image, so it cannot fail with `No such interface "org.freedesktop.UDisks2.Filesystem" on object at path …/block_devices/loop0`
+- Hybrid images (Fedora, recent Ubuntu) are mounted through the partition that holds the ISO9660 filesystem instead of the loop device, which has no Filesystem interface
+- Windows edition listing no longer aborts image analysis when the image cannot be mounted
+- Stale loop mounts are unmounted through their child partitions and detached with a bounded timeout, so a leftover mount can no longer block the wizard
 - Windows 11 24H2+ installer media keeps `Sources\SetupHost.exe` and the install image on the same NTFS volume, fixing the misleading “Install driver to show hardware” prompt caused by split FAT32+NTFS media
 
 ## [1.0.0] - 2026-11-04
