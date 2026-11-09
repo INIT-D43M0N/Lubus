@@ -1,6 +1,6 @@
 Name:           lubus
 Version:        5.0.0
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        Create bootable USB drives on Linux (Rufus alternative)
 
 License:        GPL-3.0-or-later
@@ -83,6 +83,19 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/com.githu
 %{python3_sitelib}/lubus/
 
 %changelog
+* Mon Nov 09 2026 Lubus Contributors <lubus@github.com> - 5.0.0-7
+- Detect the operating system from the ISO9660 directory tree instead of
+  scanning raw bytes, so Linux media is no longer misdetected as Windows
+  because of strings embedded in the GRUB bootloader
+- Analyze images without mounting them, so image analysis cannot fail with
+  "No such interface org.freedesktop.UDisks2.Filesystem" any more
+- Mount hybrid images (Fedora, recent Ubuntu) through the partition holding
+  the ISO filesystem, since the loop device itself has no Filesystem
+  interface
+- Release stale loop mounts through their child partitions with bounded
+  timeouts, so a leftover mount can no longer block the wizard
+- Fix the startup error that prevented the custom stylesheet from loading
+
 * Sun Nov 08 2026 Lubus Contributors <lubus@github.com> - 5.0.0-6
 - Stage storage-controller drivers for Intel VMD/RST and AMD RAID media
 - Keep Sources\SetupHost.exe and the install image on the same NTFS volume
