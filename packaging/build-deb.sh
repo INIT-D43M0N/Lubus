@@ -13,7 +13,7 @@ set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${PROJECT_DIR}/debbuild"
 VERSION="5.0.0"
-REVISION="8"
+REVISION="9"
 PACKAGE_NAME="lubus"
 
 while [[ $# -gt 0 ]]; do

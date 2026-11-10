@@ -1,6 +1,6 @@
 Name:           lubus
 Version:        5.0.0
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        Create bootable USB drives on Linux (Rufus alternative)
 
 License:        GPL-3.0-or-later
@@ -83,7 +83,19 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/com.githu
 %{python3_sitelib}/lubus/
 
 %changelog
-* Mon Nov 09 2026 Lubus Contributors <lubus@github.com> - 5.0.0-8
+* Mon Nov 09 2026 Lubus Contributors <lubus@github.com> - 5.0.0-9
+- Verify the written data through UDisks2 instead of opening the device
+  node directly, fixing "Verification failed on /dev/sdb: Cannot open
+  device: [Errno 13] Permission denied"
+- Reuse the descriptor the dd writer already holds for the read back, so the
+  device does not have to be opened (and authorized) a second time
+- Read back with sector aligned O_DIRECT transfers and fall back to buffered
+  reads when the kernel refuses them, and report the offset of the first
+  differing byte on a mismatch
+- Open the target drive with the mode argument required by UDisks2 2.10 and
+  newer, fixing "Using 'O_RDWR', 'O_RDONLY' and 'O_WRONLY' flags is not
+  permitted. Use 'mode' argument instead." during flashing; older UDisks2
+  releases keep working through the legacy fallback
 - Open the target drive with the mode argument required by UDisks2 2.10 and
   newer, fixing "Using 'O_RDWR', 'O_RDONLY' and 'O_WRONLY' flags is not
   permitted. Use 'mode' argument instead." during flashing; older UDisks2
