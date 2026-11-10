@@ -795,18 +795,45 @@ def open_device_exclusive(conn: Gio.DBusConnection, device: str, mode: str = "w"
     """Open a block device exclusively.
 
     Returns a file descriptor. O_EXCL ensures nothing else has it open.
+
+    UDisks2 2.10 and newer expect the access mode as a string ("r" / "rw")
+    and reject the O_RDONLY / O_WRONLY / O_RDWR bits in the "flags" option
+    ("Using 'O_RDWR', 'O_RDONLY' and 'O_WRONLY' flags is not permitted. Use
+    'mode' argument instead."). Older releases expect the legacy
+    combination, so it is kept as a fallback.
     """
-    open_flags = os.O_EXCL | os.O_CLOEXEC | flags
+    obj = resolve_device(conn, device)
+    extra_flags = os.O_EXCL | os.O_CLOEXEC | flags
+
+    # Modern API: mode as a string, access bits left out of the flags.
+    mode_str = "r" if mode == "r" else "rw"
+    try:
+        reply, fds = _call(
+            conn, obj, BLOCK_IFACE, "OpenDevice",
+            GLib.Variant("(sa{sv})", (
+                mode_str, {"flags": GLib.Variant("i", extra_flags)})),
+            "(h)",
+        )
+        return fds.get(reply.unpack()[0])
+    except UDisksError as exc:
+        message = str(exc)
+        if "flags is not permitted" not in message and "Invalid mode" not in message:
+            raise
+        log.debug("Falling back to legacy OpenDevice flags: %s", exc)
+
+    # Legacy API: the access mode travels inside the flags.
+    legacy_flags = extra_flags
     if mode == "r":
-        open_flags |= os.O_RDONLY
+        legacy_flags |= os.O_RDONLY
     elif mode == "w":
-        open_flags |= os.O_WRONLY
-    elif mode == "rw":
-        open_flags |= os.O_RDWR
+        legacy_flags |= os.O_WRONLY
+    else:
+        legacy_flags |= os.O_RDWR
 
     reply, fds = _call(
-        conn, resolve_device(conn, device), BLOCK_IFACE, "OpenDevice",
-        GLib.Variant("(sa{sv})", (mode, {"flags": GLib.Variant("i", open_flags)})),
+        conn, obj, BLOCK_IFACE, "OpenDevice",
+        GLib.Variant("(sa{sv})", (
+            mode, {"flags": GLib.Variant("i", legacy_flags)})),
         "(h)",
     )
     return fds.get(reply.unpack()[0])

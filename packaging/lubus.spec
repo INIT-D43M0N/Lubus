@@ -1,6 +1,6 @@
 Name:           lubus
 Version:        5.0.0
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Create bootable USB drives on Linux (Rufus alternative)
 
 License:        GPL-3.0-or-later
@@ -83,6 +83,23 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/com.githu
 %{python3_sitelib}/lubus/
 
 %changelog
+* Mon Nov 09 2026 Lubus Contributors <lubus@github.com> - 5.0.0-8
+- Open the target drive with the mode argument required by UDisks2 2.10 and
+  newer, fixing "Using 'O_RDWR', 'O_RDONLY' and 'O_WRONLY' flags is not
+  permitted. Use 'mode' argument instead." during flashing; older UDisks2
+  releases keep working through the legacy fallback
+- Detect the operating system from the ISO9660 directory tree instead of
+  scanning raw bytes, so Linux media is no longer misdetected as Windows
+  because of strings embedded in the GRUB bootloader
+- Analyze images without mounting them, so image analysis cannot fail with
+  "No such interface org.freedesktop.UDisks2.Filesystem" any more
+- Mount hybrid images (Fedora, recent Ubuntu) through the partition holding
+  the ISO filesystem, since the loop device itself has no Filesystem
+  interface
+- Release stale loop mounts through their child partitions with bounded
+  timeouts, so a leftover mount can no longer block the wizard
+- Fix the startup error that prevented the custom stylesheet from loading
+
 * Mon Nov 09 2026 Lubus Contributors <lubus@github.com> - 5.0.0-7
 - Detect the operating system from the ISO9660 directory tree instead of
   scanning raw bytes, so Linux media is no longer misdetected as Windows

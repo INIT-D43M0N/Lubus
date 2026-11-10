@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - N/A
 
 ### Fixed
+- Flashing no longer fails on UDisks2 2.10 and newer with "Using 'O_RDWR', 'O_RDONLY' and 'O_WRONLY' flags is not permitted. Use 'mode' argument instead.": the drive is now opened through the `mode` argument, with the legacy flags kept as a fallback for older releases
 - Linux ISOs (Fedora, Ubuntu, …) are no longer misdetected as Windows media: detection reads the ISO directory tree instead of scanning raw bytes, where the GRUB binaries embedded in the image made "windows", "bootmgr" and "bcd" match
 - Image analysis no longer mounts the image, so it cannot fail with `No such interface "org.freedesktop.UDisks2.Filesystem" on object at path …/block_devices/loop0`
 - Hybrid images (Fedora, recent Ubuntu) are mounted through the partition that holds the ISO9660 filesystem instead of the loop device, which has no Filesystem interface
