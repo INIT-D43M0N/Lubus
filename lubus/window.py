@@ -33,8 +33,8 @@ from lubus.core.devices import Drive, get_drive_identity, format_size
 from lubus.core.images import ImageInfo, PartitionScheme, TargetSystem, FileSystem, ImageType
 from lubus.core.writer import (
     copy_image_dd, write_windows_installer, write_windows_togo,
-    extract_iso_files, release_stale_iso_mounts, StoppedException,
-    WriteError, VerifyMismatchError,
+    extract_iso_files, release_stale_iso_mounts, write_macos_installer,
+    StoppedException, WriteError, VerifyMismatchError,
 )
 from lubus.core.direct_install import (
     InstallConfig, install_to_drive, validate_install_config,
@@ -402,7 +402,9 @@ class LubusWindow(Adw.ApplicationWindow):
         self.summary_page.update_summary(self._settings)
         self.summary_page.set_verify_enabled(self._settings.get("verify", True))
         raw_verify = (
-            self._image_info.image_type == ImageType.LINUX_ISHYBRID
+            self._image_info.image_type in (
+                ImageType.LINUX_ISHYBRID, ImageType.CHROMEOS
+            )
             and self._settings.get("write_mode", 1) == 0
             and not self._settings["install_config"].is_direct
         )
@@ -553,6 +555,13 @@ class LubusWindow(Adw.ApplicationWindow):
         write_mode = settings.get("write_mode", 1)  # 0=DD, 1=Extract
         install_config = self.drive_page.get_install_config()
         install_config.edition_index = settings.get("edition_index", 1)
+
+        # ChromeOS recovery images and macOS disk images have only one
+        # sensible way to be written, so the user's choice does not apply.
+        if image_type == ImageType.CHROMEOS:
+            write_mode = 0        # raw block copy
+        elif image_type == ImageType.MACOS:
+            write_mode = 2        # Apple's own partition layout
         windows_options = dict(settings.get("windows_options") or {})
         if windows_options:
             install_config.skip_oobe = windows_options.get(
@@ -592,7 +601,7 @@ class LubusWindow(Adw.ApplicationWindow):
         # directly with dd. File-based installers need filesystem-level
         # verification (adapter-specific), so do not pretend to verify them.
         raw_verify = (
-            image_type == ImageType.LINUX_ISHYBRID
+            image_type in (ImageType.LINUX_ISHYBRID, ImageType.CHROMEOS)
             and write_mode == 0
             and not install_config.is_direct
         )
@@ -626,12 +635,13 @@ class LubusWindow(Adw.ApplicationWindow):
             return _status
 
         # A shared ISO mount is safe and avoids each writer mounting/remounting
-        # the same ISO concurrently.
+        # the same ISO concurrently. Raw writes and the macOS layout do not
+        # need the image mounted at all.
         needs_iso = not (
-            image_type == ImageType.LINUX_ISHYBRID
+            image_type in (ImageType.LINUX_ISHYBRID, ImageType.CHROMEOS)
             and write_mode == 0
             and not install_config.is_direct
-        )
+        ) and image_type != ImageType.MACOS
         if needs_iso:
             release_stale_iso_mounts(iso_path)
             iso_cm = mount_iso_readonly(iso_path)
@@ -693,6 +703,24 @@ class LubusWindow(Adw.ApplicationWindow):
                     release_stale=False,
                     verify_progress=verify_channel,
                     status_cb=device_status,
+                )
+
+            if image_type == ImageType.CHROMEOS:
+                # A ChromeOS recovery image is a raw disk image: Google
+                # writes it to the drive byte for byte as well.
+                return copy_image_dd(
+                    iso_path, device, progress_channel, stopped_cb,
+                    verify=internal_verify,
+                    release_stale=False,
+                    verify_progress=verify_channel,
+                    status_cb=device_status,
+                )
+
+            if image_type == ImageType.MACOS:
+                return write_macos_installer(
+                    iso_path, device, progress_channel, stopped_cb,
+                    status_cb=device_status,
+                    release_stale=False,
                 )
 
             from lubus.core.partitions import get_generic_layout

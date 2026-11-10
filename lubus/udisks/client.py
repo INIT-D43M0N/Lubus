@@ -286,6 +286,18 @@ def resolve_device(conn: Gio.DBusConnection, device: str) -> str:
     return paths[0]
 
 
+def device_node(conn: Gio.DBusConnection, object_path: str) -> str:
+    """The device node of a UDisks object (e.g. /dev/sdb2).
+
+    Returns an empty string when the object has no device node (yet).
+    """
+    try:
+        block = _get_objects(conn).get(object_path, {}).get(BLOCK_IFACE) or {}
+        return _bytes(block.get("Device", ""))
+    except (UDisksError, GLib.Error, OSError):
+        return ""
+
+
 def get_drive_identity(device: str) -> Optional[Tuple]:
     """Get a unique identity for a drive to detect swaps.
 

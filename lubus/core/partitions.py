@@ -13,6 +13,7 @@ class PartitionType(Enum):
     LINUX_FILESYSTEM = "linux"
     BIOS_BOOT = "bios_boot"
     MICROSOFT_RESERVED = "msftres"
+    APPLE_HFS = "apple_hfs"
 
 
 @dataclass
@@ -160,6 +161,43 @@ def get_linux_ishybrid_layout(
     )
 
 
+def get_macos_layout(
+    label: str,
+    drive_size: int,
+    efi_size: int = 200 * 1024 * 1024,
+) -> PartitionLayout:
+    """Get the partition layout of a macOS installer USB.
+
+    Apple's own createinstallmedia puts an EFI system partition with the
+    bootloader in front of the Apple_HFS partition that holds the installer.
+    The EFI partition is 200 MB there, so the same size is used here.
+    """
+    partitions = [
+        PartitionSpec(
+            type=PartitionType.EFI_SYSTEM,
+            size=efi_size,
+            fs=FileSystem.FAT32,
+            label="EFI",
+            name="EFI System Partition",
+            flags=["boot", "esp"],
+        ),
+        PartitionSpec(
+            type=PartitionType.APPLE_HFS,
+            size=0,
+            fs=FileSystem.FAT32,   # not formatted here; the HFS+ volume is written raw
+            label=label,
+            name="Apple HFS",
+            flags=[],
+        ),
+    ]
+
+    return PartitionLayout(
+        scheme=PartitionScheme.GPT,
+        target=TargetSystem.UEFI,
+        partitions=partitions,
+    )
+
+
 def get_generic_layout(
     scheme: PartitionScheme,
     target: TargetSystem,
@@ -255,6 +293,7 @@ def get_partition_type_guid(part_type: PartitionType, scheme: PartitionScheme) -
             PartitionType.LINUX_FILESYSTEM: "0fc63daf-8483-4772-8e79-3d69d8477de4",
             PartitionType.BIOS_BOOT: "21686148-6449-6e6f-744e-656564454649",
             PartitionType.MICROSOFT_RESERVED: "e3c9e316-0b5c-4db8-817d-f92df00215ae",
+            PartitionType.APPLE_HFS: "7c3457ef-0000-11aa-aa11-00306543ecac",
         }
         return guids.get(part_type, "0fc63daf-8483-4772-8e79-3d69d8477de4")
     else:
@@ -265,6 +304,7 @@ def get_partition_type_guid(part_type: PartitionType, scheme: PartitionScheme) -
             PartitionType.LINUX_FILESYSTEM: "0x83",      # Linux
             PartitionType.BIOS_BOOT: "0xee",      # GPT protective (not used in MBR)
             PartitionType.MICROSOFT_RESERVED: "0x00",  # MSR is GPT-only
+            PartitionType.APPLE_HFS: "0x07",      # Apple HFS shares the NTFS code
         }
         return codes.get(part_type, "0x83")
 

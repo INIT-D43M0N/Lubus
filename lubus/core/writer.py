@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import tempfile
 import struct
+import time
 import contextlib
 from typing import Callable, Optional, List
 from pathlib import Path
@@ -24,14 +25,19 @@ from .images import ImageType, PartitionScheme, TargetSystem, FileSystem
 from .partitions import (
     PartitionLayout, PartitionSpec, PartitionType,
     get_windows_installer_layout, get_windows_togo_layout,
-    get_linux_ishybrid_layout, get_generic_layout,
+    get_linux_ishybrid_layout, get_generic_layout, get_macos_layout,
     calculate_partition_offsets, get_partition_type_guid, format_size,
+)
+from .macos import (
+    EFI_PARTITION_SIZE, MacosError, bootloader_files, extract_dmg,
+    extract_dmg_tree, find_bootloader, find_hfsplus_volume,
 )
 from .icon_utils import get_or_create_windows_icon
 from .windows_drivers import stage_drivers
 from ..udisks.client import (
     _get_objects, _get_bus, BLOCK_IFACE, FILESYSTEM_IFACE, LOOP_IFACE,
-    _partition_children, LOOP_DELETE_TIMEOUT,
+    _partition_children, LOOP_DELETE_TIMEOUT, create_partition_unformatted,
+    device_node,
 )
 
 log = get_logger(__name__)
@@ -874,6 +880,155 @@ def extract_iso_files(
         return False
 
     status("Syncing...")
+    return True
+
+
+def _wait_for_device_node(conn, object_path: str, timeout: float = 20.0) -> str:
+    """Wait until a freshly created partition shows up as a device node."""
+    deadline = time.monotonic() + timeout
+    while True:
+        node = device_node(conn, object_path)
+        if node and os.path.exists(node):
+            return node
+        if time.monotonic() >= deadline:
+            return node
+        time.sleep(0.25)
+
+
+def _copy_volume_to_partition(
+    conn,
+    partition_path: str,
+    raw_path: str,
+    offset: int,
+    length: int,
+    progress: ProgressCallback,
+    stopped: StoppedCallback,
+) -> None:
+    """Copy a slice of a raw image into a partition.
+
+    The HFS+ volume is written as raw blocks, so it never has to be mounted
+    on the Linux side.
+    """
+    node = _wait_for_device_node(conn, partition_path)
+    if not node:
+        raise WriteError(_("The macOS partition did not appear on the drive."))
+
+    fd = open_device_exclusive(conn, node, "rw")
+    try:
+        done = 0
+        with open(raw_path, "rb") as source:
+            source.seek(offset)
+            while done < length:
+                if stopped():
+                    raise StoppedException()
+                chunk = source.read(min(CHUNK_SIZE, length - done))
+                if not chunk:
+                    break
+                view = memoryview(chunk)
+                while view:
+                    view = view[os.write(fd, view):]
+                done += len(chunk)
+                progress(done, length)
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def write_macos_installer(
+    dmg_path: str,
+    device: str,
+    progress: ProgressCallback,
+    stopped: StoppedCallback,
+    status_cb: Callable[[str], None] = None,
+    release_stale: bool = True,
+) -> bool:
+    """Write a macOS installer disk image to a drive.
+
+    Apple does not ship ISO images: the installer is a DMG holding an HFS+
+    volume. The drive gets the layout Apple's own createinstallmedia uses -
+    a 200 MB EFI system partition with the bootloader in front of an
+    Apple_HFS partition with the installer volume.
+    """
+    emit = status_cb or status
+    conn = bus()
+    dev_path = resolve(conn, device)
+
+    emit(_("Preparing macOS installer…"))
+    if release_stale:
+        release_stale_iso_mounts(dmg_path)
+    unmount_all(conn, dev_path)
+
+    with tempfile.TemporaryDirectory(prefix="lubus-macos-") as tmp:
+        raw_path = os.path.join(tmp, "macos.img")
+        tree_dir = os.path.join(tmp, "tree")
+
+        emit(_("Converting the macOS image…"))
+        try:
+            raw_path = extract_dmg(dmg_path, raw_path)
+        except MacosError as exc:
+            raise WriteError(str(exc)) from exc
+
+        volume = find_hfsplus_volume(raw_path)
+        if volume is None:
+            raise WriteError(
+                _("The macOS image does not contain an HFS+ volume.")
+            )
+
+        # The bootloader is only needed for booting the installer straight
+        # from the USB; without it the USB still holds the installer.
+        bootloader = None
+        if extract_dmg_tree(dmg_path, tree_dir):
+            bootloader = find_bootloader(tree_dir)
+
+        drive_size = get_device_size(device)
+        needed = volume.size + EFI_PARTITION_SIZE + 4 * 1024 * 1024
+        if needed > drive_size:
+            raise WriteError(
+                _("The macOS installer needs {needed} but the drive has "
+                  "{available}.").format(
+                    needed=format_size(needed),
+                    available=format_size(drive_size),
+                )
+            )
+
+        emit(_("Creating partitions…"))
+        layout = get_macos_layout("macOS", drive_size)
+        wipe_partition_table(conn, device, layout.scheme.value)
+
+        specs = calculate_partition_offsets(layout, drive_size)
+        efi_spec, hfs_spec = specs
+
+        efi_part = create_partition(
+            conn, device, efi_spec.offset, efi_spec.size,
+            get_partition_type_guid(efi_spec.type, layout.scheme),
+            efi_spec.name, "vfat", "EFI", layout.scheme.value,
+        )
+        hfs_part = create_partition_unformatted(
+            conn, device, hfs_spec.offset, hfs_spec.size,
+            get_partition_type_guid(hfs_spec.type, layout.scheme),
+            hfs_spec.name, layout.scheme.value,
+        )
+
+        if bootloader:
+            emit(_("Installing the macOS bootloader…"))
+            mount_point = mount_filesystem(conn, efi_part)
+            try:
+                boot_dir = os.path.join(mount_point, "EFI", "BOOT")
+                os.makedirs(boot_dir, exist_ok=True)
+                for source, name in bootloader_files(tree_dir, bootloader):
+                    shutil.copy2(source, os.path.join(boot_dir, name))
+            finally:
+                unmount_filesystem(conn, efi_part)
+        else:
+            emit(_("No macOS bootloader found in the image; the drive will "
+                   "hold the installer but not boot it."))
+
+        emit(_("Copying the macOS installer…"))
+        _copy_volume_to_partition(
+            conn, hfs_part, raw_path, volume.offset, volume.size,
+            progress, stopped,
+        )
+
     return True
 
 

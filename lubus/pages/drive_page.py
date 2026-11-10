@@ -228,6 +228,12 @@ class DrivePage(UiPage):
                 min(self._custom_fs_index, len(_FS_NAMES) - 1)
             )
         self.bypass_win11_row.set_visible(self._is_direct() and windows)
+        # ChromeOS and macOS media have their own layout, they cannot be
+        # installed as a portable system on a partition of our choosing.
+        own_layout = image_type in (ImageType.CHROMEOS, ImageType.MACOS)
+        self.install_mode_row.set_sensitive(not own_layout)
+        if own_layout:
+            self.install_mode_row.set_selected(0)
         self._update_partition_summary()
 
     def _on_boot_mode_changed(self, _row, _pspec):

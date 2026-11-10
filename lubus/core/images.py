@@ -9,6 +9,8 @@ from typing import List, Optional, Tuple
 from pathlib import Path
 
 from ..utils.logging import get_logger
+from .chromeos import is_chromeos_image
+from .macos import is_dmg
 
 log = get_logger(__name__)
 
@@ -19,6 +21,8 @@ class ImageType(Enum):
     WINDOWS_TO_GO = "windows_to_go"            # Windows To Go (not an image type per se, but a mode)
     LINUX_ISHYBRID = "linux_ishybrid"          # Linux ISO with isohybrid (dd mode)
     LINUX_INSTALLER = "linux_installer"        # Linux installer (file copy mode)
+    CHROMEOS = "chromeos"                      # ChromeOS recovery image (raw dd mode)
+    MACOS = "macos"                            # macOS installer disk image (.dmg)
     UNKNOWN = "unknown"
 
 
@@ -429,6 +433,11 @@ def scan_iso_for_markers(path: str) -> Tuple[bool, bool]:
 
 
 def _detect_image_type(path: str, paths: Optional[set]) -> ImageType:
+    # Apple's disk images come first: they are not ISO9660 and their
+    # compressed payload may contain anything.
+    if is_dmg(path):
+        return ImageType.MACOS
+
     if paths is not None:
         has_windows = _matches_paths(paths, WINDOWS_ISO_FILES, WINDOWS_ISO_PREFIXES)
         has_linux = _matches_paths(paths, LINUX_ISO_FILES, LINUX_ISO_PREFIXES)
@@ -450,6 +459,11 @@ def _detect_image_type(path: str, paths: Optional[set]) -> ImageType:
         except OSError:
             pass
         return ImageType.LINUX_INSTALLER
+
+    # Not an ISO. A raw disk image with the ChromeOS partition layout is a
+    # ChromeOS recovery image, which is written like an isohybrid one.
+    if is_chromeos_image(path):
+        return ImageType.CHROMEOS
 
     return ImageType.UNKNOWN
 
@@ -535,6 +549,17 @@ def analyze_image(path: str) -> ImageInfo:
         suggested_scheme = PartitionScheme.GPT
         suggested_target = TargetSystem.UEFI
         suggested_fs = FileSystem.FAT32
+    elif image_type == ImageType.CHROMEOS:
+        # ChromeOS recovery images are written as a whole, like isohybrid
+        # media: the drive keeps the partition layout of the image.
+        suggested_scheme = PartitionScheme.GPT
+        suggested_target = TargetSystem.UEFI
+        suggested_fs = FileSystem.FAT32
+    elif image_type == ImageType.MACOS:
+        # The macOS layout is fixed: an EFI partition plus an Apple_HFS one.
+        suggested_scheme = PartitionScheme.GPT
+        suggested_target = TargetSystem.UEFI
+        suggested_fs = FileSystem.FAT32
     else:
         suggested_scheme = PartitionScheme.GPT
         suggested_target = TargetSystem.UEFI
@@ -544,7 +569,15 @@ def analyze_image(path: str) -> ImageInfo:
     # enough; mounting is only needed for other formats (e.g. .img/.raw).
     is_efi = False
     is_bios = False
-    if paths is not None:
+    if image_type == ImageType.CHROMEOS:
+        # A raw disk image: it is copied as a whole and never mounted.
+        is_efi = False
+        is_bios = False
+    elif image_type == ImageType.MACOS:
+        # The macOS layout carries an EFI partition with Apple's bootloader.
+        is_efi = True
+        is_bios = False
+    elif paths is not None:
         is_efi = _matches_paths(paths, EFI_BOOT_PATHS, ())
         is_bios = _matches_paths(paths, BIOS_BOOT_PATHS, BIOS_BOOT_PREFIXES)
     else:
@@ -558,7 +591,14 @@ def analyze_image(path: str) -> ImageInfo:
         except Exception:
             pass
 
-    distro_name = identify_distro(label, filename) if image_type != ImageType.WINDOWS_INSTALLER else None
+    if image_type == ImageType.WINDOWS_INSTALLER:
+        distro_name = None
+    elif image_type == ImageType.CHROMEOS:
+        distro_name = "ChromeOS"
+    elif image_type == ImageType.MACOS:
+        distro_name = "macOS"
+    else:
+        distro_name = identify_distro(label, filename)
 
     return ImageInfo(
         path=path,

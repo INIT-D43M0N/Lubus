@@ -30,7 +30,7 @@ from lubus.pages.iso_download import IsoDownloadDialog
 
 log = logging.getLogger(__name__)
 
-IMAGE_EXTENSIONS = (".iso", ".img", ".dd", ".raw", ".bin")
+IMAGE_EXTENSIONS = (".iso", ".img", ".dd", ".raw", ".bin", ".dmg")
 
 # Cluster size options per filesystem (Rufus-compatible set)
 CLUSTER_OPTIONS = {
@@ -185,6 +185,8 @@ class ImagePage(UiPage):
             ImageType.WINDOWS_INSTALLER: 0,
             ImageType.LINUX_ISHYBRID: 1,
             ImageType.LINUX_INSTALLER: 2,
+            ImageType.CHROMEOS: 4,
+            ImageType.MACOS: 5,
         }
         return mapping.get(self._image_info.image_type, 3)
 
@@ -243,6 +245,11 @@ class ImagePage(UiPage):
         for ext in ("img", "dd", "raw", "bin"):
             img_filter.add_suffix(ext)
         filters.append(img_filter)
+
+        dmg_filter = Gtk.FileFilter()
+        dmg_filter.set_name(_("Apple Disk Images (*.dmg)"))
+        dmg_filter.add_suffix("dmg")
+        filters.append(dmg_filter)
 
         all_filter = Gtk.FileFilter()
         all_filter.set_name(_("All Files"))
@@ -311,6 +318,7 @@ class ImagePage(UiPage):
         self.detected_row.set_subtitle(" · ".join(detected))
 
         self._apply_suggestions(info)
+        self._apply_write_mode(info)
 
         # Windows ISOs: list editions for the Windows To Go path
         if info.image_type == ImageType.WINDOWS_INSTALLER:
@@ -320,6 +328,24 @@ class ImagePage(UiPage):
             self.edition_row.set_visible(False)
             self._editions = []
             self._notify_ready()
+
+    def _apply_write_mode(self, info: ImageInfo):
+        """Lock the writing mode for the formats that only have one."""
+        if info.image_type == ImageType.CHROMEOS:
+            # A recovery image is a raw disk image, it is copied as a whole.
+            self.mode_row.set_selected(0)
+            self.mode_row.set_sensitive(False)
+            self.mode_row.set_subtitle(
+                _("Raw block copy (the only mode for ChromeOS)")
+            )
+        elif info.image_type == ImageType.MACOS:
+            self.mode_row.set_sensitive(False)
+            self.mode_row.set_subtitle(
+                _("Apple partition layout (EFI + HFS+)")
+            )
+        else:
+            self.mode_row.set_sensitive(True)
+            self.mode_row.set_subtitle("")
 
     def _analysis_error(self, error: str):
         """Show a banner and fall back to the chooser state."""

@@ -162,6 +162,8 @@ class SummaryPage(UiPage):
             _("Linux (ISOhybrid / dd mode)"),
             _("Linux Installer (file copy)"),
             _("Other / Unknown"),
+            _("ChromeOS (recovery image)"),
+            _("macOS (installer disk image)"),
         ]
         os_idx = 0 if info is None else _os_type_index(info)
         if 0 <= os_idx < len(os_types):
@@ -290,5 +292,7 @@ def _os_type_index(info) -> int:
         ImageType.WINDOWS_INSTALLER: 0,
         ImageType.LINUX_ISHYBRID: 1,
         ImageType.LINUX_INSTALLER: 2,
+        ImageType.CHROMEOS: 4,
+        ImageType.MACOS: 5,
     }
     return mapping.get(info.image_type, 3)
