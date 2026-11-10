@@ -1,6 +1,6 @@
 Name:           lubus
 Version:        5.0.0
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        Create bootable USB drives on Linux (Rufus alternative)
 
 License:        GPL-3.0-or-later
@@ -83,6 +83,17 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/com.githu
 %{python3_sitelib}/lubus/
 
 %changelog
+* Tue Nov 10 2026 Lubus Contributors <lubus@github.com> - 5.0.0-10
+- Stop sending the access bits in the flags option of Block.OpenDevice,
+  which UDisks2 has refused since 2.7.3, and remove the unreachable legacy
+  fallback; the access mode now travels in the mode argument, as the daemon
+  expects
+- Report a clear error when the UDisks2 daemon is too old to have
+  Block.OpenDevice, instead of a cryptic D-Bus failure
+- Ask for the drive with the least privilege needed: a write-only open for
+  the write phase and a read-write one only when the data is verified
+- Document the Polkit authentication agent as a runtime requirement
+
 * Mon Nov 09 2026 Lubus Contributors <lubus@github.com> - 5.0.0-9
 - Verify the written data through UDisks2 instead of opening the device
   node directly, fixing "Verification failed on /dev/sdb: Cannot open
@@ -92,14 +103,11 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/com.githu
 - Read back with sector aligned O_DIRECT transfers and fall back to buffered
   reads when the kernel refuses them, and report the offset of the first
   differing byte on a mismatch
-- Open the target drive with the mode argument required by UDisks2 2.10 and
-  newer, fixing "Using 'O_RDWR', 'O_RDONLY' and 'O_WRONLY' flags is not
-  permitted. Use 'mode' argument instead." during flashing; older UDisks2
-  releases keep working through the legacy fallback
-- Open the target drive with the mode argument required by UDisks2 2.10 and
-  newer, fixing "Using 'O_RDWR', 'O_RDONLY' and 'O_WRONLY' flags is not
-  permitted. Use 'mode' argument instead." during flashing; older UDisks2
-  releases keep working through the legacy fallback
+
+* Mon Nov 09 2026 Lubus Contributors <lubus@github.com> - 5.0.0-8
+- Open the target drive with the mode argument of Block.OpenDevice, fixing
+  "Using 'O_RDWR', 'O_RDONLY' and 'O_WRONLY' flags is not permitted. Use
+  'mode' argument instead." during flashing
 - Detect the operating system from the ISO9660 directory tree instead of
   scanning raw bytes, so Linux media is no longer misdetected as Windows
   because of strings embedded in the GRUB bootloader

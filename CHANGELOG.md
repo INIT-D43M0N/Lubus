@@ -39,9 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - N/A
 
 ### Fixed
+- Opening the drive no longer sends the access bits in the `flags` option of `Block.OpenDevice`, which UDisks2 has refused since 2.7.3, and the unreachable legacy fallback was removed: the access mode travels in the `mode` argument ("r", "w" or "rw") and a daemon without `Block.OpenDevice` now gets a clear message instead of a cryptic D-Bus error
 - Verifying the written data no longer fails with "Cannot open device: [Errno 13] Permission denied": the device is opened through UDisks2 (polkit) like the write path, and the dd writer reuses the descriptor it already holds, so no second privileged open is needed
 - The read back uses sector aligned `O_DIRECT` transfers with a buffered fallback, so it cannot fail on alignment rules, and reports the offset of the first differing byte on a mismatch
-- Flashing no longer fails on UDisks2 2.10 and newer with "Using 'O_RDWR', 'O_RDONLY' and 'O_WRONLY' flags is not permitted. Use 'mode' argument instead.": the drive is now opened through the `mode` argument, with the legacy flags kept as a fallback for older releases
+- Flashing no longer fails with "Using 'O_RDWR', 'O_RDONLY' and 'O_WRONLY' flags is not permitted. Use 'mode' argument instead.": the drive is now opened through the `mode` argument of `Block.OpenDevice`, which has been the contract since UDisks2 2.7.3 (2017)
 - Linux ISOs (Fedora, Ubuntu, …) are no longer misdetected as Windows media: detection reads the ISO directory tree instead of scanning raw bytes, where the GRUB binaries embedded in the image made "windows", "bootmgr" and "bcd" match
 - Image analysis no longer mounts the image, so it cannot fail with `No such interface "org.freedesktop.UDisks2.Filesystem" on object at path …/block_devices/loop0`
 - Hybrid images (Fedora, recent Ubuntu) are mounted through the partition that holds the ISO9660 filesystem instead of the loop device, which has no Filesystem interface

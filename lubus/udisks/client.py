@@ -792,54 +792,46 @@ def _is_portal_path(path: str) -> bool:
 # =============================================================================
 
 def open_device_exclusive(conn: Gio.DBusConnection, device: str, mode: str = "w", flags: int = 0, exclusive: bool = True) -> int:
-    """Open a block device exclusively.
+    """Open a block device through UDisks2 and return a file descriptor.
 
-    Returns a file descriptor. O_EXCL ensures nothing else has it open; pass
-    ``exclusive=False`` when the device may legitimately still be in use
-    (for instance while reading it back for verification).
+    ``mode`` is the access mode: "r" (read only), "w" (write only) or "rw".
+    UDisks2 takes the access mode in the first argument of
+    ``Block.OpenDevice`` and refuses the O_RDONLY / O_WRONLY / O_RDWR bits in
+    the "flags" option ("Using 'O_RDWR', 'O_RDONLY' and 'O_WRONLY' flags is
+    not permitted. Use 'mode' argument instead."). That has been the case
+    since UDisks2 2.7.3 (2017), so the access bits are never sent in the
+    flags here.
 
-    UDisks2 2.10 and newer expect the access mode as a string ("r" / "rw")
-    and reject the O_RDONLY / O_WRONLY / O_RDWR bits in the "flags" option
-    ("Using 'O_RDWR', 'O_RDONLY' and 'O_WRONLY' flags is not permitted. Use
-    'mode' argument instead."). Older releases expect the legacy
-    combination, so it is kept as a fallback.
+    ``exclusive`` adds O_EXCL, so that nothing else has the device open.
+    Pass ``exclusive=False`` when the device may legitimately still be in
+    use (for instance while reading it back for verification).
     """
+    if mode not in ("r", "w", "rw"):
+        raise UDisksError(f"Invalid access mode: {mode!r}")
+
     obj = resolve_device(conn, device)
     extra_flags = os.O_CLOEXEC | flags
     if exclusive:
         extra_flags |= os.O_EXCL
 
-    # Modern API: mode as a string, access bits left out of the flags.
-    mode_str = "r" if mode == "r" else "rw"
     try:
         reply, fds = _call(
             conn, obj, BLOCK_IFACE, "OpenDevice",
             GLib.Variant("(sa{sv})", (
-                mode_str, {"flags": GLib.Variant("i", extra_flags)})),
+                mode, {"flags": GLib.Variant("i", extra_flags)})),
             "(h)",
         )
-        return fds.get(reply.unpack()[0])
     except UDisksError as exc:
-        message = str(exc)
-        if "flags is not permitted" not in message and "Invalid mode" not in message:
-            raise
-        log.debug("Falling back to legacy OpenDevice flags: %s", exc)
+        # Block.OpenDevice was added in UDisks2 2.7.3. Older daemons only
+        # have OpenForBackup / OpenForRestore, which cannot give us a
+        # read-write descriptor for the write-and-verify flow.
+        if "UnknownMethod" in str(exc) or "unknown method" in str(exc).lower():
+            raise UDisksError(
+                "This UDisks2 version does not implement Block.OpenDevice. "
+                "UDisks2 2.7.3 or newer is required to write to a drive."
+            ) from exc
+        raise
 
-    # Legacy API: the access mode travels inside the flags.
-    legacy_flags = extra_flags
-    if mode == "r":
-        legacy_flags |= os.O_RDONLY
-    elif mode == "w":
-        legacy_flags |= os.O_WRONLY
-    else:
-        legacy_flags |= os.O_RDWR
-
-    reply, fds = _call(
-        conn, obj, BLOCK_IFACE, "OpenDevice",
-        GLib.Variant("(sa{sv})", (
-            mode, {"flags": GLib.Variant("i", legacy_flags)})),
-        "(h)",
-    )
     return fds.get(reply.unpack()[0])
 
 

@@ -89,8 +89,12 @@ lubus/
 - PyGObject
 - GTK 4.10 or newer
 - Libadwaita 1.3 or newer
-- UDisks2
+- UDisks2 2.7.3 or newer (the `Block.OpenDevice` method with the `mode` argument)
 - Polkit
+- A Polkit authentication agent, so the authorization dialog for opening the
+  drive can be shown (`polkit-gnome` on GNOME, `polkit-kde` on KDE). Without
+  one, Polkit cannot ask for the password and the privileged operations
+  either hang or fail
 - `dosfstools` for FAT32
 - `ntfs-3g` for NTFS
 - `exfatprogs` for exFAT
