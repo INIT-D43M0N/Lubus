@@ -639,7 +639,7 @@ class LubusWindow(Adw.ApplicationWindow):
             release_stale_iso_mounts(iso_path)
             iso_cm = contextlib.nullcontext(None)
 
-        def write_one(index, drive, progress_channel, shared_root):
+        def write_one(index, drive, progress_channel, shared_root, verify_channel=None):
             device = drive.device
             device_status = make_status(device)
 
@@ -689,8 +689,10 @@ class LubusWindow(Adw.ApplicationWindow):
             if image_type == ImageType.LINUX_ISHYBRID and write_mode == 0:
                 return copy_image_dd(
                     iso_path, device, progress_channel, stopped_cb,
-                    verify=False,
+                    verify=internal_verify,
                     release_stale=False,
+                    verify_progress=verify_channel,
+                    status_cb=device_status,
                 )
 
             from lubus.core.partitions import get_generic_layout
@@ -714,12 +716,25 @@ class LubusWindow(Adw.ApplicationWindow):
                 frac * write_mode_share, done, total
             ),
         )
+        verify_agg = AggregateProgress(
+            len(drives),
+            lambda frac, done, total: _emit_progress(
+                write_mode_share + frac * verify_share, done, total
+            ),
+        )
+        # With a single drive the dd writer verifies with the descriptor it
+        # already holds, which avoids a second privileged open of the device
+        # (and the polkit authorization that comes with it). With several
+        # drives the verification runs afterwards, aggregated over all of
+        # them, so the progress bar does not jump between the two phases.
+        internal_verify = verify_enabled and len(drives) == 1
 
         failures = []
         with iso_cm as shared_root:
             if len(drives) == 1:
                 try:
-                    ok = write_one(0, drives[0], write_agg.channel(0), shared_root)
+                    ok = write_one(0, drives[0], write_agg.channel(0), shared_root,
+                                   verify_agg.channel(0))
                     if not ok:
                         failures.append((drives[0], _("Cancelled")))
                 except Exception as exc:  # noqa: BLE001 - reported below
@@ -731,7 +746,7 @@ class LubusWindow(Adw.ApplicationWindow):
                     futures = {
                         executor.submit(
                             write_one, i, drive, write_agg.channel(i),
-                            shared_root,
+                            shared_root, verify_agg.channel(i),
                         ): drive
                         for i, drive in enumerate(drives)
                     }
@@ -762,14 +777,8 @@ class LubusWindow(Adw.ApplicationWindow):
                 )
             )
 
-        if verify_enabled:
+        if verify_enabled and not internal_verify:
             status_cb(_("Verifying written data…"))
-            verify_agg = AggregateProgress(
-                len(drives),
-                lambda frac, done, total: _emit_progress(
-                    write_mode_share + frac * verify_share, done, total
-                ),
-            )
             verify_failures = []
 
             def verify_one(index, drive):

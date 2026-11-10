@@ -403,7 +403,8 @@ win._settings.update({"write_mode": 0, "verify": False})
 barrier = threading.Barrier(2, timeout=8)
 called = []
 
-def fake_dd(iso, device, progress, stopped, verify=False, release_stale=True):
+def fake_dd(iso, device, progress, stopped, verify=False, release_stale=True,
+            verify_progress=None, status_cb=None):
     called.append(device)
     barrier.wait()
     for i in range(1, 11):

@@ -791,10 +791,12 @@ def _is_portal_path(path: str) -> bool:
 # Device Access (for dd-style writes)
 # =============================================================================
 
-def open_device_exclusive(conn: Gio.DBusConnection, device: str, mode: str = "w", flags: int = 0) -> int:
+def open_device_exclusive(conn: Gio.DBusConnection, device: str, mode: str = "w", flags: int = 0, exclusive: bool = True) -> int:
     """Open a block device exclusively.
 
-    Returns a file descriptor. O_EXCL ensures nothing else has it open.
+    Returns a file descriptor. O_EXCL ensures nothing else has it open; pass
+    ``exclusive=False`` when the device may legitimately still be in use
+    (for instance while reading it back for verification).
 
     UDisks2 2.10 and newer expect the access mode as a string ("r" / "rw")
     and reject the O_RDONLY / O_WRONLY / O_RDWR bits in the "flags" option
@@ -803,7 +805,9 @@ def open_device_exclusive(conn: Gio.DBusConnection, device: str, mode: str = "w"
     combination, so it is kept as a fallback.
     """
     obj = resolve_device(conn, device)
-    extra_flags = os.O_EXCL | os.O_CLOEXEC | flags
+    extra_flags = os.O_CLOEXEC | flags
+    if exclusive:
+        extra_flags |= os.O_EXCL
 
     # Modern API: mode as a string, access bits left out of the flags.
     mode_str = "r" if mode == "r" else "rw"

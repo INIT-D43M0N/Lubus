@@ -14,6 +14,7 @@ from pathlib import Path
 from gi.repository import GLib, Gio
 
 from ..utils.logging import get_logger
+from ..utils.i18n import _
 from ..udisks import (
     bus, resolve, unmount_all, open_device_exclusive, mount_filesystem,
     unmount_filesystem, make_volume, can_format_fstype, is_canceled_error,
@@ -334,6 +335,8 @@ def copy_image_dd(
     stopped: StoppedCallback,
     verify: bool = False,
     release_stale: bool = True,
+    verify_progress: ProgressCallback = None,
+    status_cb: Callable[[str], None] = None,
 ) -> bool:
     """Write ISO image to device using dd-style block copy.
 
@@ -343,15 +346,19 @@ def copy_image_dd(
         progress: Progress callback (done, total)
         stopped: Stop check callback
         verify: Verify after write
+        verify_progress: Progress callback for the verification phase; the
+            write callback is used when it is not given
+        status_cb: Status message callback
 
     Returns:
         True if completed, False if stopped.
     """
+    emit = status_cb or status
     conn = bus()
     dev_path = resolve(conn, device)
 
     # Unmount everything first
-    status("Unmounting...")
+    emit("Unmounting...")
     # Release stale ISO loop mounts from analysis before touching the device
     if release_stale:
         release_stale_iso_mounts(iso_path)
@@ -375,7 +382,7 @@ def copy_image_dd(
 
         os.lseek(fd, 0, os.SEEK_SET)
 
-        status("Copying image...")
+        emit("Copying image...")
         done = 0
         with open(iso_path, "rb") as src:
             while chunk := src.read(CHUNK_SIZE):
@@ -387,12 +394,14 @@ def copy_image_dd(
                 done += len(chunk)
                 progress(done, total)
 
-        status("Syncing...")
+        emit("Syncing...")
         os.fsync(fd)
 
         if verify:
-            status("Verifying...")
-            if not verify_image_dd(iso_path, fd, progress, stopped):
+            emit(_("Verifying written data…"))
+            # The descriptor is still open, so the device does not have to be
+            # opened (and authorized) a second time for the read back.
+            if not verify_image_dd(iso_path, fd, verify_progress or progress, stopped):
                 return False
 
     finally:
@@ -407,34 +416,13 @@ def verify_image_dd(
     progress: ProgressCallback,
     stopped: StoppedCallback,
 ) -> bool:
-    """Verify device matches ISO by reading back (bypassing page cache)."""
-    # Drop page cache or use O_DIRECT
-    try:
-        flags = fcntl.fcntl(fd, fcntl.F_GETFL)
-        fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_DIRECT)
-    except OSError:
-        os.posix_fadvise(fd, 0, 0, os.POSIX_FADV_DONTNEED)
+    """Verify device matches ISO by reading back (bypassing page cache).
 
-    total = os.path.getsize(iso_path)
-    buf = mmap.mmap(-1, CHUNK_SIZE)
-    done = 0
-
-    with open(iso_path, "rb") as src:
-        while chunk := src.read(CHUNK_SIZE):
-            if stopped():
-                return False
-            got = 0
-            while got < len(chunk):
-                n = os.preadv(fd, [memoryview(buf)[got:]], done + got)
-                if n == 0:
-                    break
-                got += n
-            if got < len(chunk) or buf[:len(chunk)] != chunk:
-                raise VerifyMismatchError("Image verification failed: data mismatch")
-            done += len(chunk)
-            progress(done, total)
-
-    return True
+    The descriptor is the one the image was written with, so no second
+    privileged open (and no extra polkit authorization) is needed.
+    """
+    from .verify import verify_fd_matches_image
+    return verify_fd_matches_image(fd, iso_path, progress, stopped)
 
 
 def _measure_iso_tree(iso_root: str, skip_paths: List[str]):
