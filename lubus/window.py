@@ -34,6 +34,7 @@ from lubus.core.images import ImageInfo, PartitionScheme, TargetSystem, FileSyst
 from lubus.core.writer import (
     copy_image_dd, write_windows_installer, write_windows_togo,
     extract_iso_files, release_stale_iso_mounts, write_macos_installer,
+    write_brunch_installer,
     StoppedException, WriteError, VerifyMismatchError,
 )
 from lubus.core.direct_install import (
@@ -45,15 +46,16 @@ from lubus.udisks import (
     is_canceled_error, NotAuthorizedError, PortalPathError,
     mount_iso_readonly, get_device_size,
 )
-from lubus.pages import DrivePage, ImagePage, SummaryPage, FlashPage
+from lubus.pages import DrivePage, ImagePage, BrunchPage, SummaryPage, FlashPage
 
 log = get_logger(__name__)
 
-STEP_NAMES = ("drive", "image", "summary", "flash")
+STEP_NAMES = ("drive", "image", "chromeos", "summary", "flash")
 
 STEP_TITLES = {
     "drive": _("Select Drive"),
     "image": _("Select Image"),
+    "chromeos": _("ChromeOS Options"),
     "summary": _("Summary"),
     "flash": _("Flash"),
 }
@@ -99,6 +101,7 @@ class LubusWindow(Adw.ApplicationWindow):
         self.image_page._window = self
         self.summary_page.on_verify_toggled = self._on_verify_toggled
         self.summary_page.on_windows_options_changed = self._on_windows_options_changed
+        self.brunch_page.on_options_changed = self._on_brunch_options_changed
 
         # Initial data
         self.drive_page.refresh_drives()
@@ -163,6 +166,9 @@ class LubusWindow(Adw.ApplicationWindow):
             on_image_selected=self._on_image_selected,
             on_analysis_complete=self._on_analysis_complete,
         )
+        self.brunch_page = BrunchPage(
+            on_options_changed=self._on_brunch_options_changed,
+        )
         self.summary_page = SummaryPage(on_verify_toggled=self._on_verify_toggled)
         self.flash_page = FlashPage(
             on_done=self._on_flash_done,
@@ -172,6 +178,7 @@ class LubusWindow(Adw.ApplicationWindow):
 
         self._add_step(self.drive_page, "drive")
         self._add_step(self.image_page, "image")
+        self._add_step(self.brunch_page, "chromeos")
         self._add_step(self.summary_page, "summary")
         self._add_step(self.flash_page, "flash")
 
@@ -202,6 +209,7 @@ class LubusWindow(Adw.ApplicationWindow):
         return {
             "drive": "drive-removable-media-symbolic",
             "image": "media-optical-symbolic",
+            "chromeos": "computer-symbolic",
             "summary": "view-list-symbolic",
             "flash": "media-flash-symbolic",
         }[name]
@@ -270,16 +278,37 @@ class LubusWindow(Adw.ApplicationWindow):
             self._current_step = STEP_NAMES.index(visible)
         self._update_step_ui()
 
+    def _is_chromeos(self) -> bool:
+        """Whether the selected image is a ChromeOS recovery image."""
+        return bool(
+            self._image_info is not None
+            and self._image_info.image_type == ImageType.CHROMEOS
+        )
+
+    def _visible_steps(self) -> tuple:
+        """The steps shown for the current image.
+
+        The ChromeOS step only exists when a ChromeOS recovery image is
+        selected, so the step counter does not skip a number.
+        """
+        steps = ["drive", "image"]
+        if self._is_chromeos():
+            steps.append("chromeos")
+        steps.extend(["summary", "flash"])
+        return tuple(steps)
+
     def _update_step_ui(self):
         """Refresh header bar + page state for the current step."""
         name = STEP_NAMES[self._current_step]
         self.view_stack.set_visible_child_name(name)
         self.title_widget.set_title(STEP_TITLES[name])
+        steps = self._visible_steps()
+        position = steps.index(name) + 1 if name in steps else self._current_step + 1
         self.title_widget.set_subtitle(
-            _("Step {n} of {total}").format(n=self._current_step + 1, total=len(STEP_NAMES))
+            _("Step {n} of {total}").format(n=position, total=len(steps))
         )
 
-        flashing = self._current_step == 3
+        flashing = name == "flash"
         self.back_btn.set_visible(not flashing and self._current_step > 0)
         self.back_btn.set_sensitive(not flashing and self._current_step > 0)
         self.cancel_btn.set_visible(flashing and self._is_flashing)
@@ -290,7 +319,7 @@ class LubusWindow(Adw.ApplicationWindow):
             self.next_btn.set_sensitive(not self._is_flashing)
             return
 
-        if self._current_step == 0:
+        if name == "drive":
             self.drive_page.set_image_type(
                 self._image_info.image_type if self._image_info else None
             )
@@ -300,7 +329,7 @@ class LubusWindow(Adw.ApplicationWindow):
                 bool(self.drive_page.get_selected_drives())
             )
 
-        elif self._current_step == 1:
+        elif name == "image":
             self.next_btn.set_visible(True)
             self.next_btn.set_label(_("Next"))
             self.next_btn.set_sensitive(
@@ -309,7 +338,12 @@ class LubusWindow(Adw.ApplicationWindow):
                 and self.image_page.is_ready_for_next_step()
             )
 
-        elif self._current_step == 2:
+        elif name == "chromeos":
+            self.next_btn.set_visible(True)
+            self.next_btn.set_label(_("Next"))
+            self.next_btn.set_sensitive(self.brunch_page.is_ready())
+
+        elif name == "summary":
             self.next_btn.set_visible(True)
             self.next_btn.set_label(_("Flash Now") if self._narrow else _("Start Flashing"))
             self.next_btn.set_sensitive(True)
@@ -318,15 +352,20 @@ class LubusWindow(Adw.ApplicationWindow):
     def _on_back_clicked(self, _btn):
         if self._current_step > 0:
             self._current_step -= 1
+            # The ChromeOS step only exists for ChromeOS images.
+            if (STEP_NAMES[self._current_step] == "chromeos"
+                    and not self._is_chromeos()):
+                self._current_step -= 1
             self._update_step_ui()
 
     def _on_next_clicked(self, _btn):
-        if self._current_step == 3:
+        name = STEP_NAMES[self._current_step]
+        if name == "flash":
             # Done after flashing: start a new round
             self._on_flash_done()
             return
 
-        if self._current_step == 0:
+        if name == "drive":
             self._selected_drives = self.drive_page.get_selected_drives()
             self._selected_drive = self.drive_page.get_selected_drive()
             if not self._selected_drives:
@@ -337,12 +376,16 @@ class LubusWindow(Adw.ApplicationWindow):
             self._current_step = 1
             self._update_step_ui()
 
-        elif self._current_step == 1:
+        elif name == "image":
             if self._iso_path and self.image_page.is_ready_for_next_step():
-                self._current_step = 2
+                self._current_step = 2 if self._is_chromeos() else 3
                 self._update_step_ui()
 
-        elif self._current_step == 2:
+        elif name == "chromeos":
+            self._current_step = 3
+            self._update_step_ui()
+
+        elif name == "summary":
             self._start_flashing()
 
     def _on_drive_selected(self, drive: Drive):
@@ -363,6 +406,14 @@ class LubusWindow(Adw.ApplicationWindow):
         self.drive_page.set_image_type(info.image_type)
         self._settings["image_path"] = info.path
         self._settings["image_info"] = info
+        if info.image_type == ImageType.CHROMEOS:
+            # The Brunch files may already be on disk from an earlier run.
+            self.brunch_page.refresh_assets()
+        self._update_step_ui()
+
+    def _on_brunch_options_changed(self, options: dict):
+        """The ChromeOS / Brunch options changed."""
+        self._settings["brunch"] = dict(options)
         self._update_step_ui()
 
     def _on_verify_toggled(self, enabled: bool):
@@ -401,12 +452,17 @@ class LubusWindow(Adw.ApplicationWindow):
             opts.setdefault("full_name", install.full_name)
         self.summary_page.update_summary(self._settings)
         self.summary_page.set_verify_enabled(self._settings.get("verify", True))
+        brunch = self._settings.get("brunch") or {}
         raw_verify = (
             self._image_info.image_type in (
-                ImageType.LINUX_ISHYBRID, ImageType.CHROMEOS
+                ImageType.LINUX_ISHYBRID, ImageType.CHROMEOS,
+                ImageType.BSD_UNIX,
             )
             and self._settings.get("write_mode", 1) == 0
             and not self._settings["install_config"].is_direct
+            # A Brunch install is not a copy of the image, so there is
+            # nothing to compare the drive with.
+            and not brunch.get("use_brunch")
         )
         self.summary_page.set_verify_supported(raw_verify)
 
@@ -499,7 +555,7 @@ class LubusWindow(Adw.ApplicationWindow):
         except GLib.Error:
             return
         if response == "confirm":
-            self._current_step = 3
+            self._current_step = STEP_NAMES.index("flash")
             self._update_step_ui()
             self.flash_page.start_flashing()
             drives = self._selected_drives or [self._selected_drive]
@@ -558,10 +614,14 @@ class LubusWindow(Adw.ApplicationWindow):
 
         # ChromeOS recovery images and macOS disk images have only one
         # sensible way to be written, so the user's choice does not apply.
+        brunch = settings.get("brunch") or {}
+        use_brunch = bool(brunch.get("use_brunch"))
         if image_type == ImageType.CHROMEOS:
             write_mode = 0        # raw block copy
         elif image_type == ImageType.MACOS:
             write_mode = 2        # Apple's own partition layout
+        elif image_type == ImageType.BSD_UNIX:
+            write_mode = 0        # the image brings its own partition table
         windows_options = dict(settings.get("windows_options") or {})
         if windows_options:
             install_config.skip_oobe = windows_options.get(
@@ -601,9 +661,11 @@ class LubusWindow(Adw.ApplicationWindow):
         # directly with dd. File-based installers need filesystem-level
         # verification (adapter-specific), so do not pretend to verify them.
         raw_verify = (
-            image_type in (ImageType.LINUX_ISHYBRID, ImageType.CHROMEOS)
+            image_type in (ImageType.LINUX_ISHYBRID, ImageType.CHROMEOS,
+                           ImageType.BSD_UNIX)
             and write_mode == 0
             and not install_config.is_direct
+            and not use_brunch
         )
         verify_enabled = bool(settings.get("verify", True)) and raw_verify
         if settings.get("verify", True) and not raw_verify:
@@ -638,7 +700,8 @@ class LubusWindow(Adw.ApplicationWindow):
         # the same ISO concurrently. Raw writes and the macOS layout do not
         # need the image mounted at all.
         needs_iso = not (
-            image_type in (ImageType.LINUX_ISHYBRID, ImageType.CHROMEOS)
+            image_type in (ImageType.LINUX_ISHYBRID, ImageType.CHROMEOS,
+                           ImageType.BSD_UNIX)
             and write_mode == 0
             and not install_config.is_direct
         ) and image_type != ImageType.MACOS
@@ -696,7 +759,8 @@ class LubusWindow(Adw.ApplicationWindow):
                     release_stale=False,
                 )
 
-            if image_type == ImageType.LINUX_ISHYBRID and write_mode == 0:
+            if (image_type in (ImageType.LINUX_ISHYBRID, ImageType.BSD_UNIX)
+                    and write_mode == 0):
                 return copy_image_dd(
                     iso_path, device, progress_channel, stopped_cb,
                     verify=internal_verify,
@@ -706,6 +770,16 @@ class LubusWindow(Adw.ApplicationWindow):
                 )
 
             if image_type == ImageType.CHROMEOS:
+                if use_brunch:
+                    # Brunch builds its own ChromeOS partition table and
+                    # copies the recovery image into it.
+                    return write_brunch_installer(
+                        iso_path, device,
+                        brunch.get("assets_dir", ""),
+                        progress_channel, stopped_cb,
+                        status_cb=device_status,
+                        legacy_boot=bool(brunch.get("legacy_boot")),
+                    )
                 # A ChromeOS recovery image is a raw disk image: Google
                 # writes it to the drive byte for byte as well.
                 return copy_image_dd(

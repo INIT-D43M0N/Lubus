@@ -9,6 +9,7 @@ from typing import List, Optional, Tuple
 from pathlib import Path
 
 from ..utils.logging import get_logger
+from .bsd import UnixImage, detect_unix_image, detect_unix_iso
 from .chromeos import is_chromeos_image
 from .macos import is_dmg
 
@@ -23,6 +24,7 @@ class ImageType(Enum):
     LINUX_INSTALLER = "linux_installer"        # Linux installer (file copy mode)
     CHROMEOS = "chromeos"                      # ChromeOS recovery image (raw dd mode)
     MACOS = "macos"                            # macOS installer disk image (.dmg)
+    BSD_UNIX = "bsd_unix"                      # FreeBSD, OpenBSD, NetBSD, illumos, ...
     UNKNOWN = "unknown"
 
 
@@ -75,6 +77,8 @@ class ImageInfo:
     windows_editions: List[Tuple[int, str, int]]  # (index, name, size_bytes)
     is_efi_bootable: bool
     is_bios_bootable: bool
+    os_name: str = ""       # concrete system name ("FreeBSD", "OpenBSD", ...)
+    boot_warning: str = ""  # shown when the image needs another file
 
 
 # ISO9660 Primary Volume Descriptor offset
@@ -438,14 +442,28 @@ def _detect_image_type(path: str, paths: Optional[set]) -> ImageType:
     if is_dmg(path):
         return ImageType.MACOS
 
+    unix_image: Optional[UnixImage] = None
+    has_windows = False
+    has_linux = False
+
     if paths is not None:
         has_windows = _matches_paths(paths, WINDOWS_ISO_FILES, WINDOWS_ISO_PREFIXES)
         has_linux = _matches_paths(paths, LINUX_ISO_FILES, LINUX_ISO_PREFIXES)
         if not has_windows and not has_linux:
-            # Directory tree not conclusive; try the raw scan.
-            has_windows, has_linux = scan_iso_for_markers(path)
+            # The tree is not conclusive. The BSD and Unix media are
+            # recognised before the raw scan, because their bootloaders
+            # contain strings that look like Linux ones.
+            unix_image = detect_unix_iso(path, paths)
+            if unix_image is None and not is_chromeos_image(path):
+                has_windows, has_linux = scan_iso_for_markers(path)
     else:
-        has_windows, has_linux = scan_iso_for_markers(path)
+        # Not an ISO9660 file: a raw disk image. Its partition table says
+        # what it is, the byte scan is only the last resort.
+        if is_chromeos_image(path):
+            return ImageType.CHROMEOS
+        unix_image = detect_unix_image(path)
+        if unix_image is None:
+            has_windows, has_linux = scan_iso_for_markers(path)
 
     if has_windows:
         return ImageType.WINDOWS_INSTALLER
@@ -459,6 +477,9 @@ def _detect_image_type(path: str, paths: Optional[set]) -> ImageType:
         except OSError:
             pass
         return ImageType.LINUX_INSTALLER
+
+    if unix_image is not None:
+        return ImageType.BSD_UNIX
 
     # Not an ISO. A raw disk image with the ChromeOS partition layout is a
     # ChromeOS recovery image, which is written like an isohybrid one.
@@ -539,6 +560,12 @@ def analyze_image(path: str) -> ImageInfo:
     image_type = _detect_image_type(path, paths)
     editions = []
 
+    # The BSD and Unix images carry the name of the system they belong to.
+    unix_image = None
+    if image_type == ImageType.BSD_UNIX:
+        unix_image = (detect_unix_iso(path, paths) if paths is not None
+                      else detect_unix_image(path))
+
     # Default suggestions
     if image_type == ImageType.WINDOWS_INSTALLER:
         suggested_scheme = PartitionScheme.GPT
@@ -560,6 +587,16 @@ def analyze_image(path: str) -> ImageInfo:
         suggested_scheme = PartitionScheme.GPT
         suggested_target = TargetSystem.UEFI
         suggested_fs = FileSystem.FAT32
+    elif image_type == ImageType.BSD_UNIX:
+        # The BSD images carry their own partition table, so they are
+        # written as a whole, just like an isohybrid ISO.
+        suggested_scheme = PartitionScheme.GPT
+        suggested_target = (
+            TargetSystem.UEFI
+            if unix_image is None or unix_image.efi
+            else TargetSystem.BIOS
+        )
+        suggested_fs = FileSystem.FAT32
     else:
         suggested_scheme = PartitionScheme.GPT
         suggested_target = TargetSystem.UEFI
@@ -577,6 +614,10 @@ def analyze_image(path: str) -> ImageInfo:
         # The macOS layout carries an EFI partition with Apple's bootloader.
         is_efi = True
         is_bios = False
+    elif image_type == ImageType.BSD_UNIX and unix_image is not None:
+        # The partition table of the image says how it boots.
+        is_efi = unix_image.efi
+        is_bios = unix_image.bios
     elif paths is not None:
         is_efi = _matches_paths(paths, EFI_BOOT_PATHS, ())
         is_bios = _matches_paths(paths, BIOS_BOOT_PATHS, BIOS_BOOT_PREFIXES)
@@ -597,6 +638,8 @@ def analyze_image(path: str) -> ImageInfo:
         distro_name = "ChromeOS"
     elif image_type == ImageType.MACOS:
         distro_name = "macOS"
+    elif image_type == ImageType.BSD_UNIX and unix_image is not None:
+        distro_name = unix_image.name
     else:
         distro_name = identify_distro(label, filename)
 
@@ -611,6 +654,8 @@ def analyze_image(path: str) -> ImageInfo:
         windows_editions=editions,
         is_efi_bootable=is_efi,
         is_bios_bootable=is_bios,
+        os_name=distro_name or "",
+        boot_warning=(unix_image.advice if unix_image is not None else ""),
     )
 
 

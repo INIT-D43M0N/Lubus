@@ -144,6 +144,13 @@
               </object>
             </child>
             <child>
+              <object class="AdwActionRow" id="chromeos_row">
+                <property name="title" translatable="yes">ChromeOS Mode</property>
+                <property name="subtitle">—</property>
+                <property name="visible">False</property>
+              </object>
+            </child>
+            <child>
               <object class="AdwActionRow" id="edition_row">
                 <property name="title" translatable="yes">Windows Edition</property>
                 <property name="subtitle">—</property>

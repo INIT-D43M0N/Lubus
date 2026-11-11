@@ -470,6 +470,25 @@ def set_partition_active(conn: Gio.DBusConnection, partition_path: str):
           GLib.Variant("(ta{sv})", (0x80, {})), "()")  # 0x80 = active flag
 
 
+def rescan_device(conn: Gio.DBusConnection, device: str):
+    """Ask UDisks2 to re-read the partition table of a device.
+
+    Some write modes build the partition table themselves (ChromeOS and
+    Brunch need very specific layouts that UDisks2 cannot create). After
+    such a table was written to the disk, the kernel still holds the old
+    one until somebody asks it to look again - that is what this call
+    does.
+    """
+    obj_path = resolve_device(conn, device)
+    try:
+        _call(conn, obj_path, BLOCK_IFACE, "Rescan",
+              GLib.Variant("(a{sv})", ({},)), "()")
+    except (UDisksError, GLib.Error) as exc:
+        # A missing Rescan is not fatal: the table is already on the disk,
+        # the system just needs a reboot to pick it up.
+        log.warning("Could not rescan %s: %s", device, exc)
+
+
 def delete_all_partitions(conn: Gio.DBusConnection, device: str):
     """Delete all partitions on a device."""
     obj_path = resolve_device(conn, device)

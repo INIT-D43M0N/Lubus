@@ -18,6 +18,12 @@
       </object>
     </child>
     <child>
+      <object class="AdwBanner" id="warning_banner">
+        <property name="title" translatable="yes">This image needs another file to boot from a USB drive</property>
+        <property name="revealed">False</property>
+      </object>
+    </child>
+    <child>
       <object class="GtkStack" id="state_stack">
         <property name="vexpand">True</property>
         <child>

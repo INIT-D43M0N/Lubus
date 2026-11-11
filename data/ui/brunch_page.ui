@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Lubus — ChromeOS options (Step 3 when a ChromeOS image is selected).
+
+  Lets the user pick between a plain copy of the recovery image and a
+  Brunch install, which turns the drive into a ChromeOS that boots on a
+  regular computer. The Brunch files are downloaded once and kept.
+-->
+<interface>
+  <object class="GtkBox" id="root">
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="AdwPreferencesPage">
+        <property name="title" translatable="yes">ChromeOS</property>
+        <child>
+          <object class="AdwPreferencesGroup" id="mode_group">
+            <property name="title" translatable="yes">Install Type</property>
+            <property name="description" translatable="yes">Choose how the ChromeOS recovery image is written to the drive.</property>
+            <child>
+              <object class="AdwComboRow" id="mode_row">
+                <property name="title" translatable="yes">ChromeOS</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwPreferencesGroup" id="brunch_group">
+            <property name="title" translatable="yes">Brunch</property>
+            <property name="description" translatable="yes">Brunch runs ChromeOS on a regular computer. It brings its own kernel and bootloader, so the drive gets a ChromeOS partition layout instead of a plain copy of the recovery image.</property>
+            <property name="visible">False</property>
+            <child>
+              <object class="AdwComboRow" id="boot_row">
+                <property name="title" translatable="yes">Boot Mode</property>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow" id="assets_row">
+                <property name="title" translatable="yes">Brunch Files</property>
+                <property name="subtitle">—</property>
+                <property name="subtitle-lines">3</property>
+                <child type="suffix">
+                  <object class="GtkButton" id="download_button">
+                    <property name="label" translatable="yes">Download…</property>
+                    <property name="valign">center</property>
+                    <style><class name="flat"/></style>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="AdwActionRow" id="project_row">
+                <property name="title" translatable="yes">About Brunch</property>
+                <property name="subtitle" translatable="yes">Brunch is an open source project. Learn how it works and which recovery image matches your computer.</property>
+                <property name="subtitle-lines">3</property>
+                <property name="icon-name">adw-external-link-symbolic</property>
+                <property name="activatable">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwPreferencesGroup" id="download_group">
+            <property name="title" translatable="yes">Download</property>
+            <property name="visible">False</property>
+            <child>
+              <object class="AdwActionRow" id="progress_row">
+                <property name="title" translatable="yes">Downloading the Brunch files…</property>
+                <child type="suffix">
+                  <object class="GtkProgressBar" id="progress_bar">
+                    <property name="valign">center</property>
+                    <property name="width-request">180</property>
+                    <property name="show-text">True</property>
+                  </object>
+                </child>
+                <child type="suffix">
+                  <object class="GtkButton" id="cancel_button">
+                    <property name="label" translatable="yes">Cancel</property>
+                    <property name="valign">center</property>
+                    <style><class name="flat"/></style>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

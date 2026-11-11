@@ -230,7 +230,10 @@ class DrivePage(UiPage):
         self.bypass_win11_row.set_visible(self._is_direct() and windows)
         # ChromeOS and macOS media have their own layout, they cannot be
         # installed as a portable system on a partition of our choosing.
-        own_layout = image_type in (ImageType.CHROMEOS, ImageType.MACOS)
+        # The BSD images bring their own partition table as well.
+        own_layout = image_type in (
+            ImageType.CHROMEOS, ImageType.MACOS, ImageType.BSD_UNIX,
+        )
         self.install_mode_row.set_sensitive(not own_layout)
         if own_layout:
             self.install_mode_row.set_selected(0)

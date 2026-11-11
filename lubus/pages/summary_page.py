@@ -52,6 +52,7 @@ class SummaryPage(UiPage):
         self.win_fullname_row = self.get("win_fullname_row")
         self._updating_windows = False
         self.os_row = self.get("os_row")
+        self.chromeos_row = self.get("chromeos_row")
         self.edition_row = self.get("edition_row")
         self.scheme_row = self.get("scheme_row")
         self.target_row = self.get("target_row")
@@ -164,10 +165,31 @@ class SummaryPage(UiPage):
             _("Other / Unknown"),
             _("ChromeOS (recovery image)"),
             _("macOS (installer disk image)"),
+            _("BSD / Unix (raw image)"),
         ]
         os_idx = 0 if info is None else _os_type_index(info)
         if 0 <= os_idx < len(os_types):
-            self.os_row.set_subtitle(os_types[os_idx])
+            subtitle = os_types[os_idx]
+            if (info is not None and info.os_name
+                    and info.image_type == ImageType.BSD_UNIX):
+                subtitle = f"{info.os_name} — {subtitle}"
+            self.os_row.set_subtitle(subtitle)
+
+        # ChromeOS: plain recovery image or a Brunch install.
+        brunch = settings.get("brunch") or {}
+        if info is not None and info.image_type == ImageType.CHROMEOS:
+            if brunch.get("use_brunch"):
+                mode_text = (
+                    _("Brunch — legacy boot (no Secure Boot)")
+                    if brunch.get("legacy_boot")
+                    else _("Brunch — Secure Boot")
+                )
+            else:
+                mode_text = _("Recovery image (copied as-is)")
+            self.chromeos_row.set_subtitle(mode_text)
+            self.chromeos_row.set_visible(True)
+        else:
+            self.chromeos_row.set_visible(False)
 
         scheme = settings.get("scheme", PartitionScheme.GPT)
         self.scheme_row.set_subtitle(
@@ -294,5 +316,6 @@ def _os_type_index(info) -> int:
         ImageType.LINUX_INSTALLER: 2,
         ImageType.CHROMEOS: 4,
         ImageType.MACOS: 5,
+        ImageType.BSD_UNIX: 6,
     }
     return mapping.get(info.image_type, 3)

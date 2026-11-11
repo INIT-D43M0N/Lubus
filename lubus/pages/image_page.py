@@ -70,6 +70,7 @@ class ImagePage(UiPage):
         self.download_btn = self.get("download_btn")
         self.change_btn = self.get("change_btn")
         self.error_banner = self.get("error_banner")
+        self.warning_banner = self.get("warning_banner")
         self.image_row = self.get("image_row")
         self.detected_row = self.get("detected_row")
         self.options_group = self.get("options_group")
@@ -187,6 +188,7 @@ class ImagePage(UiPage):
             ImageType.LINUX_INSTALLER: 2,
             ImageType.CHROMEOS: 4,
             ImageType.MACOS: 5,
+            ImageType.BSD_UNIX: 6,
         }
         return mapping.get(self._image_info.image_type, 3)
 
@@ -313,9 +315,17 @@ class ImagePage(UiPage):
 
         self.detected_row.set_title(_("Detected Image"))
         detected = [_(info.image_type.value)]
+        if info.os_name:
+            detected.insert(0, info.os_name)
         if info.label:
             detected.append(_("Label: {label}").format(label=info.label))
         self.detected_row.set_subtitle(" · ".join(detected))
+
+        if info.boot_warning:
+            self.warning_banner.set_title(info.boot_warning)
+            self.warning_banner.set_revealed(True)
+        else:
+            self.warning_banner.set_revealed(False)
 
         self._apply_suggestions(info)
         self._apply_write_mode(info)
@@ -342,6 +352,14 @@ class ImagePage(UiPage):
             self.mode_row.set_sensitive(False)
             self.mode_row.set_subtitle(
                 _("Apple partition layout (EFI + HFS+)")
+            )
+        elif info.image_type == ImageType.BSD_UNIX:
+            # The BSD images carry their own partition table and are copied
+            # as a whole, exactly like an isohybrid ISO.
+            self.mode_row.set_selected(0)
+            self.mode_row.set_sensitive(False)
+            self.mode_row.set_subtitle(
+                _("Raw block copy (the only mode for BSD and Unix images)")
             )
         else:
             self.mode_row.set_sensitive(True)

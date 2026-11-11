@@ -32,12 +32,16 @@ from .macos import (
     EFI_PARTITION_SIZE, MacosError, bootloader_files, extract_dmg,
     extract_dmg_tree, find_bootloader, find_hfsplus_volume,
 )
+from .brunch import (
+    BrunchAssets, BrunchError, brunch_layout, build_copy_plan,
+    is_chromeos_recovery_image, total_copy_bytes, MIN_DRIVE_SIZE,
+)
 from .icon_utils import get_or_create_windows_icon
 from .windows_drivers import stage_drivers
 from ..udisks.client import (
     _get_objects, _get_bus, BLOCK_IFACE, FILESYSTEM_IFACE, LOOP_IFACE,
     _partition_children, LOOP_DELETE_TIMEOUT, create_partition_unformatted,
-    device_node,
+    device_node, rescan_device,
 )
 
 log = get_logger(__name__)
@@ -1030,6 +1034,134 @@ def write_macos_installer(
         )
 
     return True
+
+
+def write_brunch_installer(
+    image_path: str,
+    device: str,
+    assets_dir: str,
+    progress: ProgressCallback,
+    stopped: StoppedCallback,
+    status_cb: Optional[StatusCallback] = None,
+    legacy_boot: bool = False,
+) -> bool:
+    """Install Brunch (ChromeOS on a generic PC) on a drive.
+
+    Brunch needs a ChromeOS specific partition table with twelve entries,
+    the Brunch root filesystem in ROOT-C and the Brunch bootloader in
+    EFI-SYSTEM. The table is built here in user space and written to the
+    drive together with the partition contents, so the only privileged
+    step is the write itself.
+    """
+    emit = status_cb or status
+    conn = bus()
+    dev_path = resolve(conn, device)
+
+    emit(_("Checking the ChromeOS image…"))
+    if not is_chromeos_recovery_image(image_path):
+        raise WriteError(
+            _("{file} is not a ChromeOS recovery image Brunch can use.").format(
+                file=os.path.basename(image_path)
+            )
+        )
+
+    assets = BrunchAssets(assets_dir)
+    if not assets.is_available(legacy=legacy_boot):
+        missing = ", ".join(assets.missing_files(legacy=legacy_boot))
+        raise WriteError(
+            _("The Brunch files are not ready yet (missing: {files}).").format(
+                files=missing
+            )
+        )
+
+    drive_size = get_device_size(device)
+    if drive_size < MIN_DRIVE_SIZE:
+        raise WriteError(
+            _("Brunch needs a drive of at least {needed}, but this drive has "
+              "{available}.").format(
+                needed=format_size(MIN_DRIVE_SIZE),
+                available=format_size(drive_size),
+            )
+        )
+
+    try:
+        layout = brunch_layout(drive_size)
+        jobs = build_copy_plan(
+            image_path,
+            layout,
+            str(assets.rootc_path),
+            str(assets.efi_path(legacy=legacy_boot)),
+        )
+    except (ValueError, OSError) as exc:
+        raise WriteError(str(exc)) from exc
+
+    total = total_copy_bytes(jobs)
+
+    emit(_("Preparing the drive…"))
+    unmount_all(conn, dev_path)
+
+    fd = open_device_exclusive(conn, device, "w", os.O_SYNC)
+    try:
+        emit(_("Creating the partition table…"))
+        from .gpt import write_gpt
+        write_gpt(
+            fd,
+            [part.as_gpt_entry() for part in layout],
+            drive_size,
+            boot_entry_index=12,
+        )
+
+        done = 0
+        for job in jobs:
+            if stopped():
+                return False
+            emit(_("Writing {name}…").format(name=job.dest.name))
+            written = _copy_bytes_to_device(
+                fd, job.source_path, job.source_offset, job.dest_offset,
+                job.length, stopped,
+            )
+            done += written
+            progress(done, total)
+
+        emit(_("Syncing…"))
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+    # The kernel still has the old table in memory; ask UDisks2 to look at
+    # the disk again so the new partitions show up right away.
+    rescan_device(conn, device)
+    return True
+
+
+def _copy_bytes_to_device(
+    fd: int,
+    source_path: str,
+    source_offset: int,
+    dest_offset: int,
+    length: int,
+    stopped: StoppedCallback,
+) -> int:
+    """Copy a slice of a file into the device at a byte offset."""
+    done = 0
+    with open(source_path, "rb") as source:
+        source.seek(source_offset)
+        while done < length:
+            if stopped():
+                raise StoppedException()
+            chunk = source.read(min(CHUNK_SIZE, length - done))
+            if not chunk:
+                break
+            view = memoryview(chunk)
+            offset = dest_offset + done
+            while view:
+                written = os.pwrite(fd, view, offset)
+                if written <= 0:
+                    raise WriteError(_("Could not write to the drive."))
+                view = view[written:]
+                offset += written
+            done += len(chunk)
+    return done
 
 
 def _apply_windows_icon(mount_point: str) -> bool:
