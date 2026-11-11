@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.github.INIT-D43M0N.yaku</id>
+  <name>Yaku</name>
+  <summary>Create bootable USB drives from ISO images</summary>
+  <description>
+    <p>Yaku is a modern, native Linux application for creating bootable USB drives, functionally identical to Rufus but built specifically for the Linux ecosystem.</p>
+    <p>Features:</p>
+    <ul>
+      <li>Automatic detection of removable USB drives and SD cards</li>
+      <li>Support for ISO, IMG, DD, RAW, BIN and DMG images</li>
+      <li>Automatic detection of the image type (Windows, Linux, ChromeOS, macOS, BSD)</li>
+      <li>Windows installer media creation, Windows To Go and driver staging</li>
+      <li>ChromeOS recovery images, with optional Brunch for regular computers</li>
+      <li>macOS installer disk images (EFI + HFS+ layout)</li>
+      <li>FreeBSD, OpenBSD, NetBSD, DragonFly BSD, illumos and Haiku media</li>
+      <li>Partition scheme selection (GPT/MBR) and target system (UEFI/BIOS)</li>
+      <li>Filesystem selection (FAT32, NTFS, exFAT, ext4, btrfs)</li>
+      <li>DD mode (block copy) and ISO extract mode</li>
+      <li>Real-time progress with speed and ETA</li>
+      <li>Optional verification after write</li>
+      <li>Direct drive installation / portable mode (Windows and Linux)</li>
+      <li>Simultaneous flashing to multiple drives</li>
+      <li>Integrated Linux ISO catalog and segmented verified downloader</li>
+      <li>Safety checks and confirmation dialogs</li>
+    </ul>
+  </description>
+  <project_license>GPL-3.0-or-later</project_license>
+  <developer_name>Yaku Contributors</developer_name>
+  <url type="homepage">https://github.com/INIT-D43M0N/Yaku</url>
+  <url type="bugtracker">https://github.com/INIT-D43M0N/Yaku/issues</url>
+  <url type="help">https://github.com/INIT-D43M0N/Yaku/wiki</url>
+  <url type="donation">https://github.com/sponsors/INIT-D43M0N</url>
+  <metadata_license>CC0-1.0</metadata_license>
+  <provides>
+    <binary>yaku</binary>
+  </provides>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/INIT-D43M0N/Yaku/main/screenshots/1.png</image>
+      <caption>Select the drive to write to</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/INIT-D43M0N/Yaku/main/screenshots/2.png</image>
+      <caption>Choose the image and the write options</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/INIT-D43M0N/Yaku/main/screenshots/3.png</image>
+      <caption>Review the settings before flashing</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/INIT-D43M0N/Yaku/main/screenshots/4.png</image>
+      <caption>Flashing progress with speed and ETA</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/INIT-D43M0N/Yaku/main/screenshots/5.png</image>
+      <caption>Windows setup options</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/INIT-D43M0N/Yaku/main/screenshots/6.png</image>
+      <caption>The retro dashboard</caption>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="6.1.0" date="@VERSION_DATE@">
+      <description>Yaku 6.1 is the new name of the project. The application,
+      the package, the icons and the app id all follow the rename, and the
+      project now lives at https://github.com/INIT-D43M0N/Yaku</description>
+    </release>
+    <release version="6.0.0" date="2026-11-10">
+      <description>Yaku 6.0 writes ChromeOS and macOS images and supports the
+      BSDs and the other Unixes. A ChromeOS recovery image can now be turned
+      into a Brunch install, which runs ChromeOS on a regular computer.</description>
+    </release>
+    <release version="5.0.0" date="2026-11-10">
+      <description>Yaku 5.0 adds direct drive installation (portable mode)
+      with automatic/custom partitioning and user provisioning, plus
+      simultaneous flashing to multiple drives.</description>
+    </release>
+    <release version="1.0.0" date="2026-11-04">
+      <description>Initial release</description>
+    </release>
+  </releases>
+  <categories>
+    <category>System</category>
+    <category>Utility</category>
+    <category>DiskUtility</category>
+  </categories>
+  <keywords>
+    <keyword>usb</keyword>
+    <keyword>bootable</keyword>
+    <keyword>iso</keyword>
+    <keyword>rufus</keyword>
+    <keyword>flash</keyword>
+    <keyword>dd</keyword>
+    <keyword>chromeos</keyword>
+    <keyword>freebsd</keyword>
+  </keywords>
+  <content_rating type="oars-1.1" />
+</component>

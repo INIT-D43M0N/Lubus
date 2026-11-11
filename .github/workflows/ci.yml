@@ -45,17 +45,17 @@ jobs:
       - name: Run linting
         continue-on-error: true
         run: |
-          .venv/bin/ruff check lubus/
-          .venv/bin/ruff format --check lubus/
+          .venv/bin/ruff check yaku/
+          .venv/bin/ruff format --check yaku/
 
       - name: Run type checking
         continue-on-error: true
-        run: .venv/bin/mypy lubus/
+        run: .venv/bin/mypy yaku/
 
       - name: Run tests
         run: |
           dbus-run-session -- xvfb-run -a \
-            .venv/bin/python -m pytest tests/ -v --cov=lubus --cov-report=xml
+            .venv/bin/python -m pytest tests/ -v --cov=yaku --cov-report=xml
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
@@ -95,7 +95,7 @@ jobs:
         run: |
           DESTDIR=/tmp/install meson install -C builddir
           SITE=$(find /tmp/install -type d \( -name site-packages -o -name dist-packages \) | head -n1)
-          PYTHONPATH="$SITE" /tmp/install/usr/local/bin/lubus --version
+          PYTHONPATH="$SITE" /tmp/install/usr/local/bin/yaku --version
 
   flatpak:
     name: Build Flatpak
@@ -117,10 +117,10 @@ jobs:
           flatpak install -y flathub org.gnome.Platform//46 org.gnome.Sdk//46
 
       - name: Build Flatpak
-        run: flatpak-builder --force-clean build-dir com.github.yourusername.lubus.yml
+        run: flatpak-builder --force-clean build-dir com.github.INIT-D43M0N.yaku.yml
 
       - name: Test Flatpak
-        run: flatpak-builder --run build-dir com.github.yourusername.lubus.yml lubus --version
+        run: flatpak-builder --run build-dir com.github.INIT-D43M0N.yaku.yml yaku --version
 
   release:
     name: Create Release

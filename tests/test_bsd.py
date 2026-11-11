@@ -5,13 +5,13 @@ import tempfile
 import unittest
 from unittest import mock
 
-from lubus.core.bsd import (
+from yaku.core.bsd import (
     MBR_DRAGONFLY, MBR_FREEBSD, MBR_HAIKU, MBR_NETBSD, MBR_OPENBSD,
     MBR_SOLARIS, detect_unix_image, detect_unix_iso, has_mbr_signature,
     read_mbr_partitions,
 )
-from lubus.core.gpt import GptEntry, write_gpt
-from lubus.core.images import ImageType, _detect_image_type, analyze_image
+from yaku.core.gpt import GptEntry, write_gpt
+from yaku.core.images import ImageType, _detect_image_type, analyze_image
 
 EFI_GUID = "c12a7328-f81f-11d2-ba4b-00a0c93ec93b"
 FREEBSD_BOOT_GUID = "83bd6b9d-7f41-11dc-be0b-001560b84f0f"
@@ -232,7 +232,7 @@ class TestImageTypeDetection(unittest.TestCase):
                 handle.write(bytes(510) + b"\x55\xaa")
                 handle.truncate(1024)
             paths = {"usr/freebsd_dist/base.txz"}
-            with mock.patch("lubus.core.images._iso_paths", return_value=paths):
+            with mock.patch("yaku.core.images._iso_paths", return_value=paths):
                 self.assertEqual(_detect_image_type(path, paths),
                                  ImageType.BSD_UNIX)
 
@@ -240,7 +240,7 @@ class TestImageTypeDetection(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = _write_mbr(os.path.join(tmp, "install.img"),
                               [(MBR_OPENBSD, 1024, 2048)])
-            with mock.patch("lubus.core.images._iso_paths", return_value=None):
+            with mock.patch("yaku.core.images._iso_paths", return_value=None):
                 self.assertEqual(_detect_image_type(path, None),
                                  ImageType.BSD_UNIX)
 
@@ -251,7 +251,7 @@ class TestImageTypeDetection(unittest.TestCase):
                 handle.write(bytes(510) + b"\x55\xaa")
                 handle.truncate(1024)
             paths = {"casper/filesystem.squashfs", "boot/vmlinuz"}
-            with mock.patch("lubus.core.images._iso_paths", return_value=paths):
+            with mock.patch("yaku.core.images._iso_paths", return_value=paths):
                 self.assertEqual(_detect_image_type(path, paths),
                                  ImageType.LINUX_ISHYBRID)
 
@@ -263,7 +263,7 @@ class TestAnalyzeBsdImage(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = _write_mbr(os.path.join(tmp, "install80.img"),
                               [(0xEF, 1024, 2048), (MBR_OPENBSD, 4096, 8192)])
-            with mock.patch("lubus.core.images._iso_paths", return_value=None):
+            with mock.patch("yaku.core.images._iso_paths", return_value=None):
                 info = analyze_image(path)
             self.assertEqual(info.image_type, ImageType.BSD_UNIX)
             self.assertEqual(info.os_name, "OpenBSD")
@@ -277,7 +277,7 @@ class TestAnalyzeBsdImage(unittest.TestCase):
             with open(path, "wb") as handle:
                 handle.truncate(1024)
             paths = {"8.0/amd64/bsd.rd"}
-            with mock.patch("lubus.core.images._iso_paths", return_value=paths):
+            with mock.patch("yaku.core.images._iso_paths", return_value=paths):
                 info = analyze_image(path)
             self.assertEqual(info.image_type, ImageType.BSD_UNIX)
             self.assertEqual(info.os_name, "OpenBSD")

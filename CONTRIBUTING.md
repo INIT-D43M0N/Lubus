@@ -1,6 +1,6 @@
-# Contributing to Lubus
+# Contributing to Yaku
 
-Thank you for your interest in contributing to Lubus! This document provides guidelines for contributing.
+Thank you for your interest in contributing to Yaku! This document provides guidelines for contributing.
 
 ## Code of Conduct
 
@@ -9,11 +9,11 @@ Please be respectful and inclusive in all interactions. We follow the [Contribut
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/yourusername/lubus.git`
+2. Clone your fork: `git clone https://github.com/INIT-D43M0N/Yaku.git`
 3. Create a branch: `git checkout -b feature/my-feature`
 4. Make your changes
 5. Run tests: `pytest tests/`
-6. Run linting: `ruff check lubus/`
+6. Run linting: `ruff check yaku/`
 7. Submit a pull request
 
 ## Development Setup
@@ -46,14 +46,14 @@ pytest tests/ -v
 ### Run Linting
 
 ```bash
-ruff check lubus/
-ruff format lubus/
+ruff check yaku/
+ruff format yaku/
 ```
 
 ### Type Checking
 
 ```bash
-mypy lubus/
+mypy yaku/
 ```
 
 ## Code Style
@@ -67,7 +67,7 @@ mypy lubus/
 ## Architecture Guidelines
 
 - Keep GTK/UI code separate from core logic
-- Core modules (`lubus/core/`) should have no GTK dependencies
+- Core modules (`yaku/core/`) should have no GTK dependencies
 - Use async/threading for long-running operations
 - All disk operations go through UDisks2 D-Bus
 - Handle errors gracefully with user-friendly messages
@@ -96,7 +96,7 @@ mypy lubus/
 
 Translations are managed in the `po/` directory. To add a new language:
 
-1. Copy `po/lubus.pot` to `po/<lang_code>.po`
+1. Copy `po/yaku.pot` to `po/<lang_code>.po`
 2. Translate the strings
 3. Add the language to `meson.build`
 

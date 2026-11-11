@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Lubus — Step 3: Summary before flashing.
+  Yaku — Step 3: Summary before flashing.
 
   A destructive AdwBanner carries the "everything is erased" warning at the
   top, followed by read-only libadwaita preference rows and the verify switch.
@@ -119,7 +119,7 @@
             <child>
               <object class="AdwEntryRow" id="win_username_row">
                 <property name="title" translatable="yes">Local Username</property>
-                <property name="text">lubus</property>
+                <property name="text">yaku</property>
               </object>
             </child>
             <child>

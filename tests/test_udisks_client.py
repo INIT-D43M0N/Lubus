@@ -14,7 +14,7 @@ from unittest.mock import patch
 
 import pytest
 
-from lubus.udisks import client
+from yaku.udisks import client
 
 
 class _FakeReply:

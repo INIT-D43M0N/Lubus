@@ -1,8 +1,8 @@
 """Tests for storage-driver staging on Windows deployment media."""
 import os
 
-from lubus.core.direct_install import InstallConfig
-from lubus.core.windows_drivers import (
+from yaku.core.direct_install import InstallConfig
+from yaku.core.windows_drivers import (
     DRIVERS_DIRNAME,
     README_NAME,
     find_driver_infs,

@@ -1,0 +1,35 @@
+app-id: com.github.INIT-D43M0N.yaku
+runtime: org.gnome.Platform
+runtime-version: '46'
+sdk: org.gnome.Sdk
+command: yaku
+finish-args:
+  - --device=all
+  - --filesystem=host
+  - --talk-name=org.freedesktop.UDisks2
+  - --talk-name=org.freedesktop.portal.Documents
+  - --own-name=com.github.INIT-D43M0N.yaku
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /man
+  - /share/doc
+  - /share/gtk-doc
+  - /share/man
+  - /share/pkgconfig
+  - '*.la'
+  - '*.a'
+
+modules:
+  - name: yaku
+    buildsystem: meson
+    config-opts:
+      - --prefix=/app
+    sources:
+      - type: dir
+        path: .
+    post-install:
+      - install -Dm644 data/com.github.INIT-D43M0N.yaku.desktop /app/share/applications/com.github.INIT-D43M0N.yaku.desktop
+      - install -Dm644 data/com.github.INIT-D43M0N.yaku.metainfo.xml /app/share/metainfo/com.github.INIT-D43M0N.yaku.metainfo.xml
+      - install -Dm644 data/icons/hicolor/scalable/apps/yaku.svg /app/share/icons/hicolor/scalable/apps/com.github.INIT-D43M0N.yaku.svg
+EOF

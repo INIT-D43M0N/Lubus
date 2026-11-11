@@ -8,7 +8,7 @@ import tempfile
 import threading
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.argv = ["lubus"]
+sys.argv = ["yaku"]
 
 failures = []
 
@@ -21,8 +21,8 @@ def check(name, cond, detail=""):
 
 
 print("=== ISO CATALOG ===")
-import lubus.core.iso_catalog as catalog_mod
-from lubus.core.iso_catalog import IsoCatalog, CatalogError
+import yaku.core.iso_catalog as catalog_mod
+from yaku.core.iso_catalog import IsoCatalog, CatalogError
 
 cat = IsoCatalog.load()
 check("catalog loads local fallback", len(cat.distros) >= 15, str(len(cat.distros)))
@@ -107,9 +107,9 @@ server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
 threading.Thread(target=server.serve_forever, daemon=True).start()
 url = f"http://127.0.0.1:{server.server_port}/test.iso"
 
-from lubus.core.iso_downloader import IsoDownload
+from yaku.core.iso_downloader import IsoDownload
 
-dest = tempfile.mkdtemp(prefix="lubus_dl_")
+dest = tempfile.mkdtemp(prefix="yaku_dl_")
 done = {}
 event = threading.Event()
 
@@ -143,7 +143,7 @@ print("\n=== BAD CHECKSUM REJECTION ===")
 server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
 threading.Thread(target=server.serve_forever, daemon=True).start()
 url = f"http://127.0.0.1:{server.server_port}/test.iso"
-dest2 = tempfile.mkdtemp(prefix="lubus_dl_bad_")
+dest2 = tempfile.mkdtemp(prefix="yaku_dl_bad_")
 bad = {}
 event2 = threading.Event()
 download = IsoDownload(

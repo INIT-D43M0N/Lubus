@@ -1,4 +1,4 @@
-"""Pytest configuration for Lubus tests."""
+"""Pytest configuration for Yaku tests."""
 import sys
 from pathlib import Path
 

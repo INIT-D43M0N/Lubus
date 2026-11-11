@@ -7,12 +7,12 @@ where ~2.5 GiB of boot files were copied into a fixed 512 MiB ESP.
 """
 import sys, os, tempfile, shutil, errno, builtins
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.argv = ['lubus']
+sys.argv = ['yaku']
 import gi
 gi.require_version('Gtk', '4.0'); gi.require_version('Adw', '1')
 import warnings; warnings.filterwarnings('ignore')
 
-from lubus.core.writer import (
+from yaku.core.writer import (
     _measure_iso_tree, _compute_esp_size, _copy_file_with_progress,
     _copy_tree_with_progress, _ProgressMeter, WriteError,
     WIN_SKIP_PATHS, WIN_BOOT_SKIP_PATHS, FAT32_MAX_FILE,
@@ -129,8 +129,8 @@ check("meter reports exact 100% only on finish",
 
 # ---------------------------------------------------------------------------
 print("\n=== TEST 5: Full GPT write flow with mocked D-Bus (regression) ===")
-import lubus.core.writer as writer
-import lubus.udisks as udisks_mod
+import yaku.core.writer as writer
+import yaku.udisks as udisks_mod
 
 # Small fake ISO so copying is fast; also tests the sources/ dir creation
 iso2 = tempfile.mkdtemp(prefix='fakeiso_')
@@ -183,7 +183,7 @@ writer.release_stale_iso_mounts = lambda p=None: 0
 writer._apply_windows_icon = lambda m: False
 writer.install_grub_bios = lambda c, d: None
 
-from lubus.core.images import PartitionScheme as PS
+from yaku.core.images import PartitionScheme as PS
 progress = []
 progress_after_sync = []
 sync_calls = []

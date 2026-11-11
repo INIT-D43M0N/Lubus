@@ -1,25 +1,25 @@
-"""Tests for Lubus core modules."""
+"""Tests for Yaku core modules."""
 import os
 import tempfile
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 
 # Test imports
-from lubus.core.images import (
+from yaku.core.images import (
     ImageType, PartitionScheme, TargetSystem, FileSystem,
     read_volume_label, identify_distro, scan_iso_for_markers,
     detect_image_type, parse_wim_info,
 )
-from lubus.core.partitions import (
+from yaku.core.partitions import (
     PartitionType, PartitionSpec, PartitionLayout,
     get_windows_installer_layout, get_windows_togo_layout,
     get_generic_layout, calculate_partition_offsets,
     validate_layout, format_size,
 )
-from lubus.core.devices import Drive, BusType, format_size as dev_format_size
-from lubus.core.verify import verify_device_matches_image
-from lubus.config import load_config, save_config, DEFAULT_CONFIG
-from lubus.utils.i18n import _, set_language, get_language
+from yaku.core.devices import Drive, BusType, format_size as dev_format_size
+from yaku.core.verify import verify_device_matches_image
+from yaku.config import load_config, save_config, DEFAULT_CONFIG
+from yaku.utils.i18n import _, set_language, get_language
 
 
 class TestFormatSize:
@@ -264,7 +264,7 @@ class TestConfig:
             config_file = os.path.join(tmpdir, "config.json")
 
             # Mock the config path
-            import lubus.config as config_module
+            import yaku.config as config_module
             from pathlib import Path
             original_config_file = config_module.CONFIG_FILE
             original_config_dir = config_module.CONFIG_DIR

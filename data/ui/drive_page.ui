@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Lubus 5.0 — Step 1: installation mode and target drives.
+  Yaku 5.0 — Step 1: installation mode and target drives.
 
   Native libadwaita layout following the GNOME HIG:
     * AdwPreferencesPage groups for installation mode, provisioning and
@@ -39,7 +39,7 @@
                 <child>
                   <object class="AdwPreferencesGroup" id="mode_group">
                     <property name="title" translatable="yes">Installation</property>
-                    <property name="description" translatable="yes">Choose how Lubus prepares the target. Live USB keeps the image intact; direct install deploys a portable system.</property>
+                    <property name="description" translatable="yes">Choose how Yaku prepares the target. Live USB keeps the image intact; direct install deploys a portable system.</property>
 
                     <child>
                       <object class="AdwComboRow" id="install_mode_row">
@@ -104,7 +104,7 @@
                     <child>
                       <object class="AdwEntryRow" id="username_row">
                         <property name="title" translatable="yes">Username</property>
-                        <property name="text">lubus</property>
+                        <property name="text">yaku</property>
                       </object>
                     </child>
 
@@ -123,7 +123,7 @@
                     <child>
                       <object class="AdwEntryRow" id="hostname_row">
                         <property name="title" translatable="yes">Hostname</property>
-                        <property name="text">lubus-pc</property>
+                        <property name="text">yaku-pc</property>
                       </object>
                     </child>
 

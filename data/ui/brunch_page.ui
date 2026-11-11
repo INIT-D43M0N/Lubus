@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Lubus — ChromeOS options (Step 3 when a ChromeOS image is selected).
+  Yaku — ChromeOS options (Step 3 when a ChromeOS image is selected).
 
   Lets the user pick between a plain copy of the recovery image and a
   Brunch install, which turns the drive into a ChromeOS that boots on a

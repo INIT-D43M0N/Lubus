@@ -3,13 +3,13 @@ requires = ["meson-python>=0.13", "meson>=1.0", "ninja"]
 build-backend = "mesonpy"
 
 [project]
-name = "lubus"
-version = "5.0.0"
+name = "yaku"
+version = "6.1.0"
 description = "Create bootable USB drives on Linux (Rufus alternative)"
 readme = "README.md"
 license = {text = "GPL-3.0-or-later"}
-authors = [{name = "Lubus Contributors"}]
-maintainers = [{name = "Lubus Contributors"}]
+authors = [{name = "Yaku Contributors"}]
+maintainers = [{name = "Yaku Contributors"}]
 keywords = ["usb", "bootable", "iso", "rufus", "gtk4", "libadwaita"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -37,15 +37,15 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/lubus"
-Repository = "https://github.com/yourusername/lubus"
-Issues = "https://github.com/yourusername/lubus/issues"
+Homepage = "https://github.com/INIT-D43M0N/Yaku"
+Repository = "https://github.com/INIT-D43M0N/Yaku"
+Issues = "https://github.com/INIT-D43M0N/Yaku/issues"
 
 [project.scripts]
-lubus = "lubus.main:main"
+yaku = "yaku.main:main"
 
 [tool.meson]
-module = "lubus"
+module = "yaku"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

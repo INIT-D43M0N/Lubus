@@ -5,14 +5,14 @@ import tempfile
 import unittest
 from unittest import mock
 
-from lubus.core.brunch import (
+from yaku.core.brunch import (
     ATTR_KERN_A, ATTR_KERN_B, ATTR_KERN_C, BrunchAssets, BrunchError,
     MIN_DRIVE_SIZE, TYPE_DATA, TYPE_EFI, TYPE_FIRMWARE, TYPE_KERNEL,
     TYPE_RESERVED, TYPE_ROOTFS, brunch_gpt_entries, brunch_layout,
     build_copy_plan, is_chromeos_recovery_image, kernel_attributes,
     source_partitions,
 )
-from lubus.core.gpt import (
+from yaku.core.gpt import (
     GptEntry, read_gpt, str_to_guid_bytes, write_gpt,
 )
 
@@ -140,7 +140,7 @@ class TestBrunchLayout(unittest.TestCase):
 
 
 class TestGptWriter(unittest.TestCase):
-    """The table Lubus writes has to be a valid GPT."""
+    """The table Yaku writes has to be a valid GPT."""
 
     def test_round_trip(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -333,7 +333,7 @@ class TestBrunchWriter(unittest.TestCase):
         return os.open(self.disk, os.O_RDWR)
 
     def _run(self):
-        from lubus.core import writer
+        from yaku.core import writer
         progress = []
         with mock.patch.object(writer, "bus", return_value=object()), \
              mock.patch.object(writer, "resolve", return_value="/dev/test"), \
@@ -393,7 +393,7 @@ class TestBrunchWriter(unittest.TestCase):
             self.assertEqual(handle.read(4), b"EEEE")
 
     def test_refuses_a_file_that_is_not_a_chromeos_image(self):
-        from lubus.core import writer
+        from yaku.core import writer
         other = os.path.join(self.tmp.name, "other.bin")
         with open(other, "wb") as handle:
             handle.write(b"nothing to see here")

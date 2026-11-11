@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Lubus — keyboard shortcuts window (GNOME HIG: discoverability + Ctrl+?). -->
+<!-- Yaku — keyboard shortcuts window (GNOME HIG: discoverability + Ctrl+?). -->
 <interface>
   <object class="GtkShortcutsWindow" id="shortcuts_window">
     <property name="modal">True</property>

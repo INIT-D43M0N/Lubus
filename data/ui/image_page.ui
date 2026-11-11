@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Lubus — Step 2: Image selection and write options.
+  Yaku — Step 2: Image selection and write options.
 
   Two states inside a GtkStack: "empty" (drop/browse an image, with the
   interactive 3D disc that is slotted in from Python) and "image" (analysis
@@ -157,7 +157,7 @@
                     <child>
                       <object class="AdwEntryRow" id="label_row">
                         <property name="title" translatable="yes">Volume Label</property>
-                        <property name="text">LUBUS</property>
+                        <property name="text">YAKU</property>
                       </object>
                     </child>
                     <child>

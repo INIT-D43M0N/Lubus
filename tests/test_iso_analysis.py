@@ -16,14 +16,14 @@ from unittest.mock import patch
 
 import pytest
 
-from lubus.core.images import (
+from yaku.core.images import (
     ImageType,
     _iso_paths,
     analyze_image,
     detect_image_type,
     scan_iso_for_markers,
 )
-from lubus.udisks import client
+from yaku.udisks import client
 
 # ---------------------------------------------------------------------------
 # Minimal ISO9660 builder
@@ -227,7 +227,7 @@ class TestAnalyzeImage:
         """Analysis must not need UDisks2 (the source of the reported error)."""
         with tempfile.TemporaryDirectory() as tmp:
             iso = _build_iso(os.path.join(tmp, "fedora.iso"), FEDORA_TREE, hybrid=True)
-            with patch("lubus.udisks.mount_iso_readonly") as mount:
+            with patch("yaku.udisks.mount_iso_readonly") as mount:
                 info = analyze_image(iso)
             assert mount.called is False
             assert info.image_type == ImageType.LINUX_ISHYBRID
@@ -238,7 +238,7 @@ class TestAnalyzeImage:
             blob = os.path.join(tmp, "disk.img")
             with open(blob, "wb") as handle:
                 handle.write(b"\x00" * 65536)
-            with patch("lubus.udisks.mount_iso_readonly",
+            with patch("yaku.udisks.mount_iso_readonly",
                        side_effect=client.UDisksError("D-Bus call failed")):
                 info = analyze_image(blob)
             assert info.image_type == ImageType.UNKNOWN

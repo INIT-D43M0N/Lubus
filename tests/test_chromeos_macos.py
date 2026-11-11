@@ -15,16 +15,16 @@ import tempfile
 
 import pytest
 
-from lubus.core.chromeos import is_chromeos_image
-from lubus.core.gpt import guid_to_str, read_gpt
-from lubus.core.images import ImageType, detect_image_type
-from lubus.core.macos import (
+from yaku.core.chromeos import is_chromeos_image
+from yaku.core.gpt import guid_to_str, read_gpt
+from yaku.core.images import ImageType, detect_image_type
+from yaku.core.macos import (
     find_bootloader,
     find_hfsplus_volume,
     is_dmg,
     read_dmg_info,
 )
-from lubus.core.partitions import (
+from yaku.core.partitions import (
     PartitionType,
     get_macos_layout,
     get_partition_type_guid,
@@ -335,7 +335,7 @@ class TestWriteMacos:
 
     def _run(self, tmp_path, tree_has_bootloader=True):
         from unittest.mock import patch
-        from lubus.core import writer
+        from yaku.core import writer
 
         dmg = _build_dmg(str(tmp_path / "installer.dmg"))
         raw = _build_hfsplus_image(str(tmp_path / "macos.img"))

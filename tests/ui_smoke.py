@@ -11,7 +11,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.argv = ["lubus"]
+sys.argv = ["yaku"]
 
 import gi
 gi.require_version("Gtk", "4.0")
@@ -29,18 +29,18 @@ def check(name, cond, detail=""):
 
 # Instantiating an Adw.Application registers the libadwaita widget types
 # that the .ui files reference (AdwBanner etc.).
-app = Adw.Application(application_id="org.lubus.ui_smoke")
+app = Adw.Application(application_id="org.yaku.ui_smoke")
 app.connect("activate", lambda _a: None)
 
 # ---------------------------------------------------------------- .ui files
 print("=== UI FILES ===")
-from lubus.utils.resources import ui_file, data_dir
-from lubus.pages.base import UiPage
+from yaku.utils.resources import ui_file, data_dir
+from yaku.pages.base import UiPage
 
 for name in ("drive_page.ui", "image_page.ui", "summary_page.ui", "flash_page.ui", "shortcuts.ui"):
     try:
         builder = Gtk.Builder()
-        builder.set_translation_domain("lubus")
+        builder.set_translation_domain("yaku")
         builder.add_from_file(str(ui_file(name)))
         check(f"{name} loads", builder.get_objects() is not None)
     except GLib.Error as e:
@@ -48,13 +48,13 @@ for name in ("drive_page.ui", "image_page.ui", "summary_page.ui", "flash_page.ui
 
 check("data dir resolved", data_dir().is_dir(), str(data_dir()))
 check("app icon PNG shipped",
-      (data_dir() / "icons" / "hicolor" / "1024x1024" / "apps" / "lubus.png").is_file())
+      (data_dir() / "icons" / "hicolor" / "1024x1024" / "apps" / "yaku.png").is_file())
 check("app icon SVG shipped",
-      (data_dir() / "icons" / "hicolor" / "scalable" / "apps" / "lubus.svg").is_file())
+      (data_dir() / "icons" / "hicolor" / "scalable" / "apps" / "yaku.svg").is_file())
 
 # ------------------------------------------------------------------- pages
 print("\n=== PAGES ===")
-from lubus.pages import DrivePage, ImagePage, SummaryPage, FlashPage
+from yaku.pages import DrivePage, ImagePage, SummaryPage, FlashPage
 
 drive_page = DrivePage(on_drive_selected=None)
 check("DrivePage instantiates", drive_page.widget is not None)
@@ -65,7 +65,7 @@ image_page = ImagePage(on_image_selected=None, on_analysis_complete=None)
 check("ImagePage instantiates", image_page.widget is not None)
 check("image page exposes the ISO download button",
       image_page.download_btn.get_label() == "Download Linux ISO")
-from lubus.pages.iso_download import IsoDownloadDialog
+from yaku.pages.iso_download import IsoDownloadDialog
 _dl = IsoDownloadDialog(lambda _p: None)
 check("ISO downloader dialog builds",
       _dl.get_child() is not None
@@ -84,7 +84,7 @@ flash_page = FlashPage(on_done=None, on_cancel=None)
 check("FlashPage instantiates", flash_page.widget is not None)
 
 # Drive list behaviour with fake hardware
-from lubus.core.devices import Drive, BusType
+from yaku.core.devices import Drive, BusType
 fake_drives = [
     Drive(device="/dev/sdb", size=32 * 1024**3, model="Ultra Fit", vendor="SanDisk",
           product="Ultra Fit", serial="S1", wwn="W1", bus_type=BusType.USB,
@@ -141,11 +141,11 @@ _config = drive_page.get_install_config()
 check("install config round-trips",
       _config.is_direct and _config.is_custom
       and _config.username == "alice" and _config.hostname == "alice-pc")
-from lubus.core.direct_install import validate_install_config
+from yaku.core.direct_install import validate_install_config
 check("valid direct config accepted",
       validate_install_config(_config, 128 * 1024**3, None) == [])
 
-from lubus.core.images import ImageType
+from yaku.core.images import ImageType
 drive_page.set_image_type(ImageType.WINDOWS_INSTALLER)
 check("Windows direct install exposes boot type",
       drive_page.boot_mode_row.get_visible()
@@ -186,7 +186,7 @@ check("more-drives popup button visible", drive_page.more_btn.get_visible())
 check("more-drives button advertises the total",
       "4" in drive_page.more_btn.get_label())
 
-from lubus.pages.drive_dialog import DriveListDialog
+from yaku.pages.drive_dialog import DriveListDialog
 _dialog = DriveListDialog(
     many_drives, {d.device for d in many_drives},
     lambda _d, _a: None, lambda _a: None,
@@ -224,7 +224,7 @@ check("empty state shown for no drives",
 # Image page options
 check("scheme options present", image_page.scheme_row.get_model() is not None)
 check("fs options present", image_page.fs_row.get_model() is not None)
-check("label limited to 11 chars (FAT32)", image_page.label_row.get_text() == "LUBUS")
+check("label limited to 11 chars (FAT32)", image_page.label_row.get_text() == "YAKU")
 image_page.label_row.set_text("VERYLONGLABEL")
 image_page._on_label_changed(None)
 check("label truncated to 11 chars", len(image_page.label_row.get_text()) == 11,
@@ -235,7 +235,7 @@ check("get_settings returns scheme/target/fs",
       and settings["filesystem"] is not None)
 
 # Interactive disc easter egg (Step 2)
-from lubus.pages.disc import DiscFlip
+from yaku.pages.disc import DiscFlip
 check("disc easter egg lives in the empty state",
       isinstance(image_page.disc_flip, DiscFlip)
       and image_page.disc_flip.get_parent() is image_page.disc_slot)
@@ -251,9 +251,9 @@ image_page.disc_flip.reset()
 
 # ------------------------------------------------------------------ window
 print("\n=== WINDOW ===")
-from lubus.window import LubusWindow
+from yaku.window import YakuWindow
 
-window = LubusWindow(app)
+window = YakuWindow(app)
 window.present()
 check("window has 4 steps", window.view_stack.get_pages().get_n_items() == 4)
 check("back hidden on step 1", not window.back_btn.get_visible())
@@ -336,7 +336,7 @@ check("no result buttons while writing",
       and not window.flash_page.close_btn.get_visible())
 
 # --- animated HDD replaces the old generic flash icon ---
-from lubus.pages.hdd import HddAnimation
+from yaku.pages.hdd import HddAnimation
 hdd = window.flash_page.hdd
 check("HDD animation lives in the progress view",
       isinstance(hdd, HddAnimation) and hdd.get_parent() is window.flash_page.hdd_slot)
@@ -409,7 +409,7 @@ for name in ("about", "preferences", "shortcuts", "refresh", "choose-image"):
 import re
 from pathlib import Path
 
-_fp_src = (Path(__file__).parent.parent / "lubus" / "pages" / "flash_page.py").read_text()
+_fp_src = (Path(__file__).parent.parent / "yaku" / "pages" / "flash_page.py").read_text()
 check("flash page has no mini-game",
       "minigame" not in _fp_src.lower()
       and "MiniGame" not in _fp_src)

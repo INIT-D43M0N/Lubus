@@ -1,11 +1,11 @@
-"""Smoke tests for Lubus 5.0 features (run: python3 tests/test_v5_features.py)."""
+"""Smoke tests for Yaku 5.0 features (run: python3 tests/test_v5_features.py)."""
 import os
 import sys
 import tempfile
 import shutil
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.argv = ["lubus"]
+sys.argv = ["yaku"]
 
 failures = []
 
@@ -17,16 +17,16 @@ def check(name, cond, detail=""):
 
 
 print("=== VERSION ===")
-import lubus
-check("project version is 6.0.0", lubus.__version__ == "6.0.0", lubus.__version__)
+import yaku
+check("project version is 6.0.0", yaku.__version__ == "6.0.0", yaku.__version__)
 
 print("\n=== INSTALL CONFIG VALIDATION ===")
-from lubus.core.direct_install import (
+from yaku.core.direct_install import (
     InstallConfig, build_linux_layout, validate_install_config,
 )
-from lubus.core.windows_install import build_windows_layout
-from lubus.core.images import FileSystem, ImageType, PartitionScheme, TargetSystem
-from lubus.core.partitions import PartitionType
+from yaku.core.windows_install import build_windows_layout
+from yaku.core.images import FileSystem, ImageType, PartitionScheme, TargetSystem
+from yaku.core.partitions import PartitionType
 
 GiB = 1024 ** 3
 live = InstallConfig()
@@ -59,7 +59,7 @@ check("oversized custom layout rejected",
 
 print("\n=== LINUX PARTITION LAYOUT ===")
 auto = build_linux_layout(valid, PartitionScheme.GPT, TargetSystem.UEFI,
-                          "LUBUS", 64 * GiB)
+                          "YAKU", 64 * GiB)
 check("UEFI auto layout has ESP + root", len(auto.partitions) == 2)
 check("ESP is first", auto.partitions[0].type == PartitionType.EFI_SYSTEM)
 check("auto root uses remaining space", auto.partitions[1].size == 0)
@@ -69,13 +69,13 @@ custom = InstallConfig(
     password="secret", hostname="alice-pc", root_gib=32,
 )
 custom_layout = build_linux_layout(custom, PartitionScheme.GPT,
-                                   TargetSystem.UEFI, "LUBUS", 64 * GiB)
+                                   TargetSystem.UEFI, "YAKU", 64 * GiB)
 check("custom root gets the requested size",
       custom_layout.partitions[1].size == 32 * GiB,
       str(custom_layout.partitions[1].size))
 
 bios = build_linux_layout(valid, PartitionScheme.MBR, TargetSystem.BIOS,
-                          "LUBUS", 64 * GiB)
+                          "YAKU", 64 * GiB)
 check("BIOS layout has a single root",
       len(bios.partitions) == 1 and bios.partitions[0].flags == ["boot"])
 
@@ -129,12 +129,12 @@ check("invalid ESP size rejected",
                                            ImageType.WINDOWS_INSTALLER)))
 
 print("\n=== PROVISIONING GENERATORS ===")
-from lubus.core.provisioning import (
+from yaku.core.provisioning import (
     build_unattend_xml, build_cloud_init_user_data,
     write_windows_provisioning, write_linux_provisioning,
     write_installer_autounattend,
 )
-from lubus.core.windows_debloat import (
+from yaku.core.windows_debloat import (
     _wimlib_delete_commands, defender_first_logon_commands,
     remove_defender_from_wim,
 )
@@ -183,7 +183,7 @@ cloud = build_cloud_init_user_data(valid.to_dict())
 check("cloud-init contains user", "name: alice" in cloud)
 check("cloud-init contains hostname", "hostname: alice-pc" in cloud)
 
-tmp = tempfile.mkdtemp(prefix="lubus_provision_")
+tmp = tempfile.mkdtemp(prefix="yaku_provision_")
 try:
     win_root = os.path.join(tmp, "win")
     os.makedirs(os.path.join(win_root, "Windows", "Panther"))
@@ -197,7 +197,7 @@ try:
     check("windows panther autounattend written",
           os.path.isfile(os.path.join(win_root, "Windows", "Panther", "autounattend.xml")))
     check("windows metadata written",
-          os.path.isfile(os.path.join(win_root, "LubusInstall.json")))
+          os.path.isfile(os.path.join(win_root, "YakuInstall.json")))
 
     installer_root = os.path.join(tmp, "usb")
     os.makedirs(installer_root)
@@ -211,8 +211,8 @@ try:
     with open(fake_dism, "w") as f:
         f.write(f"#!/bin/sh\necho \"$@\" > {dism_log}\nexit 0\n")
     os.chmod(fake_dism, 0o755)
-    old_dism = os.environ.get("LUBUS_DISM")
-    os.environ["LUBUS_DISM"] = fake_dism
+    old_dism = os.environ.get("YAKU_DISM")
+    os.environ["YAKU_DISM"] = fake_dism
     try:
         dummy = os.path.join(tmp, "dummy.wim")
         open(dummy, "wb").write(b"x")
@@ -223,9 +223,9 @@ try:
               and "1,2" in open(dism_log).read())
     finally:
         if old_dism is None:
-            os.environ.pop("LUBUS_DISM", None)
+            os.environ.pop("YAKU_DISM", None)
         else:
-            os.environ["LUBUS_DISM"] = old_dism
+            os.environ["YAKU_DISM"] = old_dism
 
     lin_root = os.path.join(tmp, "linux")
     os.makedirs(os.path.join(lin_root, "etc"))
@@ -235,12 +235,12 @@ try:
           os.path.isfile(os.path.join(seed, "user-data"))
           and os.path.isfile(os.path.join(seed, "meta-data")))
     check("linux metadata written",
-          os.path.isfile(os.path.join(lin_root, "lubus-install.json")))
+          os.path.isfile(os.path.join(lin_root, "yaku-install.json")))
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
 
 print("\n=== WINDOWS BOOT CONFIGURATION ===")
-from lubus.core.windows_boot import configure_uefi_boot, configure_bios_boot
+from yaku.core.windows_boot import configure_uefi_boot, configure_bios_boot
 
 boot_tmp = tempfile.mkdtemp(prefix="v5_boot_")
 try:
@@ -257,10 +257,10 @@ try:
 
     bcd_template = os.path.join(boot_tmp, "template.bcd")
     open(bcd_template, "wb").write(b"BCD-TEMPLATE")
-    old_template = os.environ.get("LUBUS_BCD_TEMPLATE")
-    old_bcdboot = os.environ.get("LUBUS_BCDBOOT")
-    os.environ["LUBUS_BCD_TEMPLATE"] = bcd_template
-    os.environ.pop("LUBUS_BCDBOOT", None)
+    old_template = os.environ.get("YAKU_BCD_TEMPLATE")
+    old_bcdboot = os.environ.get("YAKU_BCDBOOT")
+    os.environ["YAKU_BCD_TEMPLATE"] = bcd_template
+    os.environ.pop("YAKU_BCDBOOT", None)
     try:
         configure_uefi_boot(win, esp, efi_src)
         check("UEFI boot manager installed",
@@ -276,16 +276,16 @@ try:
               os.path.isfile(os.path.join(win, "Boot", "BCD")))
     finally:
         if old_template is None:
-            os.environ.pop("LUBUS_BCD_TEMPLATE", None)
+            os.environ.pop("YAKU_BCD_TEMPLATE", None)
         else:
-            os.environ["LUBUS_BCD_TEMPLATE"] = old_template
+            os.environ["YAKU_BCD_TEMPLATE"] = old_template
         if old_bcdboot is not None:
-            os.environ["LUBUS_BCDBOOT"] = old_bcdboot
+            os.environ["YAKU_BCDBOOT"] = old_bcdboot
 finally:
     shutil.rmtree(boot_tmp, ignore_errors=True)
 
 print("\n=== MULTI-DRIVE PROGRESS ===")
-from lubus.core.multi_flash import AggregateProgress
+from yaku.core.multi_flash import AggregateProgress
 events = []
 agg = AggregateProgress(2, lambda f, d, t: events.append((f, d, t)))
 c0, c1 = agg.channel(0), agg.channel(1)
@@ -302,7 +302,7 @@ check("aggregate reaches 100%",
       abs(events[-1][0] - 1.0) < 1e-9, str(events[-1]))
 
 print("\n=== LINUX PORTABLE DEPLOYMENT (mocked UDisks) ===")
-import lubus.core.direct_install as di
+import yaku.core.direct_install as di
 
 # Tiny fake ISO tree + mocked target partitions.
 iso_dir = tempfile.mkdtemp(prefix="v5_iso_")
@@ -343,7 +343,7 @@ portable_cfg = InstallConfig(
 portable_events = []
 ok = di.write_linux_portable(
     "/tmp/fake.iso", "/dev/sdz", portable_cfg,
-    PartitionScheme.GPT, TargetSystem.UEFI, "LUBUS",
+    PartitionScheme.GPT, TargetSystem.UEFI, "YAKU",
     lambda d, t: portable_events.append((d, t)),
     lambda: False,
     iso_root=iso_dir,
@@ -370,17 +370,17 @@ print("\n=== MULTI-DRIVE CONCURRENT WINDOW FLOW ===")
 import threading
 import time
 import gi
-from lubus.core.devices import Drive, BusType
-from lubus.core.images import ImageInfo, FileSystem
+from yaku.core.devices import Drive, BusType
+from yaku.core.images import ImageInfo, FileSystem
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Gtk, Adw
 Gtk.init(); Adw.init()
-app = Adw.Application(application_id="org.lubus.v5multi"); app.register(None)
-import lubus.window as window_mod
-from lubus.window import LubusWindow
+app = Adw.Application(application_id="org.yaku.v5multi"); app.register(None)
+import yaku.window as window_mod
+from yaku.window import YakuWindow
 
-win = LubusWindow(app)
+win = YakuWindow(app)
 d1 = Drive(device="/dev/sdb", size=32 * GiB, model="Ultra Fit", vendor="SanDisk",
            product="Ultra Fit", serial="S1", wwn="W1", bus_type=BusType.USB,
            removable=True, ejectable=True, media_available=True, media_removable=True)
@@ -430,10 +430,10 @@ check("both drives were written concurrently",
       set(called) == {"/dev/sdb", "/dev/sdc"}, str(called))
 
 print("\n=== DIRECT INSTALL DISPATCH GUARD ===")
-import lubus.core.direct_install as di
-from lubus.core.devices import Drive, BusType
-from lubus.core.images import ImageInfo, FileSystem
-from lubus.core.writer import WriteError
+import yaku.core.direct_install as di
+from yaku.core.devices import Drive, BusType
+from yaku.core.images import ImageInfo, FileSystem
+from yaku.core.writer import WriteError
 
 fake_info = ImageInfo(
     path="/tmp/x.iso", size=4 * GiB, image_type=ImageType.UNKNOWN,

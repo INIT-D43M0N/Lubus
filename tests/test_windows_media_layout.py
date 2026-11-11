@@ -2,7 +2,7 @@
 
 Windows 11 24H2+ (ConX) locates the installation media by checking for
 ``Sources\\SetupHost.exe`` and then expects ``install.wim``/``install.esd``
-on that same volume. The old Lubus layout put the boot files on the FAT32
+on that same volume. The old Yaku layout put the boot files on the FAT32
 volume and only ``install.wim`` on the NTFS volume, so Setup showed
 "Install driver to show hardware" even though the USB was fine.
 """
@@ -10,9 +10,9 @@ import os
 
 import pytest
 
-from lubus.core import writer
-from lubus.core.images import PartitionScheme
-from lubus.core.writer import (
+from yaku.core import writer
+from yaku.core.images import PartitionScheme
+from yaku.core.writer import (
     WIN_BOOT_SKIP_PATHS,
     WriteError,
     _compute_esp_size,

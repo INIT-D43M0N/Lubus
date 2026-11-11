@@ -1,9 +1,9 @@
 # Windows BCD templates for direct installs
 
-Creating a bootable Windows installation requires a valid BCD store. Lubus
+Creating a bootable Windows installation requires a valid BCD store. Yaku
 looks for one of these, in order:
 
-1. `bcdboot` helper via `LUBUS_BCDBOOT`
+1. `bcdboot` helper via `YAKU_BCDBOOT`
 2. a template file in this directory:
    - `uefi.bcd` for GPT/UEFI installs
    - `bios.bcd` for MBR/BIOS installs
@@ -16,7 +16,7 @@ that translates the mounted paths to a Windows/Wine/PE environment and runs
 
 ```sh
 #!/bin/sh
-# LUBUS_BCDBOOT=/path/to/this-script
+# YAKU_BCDBOOT=/path/to/this-script
 # $1 = mounted Windows volume
 # $2 = mounted ESP (empty for BIOS)
 # $3 = uefi or bios
@@ -24,7 +24,7 @@ exec wine /path/to/bcdboot.exe ...
 ```
 
 Or a native helper/VM that accepts the same three arguments. If the helper
-returns 0, Lubus assumes the BCD store and boot files were created.
+returns 0, Yaku assumes the BCD store and boot files were created.
 
 ## Template contract
 

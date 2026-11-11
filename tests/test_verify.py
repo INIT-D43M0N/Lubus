@@ -16,8 +16,8 @@ from unittest.mock import patch
 
 import pytest
 
-from lubus.core import verify
-from lubus.core.verify import (
+from yaku.core import verify
+from yaku.core.verify import (
     VerifyError,
     VerifyMismatchError,
     verify_device_matches_image,
@@ -45,7 +45,7 @@ class TestVerifyOpen:
         # verify_device_matches_image closes the descriptor it was given.
 
     def test_direct_open_failure_is_reported(self):
-        from lubus.udisks import client
+        from yaku.udisks import client
 
         with patch.object(client, "bus", return_value=None), \
                 patch.object(client, "open_device_exclusive",
@@ -57,7 +57,7 @@ class TestVerifyOpen:
 
     def test_udisks_open_does_not_ask_for_an_exclusive_lock(self):
         """The write path may still hold the device open during verification."""
-        from lubus.udisks import client
+        from yaku.udisks import client
 
         calls = {}
 

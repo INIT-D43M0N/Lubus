@@ -1,10 +1,10 @@
-/* Lubus stylesheet — intentionally minimal.
+/* Yaku stylesheet — intentionally minimal.
 
    GNOME HIG: never restyle platform widgets. Libadwaita already provides
    light/dark theming, adaptivity, header bars, list rows and buttons, so
    this file only carries the few bits the toolkit has no native look for:
    the failure-point progress bar, the details accordion and the file drop
-   highlight. (The Step 4 HDD graphic is drawn by lubus.pages.hdd.)
+   highlight. (The Step 4 HDD graphic is drawn by yaku.pages.hdd.)
 
    Spacing follows an 8px grid (8/16/24/32).
 */
