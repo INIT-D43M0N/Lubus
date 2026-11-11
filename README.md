@@ -2,6 +2,8 @@
 
 A modern, native Linux application for creating bootable USB drives and deploying portable operating systems. Lubus is built with **GTK4**, **Libadwaita**, and **Python** using GObject introspection.
 
+**Project page: <https://github.com/INIT-D43M0N/Lubus>**
+
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://python.org)
 [![GTK4](https://img.shields.io/badge/GTK-4.0+-orange.svg)](https://gtk.org)
@@ -12,11 +14,15 @@ A modern, native Linux application for creating bootable USB drives and deployin
 - **Native GNOME interface**: a clean libadwaita layout with grouped settings, accessible rows, dialogs, and responsive pages.
 - **Drive detection**: lists removable USB drives and SD cards with model, device path, bus type, and capacity. Internal system and mounted drives are excluded by default.
 - **Two-drive summary with multi-target selection**: the dashboard shows the first two drives; **More Drives…** opens a dialog with every detected drive and a **Select All** master control.
-- **Image selection**: choose local ISO, IMG, DD, RAW, or BIN files, with automatic image-type detection.
+- **Image selection**: choose local ISO, IMG, DD, RAW, BIN, or DMG files, with automatic image-type detection.
 - **Linux ISO downloader**: browse Debian, Ubuntu, Kubuntu, Xubuntu, Lubuntu, Ubuntu Budgie, Ubuntu MATE, Ubuntu Studio, and Ubuntu Unity editions, resolve mirrors automatically, and verify downloads with SHA-256.
 - **Live USB mode**: write a bootable installer image directly to one or more drives.
 - **Direct install / portable mode**: deploy a portable system with automatic or custom partitioning and unattended user provisioning.
 - **Windows deployment options**: create Windows installer media, configure Windows To Go-style portable installs, skip OOBE screens, bypass Windows 11 requirements, optionally remove Windows Defender, and stage storage-controller drivers for Intel VMD/RST and AMD RAID systems.
+- **ChromeOS support**: write a ChromeOS recovery image byte for byte, exactly as Google describes it. The recovery image is recognised by its partition table, not by a lucky string in the bytes.
+- **Brunch support**: turn the same recovery image into a [Brunch](https://github.com/sebanc/brunch) install, which runs ChromeOS on a regular computer. The twelve partition ChromeOS expects are built by Lubus itself — byte for byte like the project's own `cgpt` tool — and the Brunch files are downloaded once and kept for the next time.
+- **macOS support**: write Apple disk images. The DMG is converted and the drive gets the layout Apple's own `createinstallmedia` uses: an EFI system partition with the bootloader in front of an Apple_HFS partition holding the installer.
+- **BSD and Unix support**: FreeBSD, OpenBSD, NetBSD, DragonFly BSD, illumos (OmniOS, OpenIndiana) and Haiku. Their hybrid ISOs and their raw disk images are recognised from the partition table; the installation CDs that only work from an optical drive say so instead of quietly producing a drive that does not boot.
 - **Writing modes**: DD block copy or ISO file extraction, depending on the image.
 - **Progress and results**: live speed, ETA, target information, result actions, and a technical log.
 - **Safety checks**: destructive confirmation, system-disk filtering, drive identity verification, safe unmounting, and optional verification after writing.
@@ -48,15 +54,21 @@ lubus/
 │   ├── drive_page.py        # Step 1: installation mode and target drives
 │   ├── drive_dialog.py      # All-drives dialog with Select All
 │   ├── image_page.py        # Step 2: image selection and write options
+│   ├── brunch_page.py       # Step 3: ChromeOS / Brunch options
 │   ├── iso_download.py      # Linux ISO catalog and downloader UI
-│   ├── summary_page.py      # Step 3: confirmation and Windows options
-│   ├── flash_page.py        # Step 4: progress, result and logs
+│   ├── summary_page.py      # Confirmation and Windows options
+│   ├── flash_page.py        # Progress, result and logs
 │   ├── disc.py              # Interactive disc artwork
 │   └── hdd.py               # Animated HDD progress artwork
 ├── core/                    # Non-GTK application logic
 │   ├── devices.py           # Drive enumeration and identity
 │   ├── images.py            # Image analysis and detection
 │   ├── partitions.py        # GPT/MBR partition layouts
+│   ├── gpt.py               # GUID partition table reader and writer
+│   ├── chromeos.py          # ChromeOS recovery image recognition
+│   ├── brunch.py            # Brunch layout, copy plan and assets
+│   ├── macos.py             # macOS DMG and HFS+ handling
+│   ├── bsd.py               # BSD and other Unix media detection
 │   ├── writer.py            # Live USB write operations
 │   ├── direct_install.py    # Portable installation logic
 │   ├── multi_flash.py       # Parallel progress aggregation
@@ -102,6 +114,9 @@ lubus/
 - `btrfs-progs` for btrfs
 - wimlib for Windows image handling
 - GRUB tools for BIOS and UEFI boot files
+- `dmg2img` for macOS disk images (`.dmg`)
+- Internet access for the Brunch files, which are downloaded on demand and
+  kept in `~/.local/share/lubus/brunch/`
 
 ### Build
 
@@ -120,19 +135,19 @@ Download the artifact for your distribution from the [Releases](https://github.c
 ### Fedora
 
 ```bash
-sudo dnf install ./lubus-5.0.0-5.fc45.noarch.rpm
+sudo dnf install ./lubus-6.0.0-1.fc45.noarch.rpm
 ```
 
 ### SUSE Linux Enterprise / openSUSE
 
 ```bash
-sudo zypper install ./lubus-5.0.0-5.fc45.noarch.rpm
+sudo zypper install ./lubus-6.0.0-1.fc45.noarch.rpm
 ```
 
 ### Ubuntu / Debian
 
 ```bash
-sudo apt install ./lubus_5.0.0-1_all.deb
+sudo apt install ./lubus_6.0.0-1_all.deb
 ```
 
 ### From source
@@ -150,10 +165,37 @@ sudo meson install -C builddir
 
 1. **Select Drive** — choose Live USB or Direct install, then select one or more target drives.
 2. **Select Image** — choose a local image or download a Linux ISO.
-3. **Review Summary** — confirm the image, targets, installation mode, and Windows options.
-4. **Flash** — start the write and follow progress until completion.
+3. **ChromeOS Options** — only shown for a ChromeOS recovery image: write the image as it is, or turn it into a Brunch install that runs ChromeOS on a regular computer.
+4. **Review Summary** — confirm the image, targets, installation mode, and Windows options.
+5. **Flash** — start the write and follow progress until completion.
 
 When more than two drives are connected, use **More Drives…** to open the complete drive list and include several targets at once.
+
+### ChromeOS and Brunch
+
+A ChromeOS recovery image is a raw disk image with its own partition table, so Lubus recognises it by that table and copies it to the drive byte for byte — the same thing Google asks you to do.
+
+To run ChromeOS on an ordinary computer instead, choose **ChromeOS with Brunch** in the *ChromeOS Options* step:
+
+- Brunch needs its own files (about 900 MB). They are downloaded once, on demand, and kept in `~/.local/share/lubus/brunch/` for the next time.
+- Pick **Secure Boot** or **Legacy boot** depending on your computer.
+- The drive gets the twelve-partition ChromeOS layout, built by Lubus itself, byte for byte like the `cgpt` tool of the Brunch project.
+- The drive must have at least 14 GB of space, and the image must be the recovery image (`chromeos_image.bin`), not the zip file Google downloads.
+
+The [Brunch project](https://github.com/sebanc/brunch) explains which recovery image matches your computer and how to pick the right kernel.
+
+### macOS disk images
+
+Lubus writes Apple's installer disk images. The `.dmg` is converted with `dmg2img`, and the drive receives the layout Apple's own `createinstallmedia` uses: an EFI system partition with the bootloader in front of an Apple_HFS partition holding the installer. The HFS+ volume is written as raw blocks and never mounted.
+
+### BSD and Unix media
+
+The BSDs and the other Unixes ship their media in two shapes, and Lubus tells them apart:
+
+- **Hybrid ISOs** (FreeBSD `disc1`, the OmniOS installer, the Haiku *anyboot* image) and **raw disk images** (`installXX.img`, `*-install.img`, `memstick.img`, `*.usb-dd`) are copied to the drive as a whole, keeping their own partition table.
+- **Installation CDs** (OpenBSD, NetBSD, DragonFly BSD) only work from an optical drive. Lubus says so and asks for the `.img` file instead of quietly producing a drive that does not boot.
+
+FreeBSD, OpenBSD, NetBSD, DragonFly BSD, illumos (OmniOS, OpenIndiana) and Haiku are recognised from the files inside the ISO or from the partition table of the image.
 
 ### Windows Setup and storage drivers
 
@@ -215,3 +257,4 @@ GPL-3.0-or-later. See [LICENSE](LICENSE) for details.
 - [UDisks2](https://www.freedesktop.org/wiki/Software/udisks/) for safe, Polkit-integrated disk operations.
 - [wimlib](https://wimlib.net/) for Windows image handling.
 - [GRUB](https://www.gnu.org/software/grub/) for bootloader support.
+- [Brunch](https://github.com/sebanc/brunch) for the ChromeOS-on-a-PC project, whose kernel and bootloader Lubus installs and whose partition layout it reproduces.

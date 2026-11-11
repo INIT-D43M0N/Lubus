@@ -1,10 +1,10 @@
 Name:           lubus
-Version:        5.0.0
-Release:        10%{?dist}
+Version:        6.0.0
+Release:        1%{?dist}
 Summary:        Create bootable USB drives on Linux (Rufus alternative)
 
 License:        GPL-3.0-or-later
-URL:            https://github.com/yourusername/lubus
+URL:            https://github.com/INIT-D43M0N/Lubus
 Source0:        %{name}-%{version}.tar.gz
 
 BuildArch:      noarch
@@ -37,8 +37,8 @@ using GTK4, Libadwaita, and Python.
 
 Features:
 - Automatic detection of removable USB drives and SD cards
-- Support for ISO, IMG, and other bootable disk images
-- Automatic detection of image type (Windows, Linux, hybrid)
+- Support for ISO, IMG, DD, RAW, BIN and DMG images
+- Automatic detection of the image type (Windows, Linux, ChromeOS, macOS, BSD)
 - Partition scheme selection (GPT/MBR) and target system (UEFI/BIOS)
 - Filesystem selection (FAT32, NTFS, exFAT, ext4, btrfs)
 - DD mode (block copy) and ISO extract mode
@@ -51,6 +51,9 @@ Features:
 - Windows GPT/UEFI + MSR, MBR/BIOS, autounattend, OOBE and Win11 bypasses
 - Optional Windows Defender removal / debloat
 - Automatic or custom partitioning with first-boot user provisioning
+- ChromeOS recovery images, with optional Brunch for regular computers
+- macOS installer disk images (EFI + HFS+ layout)
+- FreeBSD, OpenBSD, NetBSD, DragonFly BSD, illumos and Haiku media
 - Simultaneous flashing to multiple drives
 - Integrated Linux ISO catalog and segmented verified downloader
 - Retro CRT dashboard with animated character GIF
@@ -83,6 +86,23 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/com.githu
 %{python3_sitelib}/lubus/
 
 %changelog
+* Tue Nov 10 2026 Lubus Contributors <lubus@github.com> - 6.0.0-1
+- Write ChromeOS recovery images. They are raw disk images with their own
+  partition table, so they are copied to the drive byte for byte
+- Add a ChromeOS options step: a recovery image can be written as it is or
+  as a Brunch install, which runs ChromeOS on a regular computer. Brunch
+  needs its own files (about 900 MB), which are downloaded once and kept
+- Write macOS installer disk images. The DMG is converted and the drive
+  gets the layout Apple's own createinstallmedia uses: an EFI system
+  partition with the bootloader in front of an Apple_HFS partition
+- Support the BSDs and the other Unixes: FreeBSD, OpenBSD, NetBSD,
+  DragonFly BSD, illumos and Haiku. Their hybrid ISOs and their raw disk
+  images are recognised, and the installation CDs that only work from an
+  optical drive say so instead of writing a drive that does not boot
+- Write the GUID partition table in the application itself, byte for byte
+  like ChromeOS' own cgpt tool does, so the tables the firmware reads are
+  exactly the ones the project expects
+- Link the project pages to https://github.com/INIT-D43M0N/Lubus
 * Tue Nov 10 2026 Lubus Contributors <lubus@github.com> - 5.0.0-10
 - Stop sending the access bits in the flags option of Block.OpenDevice,
   which UDisks2 has refused since 2.7.3, and remove the unreachable legacy

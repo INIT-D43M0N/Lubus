@@ -18,7 +18,7 @@ def check(name, cond, detail=""):
 
 print("=== VERSION ===")
 import lubus
-check("project version is 5.0.0", lubus.__version__ == "5.0.0", lubus.__version__)
+check("project version is 6.0.0", lubus.__version__ == "6.0.0", lubus.__version__)
 
 print("\n=== INSTALL CONFIG VALIDATION ===")
 from lubus.core.direct_install import (

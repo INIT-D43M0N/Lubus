@@ -205,15 +205,20 @@ def has_chromeos_magic(path: str) -> bool:
 def is_chromeos_recovery_image(path: str) -> bool:
     """Whether the file is a ChromeOS recovery image Brunch can use.
 
-    The partition table decides: a recovery image always carries the EFI
-    partition and the ROOT-A root filesystem Brunch copies from. A zip
-    file (the way Google ships the images) has no partition table at all,
-    so it is rejected here as well.
+    The upstream installer accepts an image when the EFI partition is there
+    and the third partition is the root filesystem ("ROOT-A"). The same
+    two things are checked here, and the root filesystem is also accepted
+    when it carries the ChromeOS type GUID instead of the name.
     """
     gpt = read_gpt(path)
     if gpt is None:
         return False
-    return gpt.find("EFI-SYSTEM") is not None and gpt.find("ROOT-A") is not None
+
+    has_efi = gpt.find("EFI-SYSTEM") is not None
+    has_root = gpt.find("ROOT-A") is not None or any(
+        part.type_guid == TYPE_ROOTFS for part in gpt.partitions
+    )
+    return has_efi and has_root
 
 
 def source_partitions(path: str) -> Dict[int, GptPartition]:

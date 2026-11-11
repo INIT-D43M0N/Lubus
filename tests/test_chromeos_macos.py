@@ -212,6 +212,35 @@ class TestChromeOS:
 
         assert detect_image_type(path) == ImageType.CHROMEOS
 
+    def test_the_current_recovery_layout_is_recognised(self, tmp_path):
+        """The images Google ships now use ROOT-A and KERN-A.
+
+        The names changed over the years, so the detection has to work
+        with the partition types as well.
+        """
+        layout = [
+            ("STATE", "0fc63daf-8483-4772-8e79-3d69d8477de4"),
+            ("KERN-A", CHROMEOS_KERNEL_GUID),
+            ("ROOT-A", CHROMEOS_ROOTFS_GUID),
+            ("KERN-B", CHROMEOS_KERNEL_GUID),
+            ("ROOT-B", CHROMEOS_ROOTFS_GUID),
+            ("OEM", "0fc63daf-8483-4772-8e79-3d69d8477de4"),
+            ("EFI-SYSTEM", ESP_GUID),
+        ]
+        path = _build_gpt_image(str(tmp_path / "chromeos_image.bin"), layout)
+
+        assert is_chromeos_image(path) is True
+        assert detect_image_type(path) == ImageType.CHROMEOS
+
+    def test_a_linux_image_with_only_an_efi_partition_is_not_chromeos(self, tmp_path):
+        layout = [
+            ("EFI System Partition", ESP_GUID),
+            ("boot", "0fc63daf-8483-4772-8e79-3d69d8477de4"),
+        ]
+        path = _build_gpt_image(str(tmp_path / "linux.img"), layout)
+
+        assert is_chromeos_image(path) is False
+
 
 # ---------------------------------------------------------------------------
 # macOS

@@ -12,7 +12,7 @@ set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${PROJECT_DIR}/rpmbuild"
 SPEC_FILE="${PROJECT_DIR}/packaging/lubus.spec"
-VERSION="5.0.0"
+VERSION="6.0.0"
 
 BUILD_MODE="auto"
 BUILD_SRPM_ONLY=false

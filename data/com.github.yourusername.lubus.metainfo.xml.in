@@ -8,47 +8,66 @@
     <p>Features:</p>
     <ul>
       <li>Automatic detection of removable USB drives and SD cards</li>
-      <li>Support for ISO, IMG, and other bootable disk images</li>
-      <li>Automatic detection of image type (Windows, Linux, hybrid)</li>
+      <li>Support for ISO, IMG, DD, RAW, BIN and DMG images</li>
+      <li>Automatic detection of the image type (Windows, Linux, ChromeOS, macOS, BSD)</li>
+      <li>Windows installer media creation, Windows To Go and driver staging</li>
+      <li>ChromeOS recovery images, with optional Brunch for regular computers</li>
+      <li>macOS installer disk images (EFI + HFS+ layout)</li>
+      <li>FreeBSD, OpenBSD, NetBSD, DragonFly BSD, illumos and Haiku media</li>
       <li>Partition scheme selection (GPT/MBR) and target system (UEFI/BIOS)</li>
       <li>Filesystem selection (FAT32, NTFS, exFAT, ext4, btrfs)</li>
       <li>DD mode (block copy) and ISO extract mode</li>
       <li>Real-time progress with speed and ETA</li>
       <li>Optional verification after write</li>
-      <li>Windows installer media creation</li>
-      <li>Windows To Go support</li>
+      <li>Direct drive installation / portable mode (Windows and Linux)</li>
+      <li>Simultaneous flashing to multiple drives</li>
+      <li>Integrated Linux ISO catalog and segmented verified downloader</li>
       <li>Safety checks and confirmation dialogs</li>
     </ul>
   </description>
   <project_license>GPL-3.0-or-later</project_license>
   <developer_name>Lubus Contributors</developer_name>
-  <url type="homepage">https://github.com/yourusername/lubus</url>
-  <url type="bugtracker">https://github.com/yourusername/lubus/issues</url>
-  <url type="help">https://github.com/yourusername/lubus/wiki</url>
-  <url type="donation">https://github.com/sponsors/yourusername</url>
+  <url type="homepage">https://github.com/INIT-D43M0N/Lubus</url>
+  <url type="bugtracker">https://github.com/INIT-D43M0N/Lubus/issues</url>
+  <url type="help">https://github.com/INIT-D43M0N/Lubus/wiki</url>
+  <url type="donation">https://github.com/sponsors/INIT-D43M0N</url>
   <metadata_license>CC0-1.0</metadata_license>
   <provides>
     <binary>lubus</binary>
   </provides>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/yourusername/lubus/main/screenshots/main.png</image>
+      <image>https://raw.githubusercontent.com/INIT-D43M0N/Lubus/main/screenshots/1.png</image>
+      <caption>Select the drive to write to</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/yourusername/lubus/main/screenshots/drive_selection.png</image>
-      <caption>Select target drive</caption>
+      <image>https://raw.githubusercontent.com/INIT-D43M0N/Lubus/main/screenshots/2.png</image>
+      <caption>Choose the image and the write options</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/yourusername/lubus/main/screenshots/image_selection.png</image>
-      <caption>Select ISO image</caption>
+      <image>https://raw.githubusercontent.com/INIT-D43M0N/Lubus/main/screenshots/3.png</image>
+      <caption>Review the settings before flashing</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/yourusername/lubus/main/screenshots/flash_progress.png</image>
-      <caption>Flashing progress</caption>
+      <image>https://raw.githubusercontent.com/INIT-D43M0N/Lubus/main/screenshots/4.png</image>
+      <caption>Flashing progress with speed and ETA</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/INIT-D43M0N/Lubus/main/screenshots/5.png</image>
+      <caption>Windows setup options</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/INIT-D43M0N/Lubus/main/screenshots/6.png</image>
+      <caption>The retro dashboard</caption>
     </screenshot>
   </screenshots>
   <releases>
-    <release version="5.0.0" date="@VERSION_DATE@">
+    <release version="6.0.0" date="@VERSION_DATE@">
+      <description>Lubus 6.0 writes ChromeOS and macOS images and supports the
+      BSDs and the other Unixes. A ChromeOS recovery image can now be turned
+      into a Brunch install, which runs ChromeOS on a regular computer.</description>
+    </release>
+    <release version="5.0.0" date="2026-11-10">
       <description>Lubus 5.0 adds direct drive installation (portable mode)
       with automatic/custom partitioning and user provisioning, plus
       simultaneous flashing to multiple drives.</description>
@@ -69,6 +88,8 @@
     <keyword>rufus</keyword>
     <keyword>flash</keyword>
     <keyword>dd</keyword>
+    <keyword>chromeos</keyword>
+    <keyword>freebsd</keyword>
   </keywords>
   <content_rating type="oars-1.1" />
 </component>

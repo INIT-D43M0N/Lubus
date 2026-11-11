@@ -13,7 +13,7 @@ def _handle_early_args():
     except SystemExit:
         return None
     if parsed.version:
-        print("Lubus 5.0.0")
+        print("Lubus 6.0.0")
         return 0
     if parsed.help:
         _print_help()

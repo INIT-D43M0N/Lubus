@@ -957,7 +957,7 @@ class LubusWindow(Adw.ApplicationWindow):
             self._reset_wizard()
             return
         log.info("Retrying flash after failure")
-        self._current_step = 3
+        self._current_step = STEP_NAMES.index("flash")
         self._update_step_ui()
         self.flash_page.start_flashing()
         self._is_flashing = True
@@ -1051,7 +1051,7 @@ class LubusWindow(Adw.ApplicationWindow):
         dialog = Adw.AboutDialog(
             application_name=_("Lubus"),
             application_icon="com.github.yourusername.lubus",
-            version="5.0.0",
+            version="6.0.0",
             developer_name="Lubus Contributors",
             license_type=Gtk.License.GPL_3_0,
             website="https://github.com/yourusername/lubus",
