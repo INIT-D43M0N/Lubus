@@ -176,6 +176,7 @@ jobs:
         run: |
           mkdir -p packages
           find rpmbuild/RPMS -name "*.rpm" -exec cp {} packages/ \;
+          find rpmbuild/SRPMS -name "*.src.rpm" -exec cp {} packages/ \;
           cp debbuild/*.deb packages/
           cp yaku-*.tar.gz packages/
           ls -l packages/
