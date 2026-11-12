@@ -1,31 +1,42 @@
 # Yaku
 
-A modern, native Linux application for creating bootable USB drives and deploying portable operating systems. Yaku is built with **GTK4**, **Libadwaita**, and **Python** using GObject introspection.
+**A modern, native Linux application for creating bootable USB drives and deploying portable operating systems.**
+
+Yaku is a Rufus alternative built for the Linux ecosystem with **GTK4**, **Libadwaita** and **Python**, using GObject introspection. It writes ISO images to removable drives, builds Windows installer media, installs Windows To Go systems, writes ChromeOS recovery images, creates macOS installer disks and recognises the BSDs and the other Unixes.
 
 **Project page: <https://github.com/INIT-D43M0N/Yaku>**
 
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://python.org)
 [![GTK4](https://img.shields.io/badge/GTK-4.0+-orange.svg)](https://gtk.org)
-[![Libadwaita](https://img.shields.io/badge/Libadwaita-1.0+-green.svg)](https://gnome.pages.gitlab.gnome.org/libadwaita/)
+[![Libadwaita](https://img.shields.io/badge/Libadwaita-1.3+-green.svg)](https://gnome.pages.gitlab.gnome.org/libadwaita/)
+[![Flatpak](https://img.shields.io/badge/flatpak-com.github.INIT-D43M0N.yaku-purple.svg)](com.github.INIT-D43M0N.yaku.yml)
+
+> **Note:** this project was formerly called *Lubus*. From version 6.1.0 on, every
+> name — the Python package, the app id, the icons, the package files and the
+> data directories — follows the **Yaku** name.
+
+---
 
 ## Features
 
-- **Native GNOME interface**: a clean libadwaita layout with grouped settings, accessible rows, dialogs, and responsive pages.
-- **Drive detection**: lists removable USB drives and SD cards with model, device path, bus type, and capacity. Internal system and mounted drives are excluded by default.
-- **Two-drive summary with multi-target selection**: the dashboard shows the first two drives; **More Drives…** opens a dialog with every detected drive and a **Select All** master control.
-- **Image selection**: choose local ISO, IMG, DD, RAW, BIN, or DMG files, with automatic image-type detection.
-- **Linux ISO downloader**: browse Debian, Ubuntu, Kubuntu, Xubuntu, Lubuntu, Ubuntu Budgie, Ubuntu MATE, Ubuntu Studio, and Ubuntu Unity editions, resolve mirrors automatically, and verify downloads with SHA-256.
-- **Live USB mode**: write a bootable installer image directly to one or more drives.
-- **Direct install / portable mode**: deploy a portable system with automatic or custom partitioning and unattended user provisioning.
-- **Windows deployment options**: create Windows installer media, configure Windows To Go-style portable installs, skip OOBE screens, bypass Windows 11 requirements, optionally remove Windows Defender, and stage storage-controller drivers for Intel VMD/RST and AMD RAID systems.
-- **ChromeOS support**: write a ChromeOS recovery image byte for byte, exactly as Google describes it. The recovery image is recognised by its partition table, not by a lucky string in the bytes.
-- **Brunch support**: turn the same recovery image into a [Brunch](https://github.com/sebanc/brunch) install, which runs ChromeOS on a regular computer. The twelve partition ChromeOS expects are built by Yaku itself — byte for byte like the project's own `cgpt` tool — and the Brunch files are downloaded once and kept for the next time.
-- **macOS support**: write Apple disk images. The DMG is converted and the drive gets the layout Apple's own `createinstallmedia` uses: an EFI system partition with the bootloader in front of an Apple_HFS partition holding the installer.
-- **BSD and Unix support**: FreeBSD, OpenBSD, NetBSD, DragonFly BSD, illumos (OmniOS, OpenIndiana) and Haiku. Their hybrid ISOs and their raw disk images are recognised from the partition table; the installation CDs that only work from an optical drive say so instead of quietly producing a drive that does not boot.
-- **Writing modes**: DD block copy or ISO file extraction, depending on the image.
-- **Progress and results**: live speed, ETA, target information, result actions, and a technical log.
-- **Safety checks**: destructive confirmation, system-disk filtering, drive identity verification, safe unmounting, and optional verification after writing.
+- **Native GNOME interface** — a clean libadwaita layout with grouped settings, accessible rows, dialogs and responsive pages.
+- **Drive detection** — lists removable USB drives and SD cards with model, device path, bus type and capacity. Internal system disks and mounted drives are excluded by default.
+- **Two-drive summary with multi-target selection** — the dashboard shows the first two drives; **More Drives…** opens a dialog with every detected drive and a **Select All** master control.
+- **Image selection** — choose a local ISO, IMG, DD, RAW, BIN or DMG file, with automatic image-type detection.
+- **Linux ISO downloader** — browse Debian, Ubuntu, Kubuntu, Xubuntu, Lubuntu, Ubuntu Budgie, Ubuntu MATE, Ubuntu Studio and Ubuntu Unity editions, resolve mirrors automatically and verify the download with SHA-256.
+- **Live USB mode** — write a bootable installer image straight to one or more drives.
+- **Direct install / portable mode** — deploy a portable system with automatic or custom partitioning and unattended user provisioning.
+- **Windows deployment options** — create Windows installer media, configure Windows To Go-style portable installs, skip OOBE screens, bypass the Windows 11 requirements, optionally remove Windows Defender and stage storage-controller drivers for Intel VMD/RST and AMD RAID systems.
+- **ChromeOS support** — write a ChromeOS recovery image byte for byte, exactly as Google describes it. The recovery image is recognised by its partition table, not by a lucky string in the bytes.
+- **Brunch support** — turn the same recovery image into a [Brunch](https://github.com/sebanc/brunch) install, which runs ChromeOS on a regular computer. The twelve-partition layout ChromeOS expects is built by Yaku itself — byte for byte like the project's own `cgpt` tool — and the Brunch files are downloaded once and kept for the next time.
+- **macOS support** — write Apple disk images. The DMG is converted and the drive gets the layout Apple's own `createinstallmedia` uses: an EFI system partition with the bootloader in front of an Apple_HFS partition holding the installer.
+- **BSD and Unix support** — FreeBSD, OpenBSD, NetBSD, DragonFly BSD, illumos (OmniOS, OpenIndiana) and Haiku. Their hybrid ISOs and their raw disk images are recognised from the partition table; the installation CDs that only work from an optical drive say so instead of quietly producing a drive that does not boot.
+- **Writing modes** — DD block copy or ISO file extraction, depending on the image.
+- **Progress and results** — live speed, ETA, target information, result actions and a technical log.
+- **Safety checks** — destructive confirmation, system-disk filtering, drive identity verification, safe unmounting and optional verification after writing.
+
+---
 
 ## Screenshots
 
@@ -40,6 +51,8 @@ A modern, native Linux application for creating bootable USB drives and deployin
 | Summary | Flashing |
 | --- | --- |
 | ![Installation summary](screenshots/5.png) | ![Flash progress](screenshots/6.png) |
+
+---
 
 ## Architecture
 
@@ -93,6 +106,10 @@ yaku/
     └── threading.py
 ```
 
+The data files live in `data/` (the GTK4 `.ui` definitions, the stylesheet, the artwork and the ISO catalog) and are installed into `/usr/share/yaku`.
+
+---
+
 ## Requirements
 
 ### Runtime
@@ -103,10 +120,7 @@ yaku/
 - Libadwaita 1.3 or newer
 - UDisks2 2.7.3 or newer (the `Block.OpenDevice` method with the `mode` argument)
 - Polkit
-- A Polkit authentication agent, so the authorization dialog for opening the
-  drive can be shown (`polkit-gnome` on GNOME, `polkit-kde` on KDE). Without
-  one, Polkit cannot ask for the password and the privileged operations
-  either hang or fail
+- A Polkit authentication agent, so the authorization dialog for opening the drive can be shown (`polkit-gnome` on GNOME, `polkit-kde` on KDE). Without one, Polkit cannot ask for the password and the privileged operations either hang or fail
 - `dosfstools` for FAT32
 - `ntfs-3g` for NTFS
 - `exfatprogs` for exFAT
@@ -115,8 +129,7 @@ yaku/
 - wimlib for Windows image handling
 - GRUB tools for BIOS and UEFI boot files
 - `dmg2img` for macOS disk images (`.dmg`)
-- Internet access for the Brunch files, which are downloaded on demand and
-  kept in `~/.local/share/yaku/brunch/`
+- Internet access for the Brunch files, which are downloaded on demand and kept in `~/.local/share/yaku/brunch/`
 
 ### Build
 
@@ -126,7 +139,9 @@ yaku/
 - Gettext
 - `desktop-file-validate`
 - `appstream-util`
-- GTK4, Libadwaita, GLib, and GObject development packages
+- GTK4, Libadwaita, GLib and GObject development packages
+
+---
 
 ## Installation
 
@@ -161,15 +176,32 @@ meson compile -C builddir
 sudo meson install -C builddir
 ```
 
+### Flatpak
+
+```bash
+flatpak-builder --force-clean build-dir com.github.INIT-D43M0N.yaku.yml
+flatpak-builder --run build-dir com.github.INIT-D43M0N.yaku.yml yaku
+```
+
+---
+
 ## Usage
 
 1. **Select Drive** — choose Live USB or Direct install, then select one or more target drives.
 2. **Select Image** — choose a local image or download a Linux ISO.
 3. **ChromeOS Options** — only shown for a ChromeOS recovery image: write the image as it is, or turn it into a Brunch install that runs ChromeOS on a regular computer.
-4. **Review Summary** — confirm the image, targets, installation mode, and Windows options.
-5. **Flash** — start the write and follow progress until completion.
+4. **Review Summary** — confirm the image, the targets, the installation mode and the Windows options.
+5. **Flash** — start the write and follow the progress until it completes.
 
 When more than two drives are connected, use **More Drives…** to open the complete drive list and include several targets at once.
+
+The command line entry point is `yaku`:
+
+```bash
+yaku --version
+yaku --iso ubuntu.iso --drive /dev/sdb
+yaku ubuntu.iso
+```
 
 ### ChromeOS and Brunch
 
@@ -207,29 +239,25 @@ Yaku writes the complete Windows media tree — including `sources\install.wim` 
 - Intel RST VMD: extract `f6vmdflpy-x64.zip` (`iaStorVD.inf`); Intel AHCI/RAID: `f6flpy-x64.zip` (`iaStorAC.inf`); AMD RAID: `rcraid.inf`, `rcbottom.inf`, `rccfg.inf`.
 - Alternatively, disable Intel VMD/RST or switch SATA mode to AHCI in the firmware before installing.
 
+---
+
 ## Safety
 
 - Internal system and mounted drives are excluded by default.
-- A warning banner and confirmation dialog are shown before destructive writes.
-- Drive serial numbers and WWNs are checked before writing to prevent a target swap.
+- A warning banner and a confirmation dialog are shown before destructive writes.
+- Drive serial numbers and WWNs are checked before writing, to prevent a target swap.
 - Privileged operations use UDisks2 and Polkit; Yaku does not run as root.
-- Partitions are unmounted safely before and after operations.
-- Optional verification is available for supported raw writes.
+- Partitions are unmounted safely before and after the operations.
+- Optional verification is available for the supported raw writes.
+
+---
 
 ## Development
 
-### Run tests
+### Run the tests
 
 ```bash
 python3 -m pytest tests/
-```
-
-### Build with Meson
-
-```bash
-meson setup builddir
-meson compile -C builddir
-meson install -C builddir
 ```
 
 ### Code style
@@ -239,17 +267,44 @@ ruff check yaku/
 ruff format yaku/
 ```
 
+### Type checking
+
+```bash
+mypy yaku/
+```
+
+### Build the packages
+
+```bash
+# RPM (Fedora, RHEL, openSUSE)
+./packaging/build-rpm.sh --local
+
+# DEB (Debian, Ubuntu)
+./packaging/build-deb.sh
+
+# Source tarball
+git archive --format=tar.gz --prefix="yaku-6.1.0/" -o yaku-6.1.0.tar.gz HEAD
+```
+
+The RPM is written to `rpmbuild/RPMS/` and the DEB to `debbuild/`; the artifacts published on the [Releases](https://github.com/INIT-D43M0N/Yaku/releases) page are kept in `dist/`.
+
+---
+
 ## Contributing
 
 1. Fork the repository.
 2. Create a feature branch.
 3. Make your changes.
-4. Run the tests and linters.
+4. Run the tests and the linters.
 5. Open a pull request.
+
+---
 
 ## License
 
 GPL-3.0-or-later. See [LICENSE](LICENSE) for details.
+
+---
 
 ## Acknowledgments
 
