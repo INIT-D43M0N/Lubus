@@ -1,8 +1,8 @@
-# Lubus
+# Yaku
 
-A modern, native Linux application for creating bootable USB drives and deploying portable operating systems. Lubus is built with **GTK4**, **Libadwaita**, and **Python** using GObject introspection.
+A modern, native Linux application for creating bootable USB drives and deploying portable operating systems. Yaku is built with **GTK4**, **Libadwaita**, and **Python** using GObject introspection.
 
-**Project page: <https://github.com/INIT-D43M0N/Lubus>**
+**Project page: <https://github.com/INIT-D43M0N/Yaku>**
 
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://python.org)
@@ -20,7 +20,7 @@ A modern, native Linux application for creating bootable USB drives and deployin
 - **Direct install / portable mode**: deploy a portable system with automatic or custom partitioning and unattended user provisioning.
 - **Windows deployment options**: create Windows installer media, configure Windows To Go-style portable installs, skip OOBE screens, bypass Windows 11 requirements, optionally remove Windows Defender, and stage storage-controller drivers for Intel VMD/RST and AMD RAID systems.
 - **ChromeOS support**: write a ChromeOS recovery image byte for byte, exactly as Google describes it. The recovery image is recognised by its partition table, not by a lucky string in the bytes.
-- **Brunch support**: turn the same recovery image into a [Brunch](https://github.com/sebanc/brunch) install, which runs ChromeOS on a regular computer. The twelve partition ChromeOS expects are built by Lubus itself — byte for byte like the project's own `cgpt` tool — and the Brunch files are downloaded once and kept for the next time.
+- **Brunch support**: turn the same recovery image into a [Brunch](https://github.com/sebanc/brunch) install, which runs ChromeOS on a regular computer. The twelve partition ChromeOS expects are built by Yaku itself — byte for byte like the project's own `cgpt` tool — and the Brunch files are downloaded once and kept for the next time.
 - **macOS support**: write Apple disk images. The DMG is converted and the drive gets the layout Apple's own `createinstallmedia` uses: an EFI system partition with the bootloader in front of an Apple_HFS partition holding the installer.
 - **BSD and Unix support**: FreeBSD, OpenBSD, NetBSD, DragonFly BSD, illumos (OmniOS, OpenIndiana) and Haiku. Their hybrid ISOs and their raw disk images are recognised from the partition table; the installation CDs that only work from an optical drive say so instead of quietly producing a drive that does not boot.
 - **Writing modes**: DD block copy or ISO file extraction, depending on the image.
@@ -44,7 +44,7 @@ A modern, native Linux application for creating bootable USB drives and deployin
 ## Architecture
 
 ```text
-lubus/
+Yaku/
 ├── __init__.py              # Package metadata
 ├── main.py                  # Application entry point
 ├── window.py                # Main window and wizard navigation
@@ -116,7 +116,7 @@ lubus/
 - GRUB tools for BIOS and UEFI boot files
 - `dmg2img` for macOS disk images (`.dmg`)
 - Internet access for the Brunch files, which are downloaded on demand and
-  kept in `~/.local/share/lubus/brunch/`
+  kept in `~/.local/share/Yaku/brunch/`
 
 ### Build
 
@@ -130,31 +130,31 @@ lubus/
 
 ## Installation
 
-Download the artifact for your distribution from the [Releases](https://github.com/INIT-D43M0N/Lubus/releases) page.
+Download the artifact for your distribution from the [Releases](https://github.com/INIT-D43M0N/Yaku/releases) page.
 
 ### Fedora
 
 ```bash
-sudo dnf install ./lubus-6.0.0-1.fc45.noarch.rpm
+sudo dnf install ./Yaku-6.0.0-1.fc45.noarch.rpm
 ```
 
 ### SUSE Linux Enterprise / openSUSE
 
 ```bash
-sudo zypper install ./lubus-6.0.0-1.fc45.noarch.rpm
+sudo zypper install ./Yaku-6.0.0-1.fc45.noarch.rpm
 ```
 
 ### Ubuntu / Debian
 
 ```bash
-sudo apt install ./lubus_6.0.0-1_all.deb
+sudo apt install ./Yaku_6.0.0-1_all.deb
 ```
 
 ### From source
 
 ```bash
-git clone https://github.com/INIT-D43M0N/Lubus.git
-cd Lubus
+git clone https://github.com/INIT-D43M0N/Yaku.git
+cd Yaku
 
 meson setup builddir --prefix=/usr
 meson compile -C builddir
@@ -173,27 +173,27 @@ When more than two drives are connected, use **More Drives…** to open the comp
 
 ### ChromeOS and Brunch
 
-A ChromeOS recovery image is a raw disk image with its own partition table, so Lubus recognises it by that table and copies it to the drive byte for byte — the same thing Google asks you to do.
+A ChromeOS recovery image is a raw disk image with its own partition table, so Yaku recognises it by that table and copies it to the drive byte for byte — the same thing Google asks you to do.
 
 To run ChromeOS on an ordinary computer instead, choose **ChromeOS with Brunch** in the *ChromeOS Options* step:
 
-- Brunch needs its own files (about 900 MB). They are downloaded once, on demand, and kept in `~/.local/share/lubus/brunch/` for the next time.
+- Brunch needs its own files (about 900 MB). They are downloaded once, on demand, and kept in `~/.local/share/Yaku/brunch/` for the next time.
 - Pick **Secure Boot** or **Legacy boot** depending on your computer.
-- The drive gets the twelve-partition ChromeOS layout, built by Lubus itself, byte for byte like the `cgpt` tool of the Brunch project.
+- The drive gets the twelve-partition ChromeOS layout, built by Yaku itself, byte for byte like the `cgpt` tool of the Brunch project.
 - The drive must have at least 14 GB of space, and the image must be the recovery image (`chromeos_image.bin`), not the zip file Google downloads.
 
 The [Brunch project](https://github.com/sebanc/brunch) explains which recovery image matches your computer and how to pick the right kernel.
 
 ### macOS disk images
 
-Lubus writes Apple's installer disk images. The `.dmg` is converted with `dmg2img`, and the drive receives the layout Apple's own `createinstallmedia` uses: an EFI system partition with the bootloader in front of an Apple_HFS partition holding the installer. The HFS+ volume is written as raw blocks and never mounted.
+Yaku writes Apple's installer disk images. The `.dmg` is converted with `dmg2img`, and the drive receives the layout Apple's own `createinstallmedia` uses: an EFI system partition with the bootloader in front of an Apple_HFS partition holding the installer. The HFS+ volume is written as raw blocks and never mounted.
 
 ### BSD and Unix media
 
-The BSDs and the other Unixes ship their media in two shapes, and Lubus tells them apart:
+The BSDs and the other Unixes ship their media in two shapes, and Yaku tells them apart:
 
 - **Hybrid ISOs** (FreeBSD `disc1`, the OmniOS installer, the Haiku *anyboot* image) and **raw disk images** (`installXX.img`, `*-install.img`, `memstick.img`, `*.usb-dd`) are copied to the drive as a whole, keeping their own partition table.
-- **Installation CDs** (OpenBSD, NetBSD, DragonFly BSD) only work from an optical drive. Lubus says so and asks for the `.img` file instead of quietly producing a drive that does not boot.
+- **Installation CDs** (OpenBSD, NetBSD, DragonFly BSD) only work from an optical drive. Yaku says so and asks for the `.img` file instead of quietly producing a drive that does not boot.
 
 FreeBSD, OpenBSD, NetBSD, DragonFly BSD, illumos (OmniOS, OpenIndiana) and Haiku are recognised from the files inside the ISO or from the partition table of the image.
 
@@ -201,9 +201,9 @@ FreeBSD, OpenBSD, NetBSD, DragonFly BSD, illumos (OmniOS, OpenIndiana) and Haiku
 
 Windows Setup only ships the in-box AHCI/NVMe drivers. On systems with Intel VMD/RST or AMD RAID enabled, the target disk is not detected and Setup asks for a driver.
 
-Lubus writes the complete Windows media tree — including `sources\install.wim` and `sources\SetupHost.exe` — to the NTFS volume, and keeps only the boot chain on the FAT32 volume. Windows 11 24H2+ (ConX setup) locates the media by `SetupHost.exe` and then expects the install image on that same volume; split media would otherwise show the misleading **“Install driver to show hardware”** dialog even when the USB is fine.
+Yaku writes the complete Windows media tree — including `sources\install.wim` and `sources\SetupHost.exe` — to the NTFS volume, and keeps only the boot chain on the FAT32 volume. Windows 11 24H2+ (ConX setup) locates the media by `SetupHost.exe` and then expects the install image on that same volume; split media would otherwise show the misleading **“Install driver to show hardware”** dialog even when the USB is fine.
 
-- In **Summary → Windows Setup → Storage Controller Drivers**, select the extracted vendor driver folder. Lubus copies it to `\drivers` on the USB so Setup's **Load driver → Browse** can use it.
+- In **Summary → Windows Setup → Storage Controller Drivers**, select the extracted vendor driver folder. Yaku copies it to `\drivers` on the USB so Setup's **Load driver → Browse** can use it.
 - Intel RST VMD: extract `f6vmdflpy-x64.zip` (`iaStorVD.inf`); Intel AHCI/RAID: `f6flpy-x64.zip` (`iaStorAC.inf`); AMD RAID: `rcraid.inf`, `rcbottom.inf`, `rccfg.inf`.
 - Alternatively, disable Intel VMD/RST or switch SATA mode to AHCI in the firmware before installing.
 
@@ -212,7 +212,7 @@ Lubus writes the complete Windows media tree — including `sources\install.wim`
 - Internal system and mounted drives are excluded by default.
 - A warning banner and confirmation dialog are shown before destructive writes.
 - Drive serial numbers and WWNs are checked before writing to prevent a target swap.
-- Privileged operations use UDisks2 and Polkit; Lubus does not run as root.
+- Privileged operations use UDisks2 and Polkit; Yaku does not run as root.
 - Partitions are unmounted safely before and after operations.
 - Optional verification is available for supported raw writes.
 
@@ -235,8 +235,8 @@ meson install -C builddir
 ### Code style
 
 ```bash
-ruff check lubus/
-ruff format lubus/
+ruff check Yaku/
+ruff format Yaku/
 ```
 
 ## Contributing
@@ -257,4 +257,4 @@ GPL-3.0-or-later. See [LICENSE](LICENSE) for details.
 - [UDisks2](https://www.freedesktop.org/wiki/Software/udisks/) for safe, Polkit-integrated disk operations.
 - [wimlib](https://wimlib.net/) for Windows image handling.
 - [GRUB](https://www.gnu.org/software/grub/) for bootloader support.
-- [Brunch](https://github.com/sebanc/brunch) for the ChromeOS-on-a-PC project, whose kernel and bootloader Lubus installs and whose partition layout it reproduces.
+- [Brunch](https://github.com/sebanc/brunch) for the ChromeOS-on-a-PC project, whose kernel and bootloader Yaku installs and whose partition layout it reproduces.
