@@ -58,6 +58,11 @@ jobs:
           dbus-run-session -- xvfb-run -a \
             .venv/bin/python -m pytest tests/ -v --cov=yaku --cov-report=xml
 
+      - name: Run the UI smoke test
+        run: |
+          dbus-run-session -- xvfb-run -a \
+            .venv/bin/python tests/ui_smoke.py
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:

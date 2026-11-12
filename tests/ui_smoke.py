@@ -255,7 +255,7 @@ from yaku.window import YakuWindow
 
 window = YakuWindow(app)
 window.present()
-check("window has 4 steps", window.view_stack.get_pages().get_n_items() == 4)
+check("window has 5 steps", window.view_stack.get_pages().get_n_items() == 5)
 check("back hidden on step 1", not window.back_btn.get_visible())
 check("cancel hidden outside flash", not window.cancel_btn.get_visible())
 check("next insensitive without drives", not window.next_btn.get_sensitive())
@@ -277,13 +277,13 @@ window._on_next_clicked(None)
 check("advanced to image step", window._current_step == 1)
 check("back visible on step 2", window.back_btn.get_visible())
 
-window._current_step = 2
+window._current_step = 3
 window._update_step_ui()
-check("advanced to summary step", window._current_step == 2)
+check("advanced to summary step", window._current_step == 3)
 check("next shows flash label", "Flash" in window.next_btn.get_label())
 
 window._is_flashing = True
-window._current_step = 3
+window._current_step = 4
 window._update_step_ui()
 check("flash step: cancel visible", window.cancel_btn.get_visible())
 check("flash step: back hidden", not window.back_btn.get_visible())
