@@ -62,6 +62,12 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="6.1.2" date="@VERSION_DATE@">
+      <description>Yaku 6.1.2 builds the packages in containers, so the
+      published RPM and DEB no longer depend on the machine that runs the
+      build. The script that tells the binary RPM from the source RPM is
+      fixed as well.</description>
+    </release>
     <release version="6.1.1" date="@VERSION_DATE@">
       <description>Yaku 6.1.1 fixes the Linux direct install (portable mode):
       the hostname and the timezone are written again when the ISO payload

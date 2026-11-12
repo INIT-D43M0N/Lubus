@@ -172,15 +172,20 @@ jobs:
           git archive --format=tar.gz --prefix="yaku-${version}/" \
             -o "yaku-${version}.tar.gz" HEAD
 
+      - name: Collect the packages
+        run: |
+          mkdir -p packages
+          find rpmbuild/RPMS -name "*.rpm" -exec cp {} packages/ \;
+          cp debbuild/*.deb packages/
+          cp yaku-*.tar.gz packages/
+          ls -l packages/
+
       - name: Upload the packages
         uses: actions/upload-artifact@v4
         with:
           name: packages
           if-no-files-found: error
-          path: |
-            rpmbuild/RPMS/**/*.rpm
-            debbuild/*.deb
-            yaku-*.tar.gz
+          path: packages/
 
   release:
     name: Create Release

@@ -12,7 +12,7 @@ set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${PROJECT_DIR}/rpmbuild"
 SPEC_FILE="${PROJECT_DIR}/packaging/yaku.spec"
-VERSION="6.1.1"
+VERSION="6.1.2"
 
 BUILD_MODE="auto"
 BUILD_SRPM_ONLY=false

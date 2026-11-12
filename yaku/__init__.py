@@ -4,7 +4,7 @@ Yaku - A modern bootable USB creator for Linux.
 Functionally identical to Rufus, built with GTK4, Libadwaita, and Python.
 """
 
-__version__ = "6.1.1"
+__version__ = "6.1.2"
 __author__ = "Yaku Contributors"
 __license__ = "GPL-3.0-or-later"
 __description__ = "Create bootable USB drives on Linux (Rufus alternative)"

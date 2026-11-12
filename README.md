@@ -150,19 +150,19 @@ Download the artifact for your distribution from the [Releases](https://github.c
 ### Fedora
 
 ```bash
-sudo dnf install ./yaku-6.1.1-1.fc45.noarch.rpm
+sudo dnf install ./yaku-6.1.2-1.fc45.noarch.rpm
 ```
 
 ### SUSE Linux Enterprise / openSUSE
 
 ```bash
-sudo zypper install ./yaku-6.1.1-1.fc45.noarch.rpm
+sudo zypper install ./yaku-6.1.2-1.fc45.noarch.rpm
 ```
 
 ### Ubuntu / Debian
 
 ```bash
-sudo apt install ./yaku_6.1.1-1_all.deb
+sudo apt install ./yaku_6.1.2-1_all.deb
 ```
 
 ### From source
@@ -283,7 +283,7 @@ mypy yaku/
 ./packaging/build-deb.sh
 
 # Source tarball
-git archive --format=tar.gz --prefix="yaku-6.1.1/" -o yaku-6.1.1.tar.gz HEAD
+git archive --format=tar.gz --prefix="yaku-6.1.2/" -o yaku-6.1.2.tar.gz HEAD
 ```
 
 The RPM is written to `rpmbuild/RPMS/` and the DEB to `debbuild/`; the artifacts published on the [Releases](https://github.com/INIT-D43M0N/Yaku/releases) page are kept in `dist/`.

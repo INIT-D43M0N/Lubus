@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.1.2] - 2026-11-12
+
+### Changed
+- The CI builds the packages in containers — the RPM in Fedora and the DEB in Debian — and a `v*` tag publishes them together with the release notes. The published artifacts no longer depend on the machine that runs the build
+
+### Fixed
+- The script that tells the binary RPM from the source RPM used a grep pattern whose dot matched any character, so every file under a path like `/src/rpmbuild` was discarded and the script reported that no package had been built
+
 ## [6.1.1] - 2026-11-12
 
 ### Fixed

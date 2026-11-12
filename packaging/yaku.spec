@@ -1,5 +1,5 @@
 Name:           yaku
-Version:        6.1.1
+Version:        6.1.2
 Release:        1%{?dist}
 Summary:        Create bootable USB drives on Linux (Rufus alternative)
 
@@ -93,7 +93,14 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/com.githu
 %exclude %{python3_sitelib}/yaku/utils/__pycache__
 
 %changelog
-* Thu Nov 12 2026 Yaku Contributors <yaku@github.com> - 6.1.1-1
+* Thu Nov 12 2026 Yaku Contributors <yaku@github.com> - 6.1.2-1
+- Build the packages in containers in the CI: the RPM in Fedora and the
+  DEB in Debian, so the published artifacts do not depend on the machine
+  that runs the build
+- Fix the script that tells the binary RPM from the source RPM. Its grep
+  pattern treated the dot as a wildcard and discarded every file under a
+  path like /src/rpmbuild
+- Thu Nov 12 2026 Yaku Contributors <yaku@github.com> - 6.1.1-1
 - Fix the Linux direct install: the hostname and the timezone are written
   again when the ISO payload has no /etc directory, and the filesystems
   are flushed before they are unmounted, so the volume is no longer left
