@@ -28,8 +28,5 @@ modules:
     sources:
       - type: dir
         path: .
-    post-install:
-      - install -Dm644 data/com.github.INIT-D43M0N.yaku.desktop /app/share/applications/com.github.INIT-D43M0N.yaku.desktop
-      - install -Dm644 data/com.github.INIT-D43M0N.yaku.metainfo.xml /app/share/metainfo/com.github.INIT-D43M0N.yaku.metainfo.xml
-      - install -Dm644 data/icons/hicolor/scalable/apps/yaku.svg /app/share/icons/hicolor/scalable/apps/com.github.INIT-D43M0N.yaku.svg
-EOF
+    # The desktop entry, the AppStream metadata and the icons are installed
+    # by meson itself, into /app/share.
