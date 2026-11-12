@@ -317,6 +317,12 @@ def write_linux_portable(
             write_linux_provisioning(root_mount, config.to_dict())
             _create_swap_file(root_mount, config.swap_gib)
 
+        # Flush the filesystems before unmounting them. The UDisks2 unmount
+        # gives up after 15 seconds, and a slow USB drive can need longer to
+        # write the journal out; without this the volume stays busy and the
+        # unmount falls back to a lazy one.
+        os.sync()
+
         if esp_mount:
             unmount_filesystem(conn, created[0])
         unmount_filesystem(conn, created[-1])

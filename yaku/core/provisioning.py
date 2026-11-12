@@ -294,15 +294,21 @@ def write_linux_provisioning(root_mount: str, config):
     except OSError:
         pass
 
-    # Best-effort static files for non-cloud-init distributions.
+    # Best-effort static files for non-cloud-init distributions. The payload
+    # of an ISO does not always carry an /etc directory (the Debian installer
+    # images do not), so it is created here; otherwise the hostname and the
+    # timezone would be silently lost.
+    etc_dir = os.path.join(root_mount, "etc")
     try:
-        with open(os.path.join(root_mount, "etc", "hostname"), "w",
+        os.makedirs(etc_dir, exist_ok=True)
+        with open(os.path.join(etc_dir, "hostname"), "w",
                   encoding="utf-8") as f:
             f.write(str(_cfg_get(config, "hostname", "yaku-pc")) + "\n")
     except OSError:
         pass
     try:
-        with open(os.path.join(root_mount, "etc", "timezone"), "w",
+        os.makedirs(etc_dir, exist_ok=True)
+        with open(os.path.join(etc_dir, "timezone"), "w",
                   encoding="utf-8") as f:
             f.write(str(_cfg_get(config, "timezone", "UTC")) + "\n")
     except OSError:

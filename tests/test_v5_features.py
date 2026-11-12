@@ -323,7 +323,8 @@ esp_dir = tempfile.mkdtemp(prefix="v5_esp_")
 root_dir = tempfile.mkdtemp(prefix="v5_root_")
 os.makedirs(os.path.join(iso_dir, "EFI", "BOOT"))
 os.makedirs(os.path.join(iso_dir, "casper"))
-os.makedirs(os.path.join(root_dir, "etc"))
+# The root of an ISO payload usually has no /etc directory, so the
+# provisioning has to create it before writing the hostname and the timezone.
 open(os.path.join(iso_dir, "EFI", "BOOT", "BOOTX64.EFI"), "wb").write(b"E" * 1024)
 open(os.path.join(iso_dir, "casper", "vmlinuz"), "wb").write(b"K" * 2048)
 open(os.path.join(iso_dir, "casper", "initrd"), "wb").write(b"I" * 2048)
@@ -371,6 +372,10 @@ check("EFI boot files copied to ESP",
 check("cloud-init seed written",
       os.path.isfile(os.path.join(root_dir, "var", "lib", "cloud",
                                   "seed", "nocloud-net", "user-data")))
+check("hostname written even without an /etc directory",
+      os.path.isfile(os.path.join(root_dir, "etc", "hostname")))
+check("timezone written even without an /etc directory",
+      os.path.isfile(os.path.join(root_dir, "etc", "timezone")))
 check("portable progress completes at 100%",
       portable_events and portable_events[-1][0] == portable_events[-1][1])
 check("portable progress never reaches 100% early",
