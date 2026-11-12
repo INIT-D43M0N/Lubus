@@ -1,5 +1,6 @@
-"""Smoke tests for Yaku 5.0 features (run: python3 tests/test_v5_features.py)."""
+"""Smoke tests for the Yaku features (run: python3 tests/test_v5_features.py)."""
 import os
+import re
 import sys
 import tempfile
 import shutil
@@ -18,7 +19,19 @@ def check(name, cond, detail=""):
 
 print("=== VERSION ===")
 import yaku
-check("project version is 6.0.0", yaku.__version__ == "6.0.0", yaku.__version__)
+
+# The expected version is read from pyproject.toml, so the check never goes
+# stale when the project is released.
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+try:
+    with open(os.path.join(_PROJECT_ROOT, "pyproject.toml"), encoding="utf-8") as _fh:
+        _declared = re.search(r'^version\s*=\s*"([^"]+)"', _fh.read(), re.MULTILINE)
+    _expected_version = _declared.group(1) if _declared else ""
+except OSError:
+    _expected_version = ""
+check("project version matches pyproject.toml",
+      bool(_expected_version) and yaku.__version__ == _expected_version,
+      f"{yaku.__version__} != {_expected_version}")
 
 print("\n=== INSTALL CONFIG VALIDATION ===")
 from yaku.core.direct_install import (
