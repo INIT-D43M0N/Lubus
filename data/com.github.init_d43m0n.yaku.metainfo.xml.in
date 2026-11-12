@@ -62,6 +62,12 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="6.1.1" date="@VERSION_DATE@">
+      <description>Yaku 6.1.1 fixes the Linux direct install (portable mode):
+      the hostname and the timezone are written again when the ISO payload
+      has no /etc directory, and the filesystems are flushed before they
+      are unmounted, so a slow USB drive is no longer left busy.</description>
+    </release>
     <release version="6.1.0" date="@VERSION_DATE@">
       <description>Yaku 6.1 is the new name of the project. The application,
       the package, the icons and the app id all follow the rename, and the

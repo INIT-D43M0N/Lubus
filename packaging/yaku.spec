@@ -1,5 +1,5 @@
 Name:           yaku
-Version:        6.1.0
+Version:        6.1.1
 Release:        1%{?dist}
 Summary:        Create bootable USB drives on Linux (Rufus alternative)
 
@@ -86,6 +86,11 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/com.githu
 %{python3_sitelib}/yaku/
 
 %changelog
+* Thu Nov 12 2026 Yaku Contributors <yaku@github.com> - 6.1.1-1
+- Fix the Linux direct install: the hostname and the timezone are written
+  again when the ISO payload has no /etc directory, and the filesystems
+  are flushed before they are unmounted, so the volume is no longer left
+  busy on slow USB drives
 * Wed Nov 11 2026 Yaku Contributors <yaku@github.com> - 6.1.0-1
 - Rename the project from Lubus to Yaku. The Python package, the data
   directory, the desktop entry, the AppStream metadata, the icons, the

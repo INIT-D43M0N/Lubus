@@ -4,7 +4,7 @@ build-backend = "mesonpy"
 
 [project]
 name = "yaku"
-version = "6.1.0"
+version = "6.1.1"
 description = "Create bootable USB drives on Linux (Rufus alternative)"
 readme = "README.md"
 license = {text = "GPL-3.0-or-later"}

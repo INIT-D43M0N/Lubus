@@ -1,6 +1,6 @@
 # Meson build file for Yaku
 project('yaku',
-  version: '6.1.0',
+  version: '6.1.1',
   license: 'GPL-3.0-or-later',
   default_options: [
     'warning_level=2',

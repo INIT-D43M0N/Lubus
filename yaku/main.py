@@ -13,7 +13,7 @@ def _handle_early_args():
     except SystemExit:
         return None
     if parsed.version:
-        print("Yaku 6.1.0")
+        print("Yaku 6.1.1")
         return 0
     if parsed.help:
         _print_help()

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.1.1] - 2026-11-12
+
+### Fixed
+- The Linux direct install (portable mode) writes the hostname and the timezone again. The payload of an ISO has no `/etc` directory, so the write failed with an error that was swallowed silently
+- The filesystems are flushed (`os.sync()`) before they are unmounted. On a slow USB drive the unmount timed out and fell back to a lazy unmount, leaving the volume busy
+
 ## [6.1.0] - 2026-11-11
 
 ### Changed
