@@ -64,7 +64,7 @@ data_dir = join_paths(get_option('datadir'), 'yaku')
 # Desktop file
 # Configuration for template files
 conf = configuration_data()
-conf.set('APP_ID', 'com.github.INIT-D43M0N.yaku')
+conf.set('APP_ID', 'com.github.init_d43m0n.yaku')
 conf.set('VERSION', meson.project_version())
 conf.set('VERSION_DATE', run_command('date', ['-u', '+%Y-%m-%d'], check: true).stdout().strip())
 conf.set('PYTHON', py3.path())
@@ -72,16 +72,16 @@ conf.set('MODULE', 'yaku.main')
 
 # Desktop file
 desktop_file = configure_file(
-  input: 'data/com.github.INIT-D43M0N.yaku.desktop.in',
-  output: 'com.github.INIT-D43M0N.yaku.desktop',
+  input: 'data/com.github.init_d43m0n.yaku.desktop.in',
+  output: 'com.github.init_d43m0n.yaku.desktop',
   configuration: conf,
   install_dir: join_paths(get_option('datadir'), 'applications'),
 )
 
 # AppData/Metainfo file
 metainfo_file = configure_file(
-  input: 'data/com.github.INIT-D43M0N.yaku.metainfo.xml.in',
-  output: 'com.github.INIT-D43M0N.yaku.metainfo.xml',
+  input: 'data/com.github.init_d43m0n.yaku.metainfo.xml.in',
+  output: 'com.github.init_d43m0n.yaku.metainfo.xml',
   configuration: conf,
   install_dir: join_paths(get_option('datadir'), 'metainfo'),
 )
@@ -89,14 +89,14 @@ metainfo_file = configure_file(
 # Icon (scalable wrapper + native 1024px raster)
 icon_file = configure_file(
   input: 'data/icons/hicolor/scalable/apps/yaku.svg',
-  output: 'com.github.INIT-D43M0N.yaku.svg',
+  output: 'com.github.init_d43m0n.yaku.svg',
   copy: true,
   install_dir: join_paths(get_option('datadir'), 'icons', 'hicolor', 'scalable', 'apps'),
 )
 
 icon_png = configure_file(
   input: 'data/icons/hicolor/1024x1024/apps/yaku.png',
-  output: 'com.github.INIT-D43M0N.yaku.png',
+  output: 'com.github.init_d43m0n.yaku.png',
   copy: true,
   install_dir: join_paths(get_option('datadir'), 'icons', 'hicolor', '1024x1024', 'apps'),
 )

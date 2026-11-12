@@ -458,66 +458,66 @@ msgstr ""
 msgid "Verification failed: data mismatch"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.desktop.in:4
+#: data/com.github.init_d43m0n.yaku.desktop.in:4
 msgid "Bootable USB Creator"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.desktop.in:5
+#: data/com.github.init_d43m0n.yaku.desktop.in:5
 msgid "Create bootable USB drives from ISO images"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:6
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:6
 msgid "Create bootable USB drives from ISO images"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:9
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:9
 msgid "Yaku is a modern, native Linux application for creating bootable USB drives, functionally identical to Rufus but built specifically for the Linux ecosystem."
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:11
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:11
 msgid "Features:"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:12
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:12
 msgid "Automatic detection of removable USB drives and SD cards"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:13
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:13
 msgid "Support for ISO, IMG, and other bootable disk images"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:14
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:14
 msgid "Automatic detection of image type (Windows, Linux, hybrid)"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:15
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:15
 msgid "Partition scheme selection (GPT/MBR) and target system (UEFI/BIOS)"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:16
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:16
 msgid "Filesystem selection (FAT32, NTFS, exFAT, ext4, btrfs)"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:17
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:17
 msgid "DD mode (block copy) and ISO extract mode"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:18
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:18
 msgid "Real-time progress with speed and ETA"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:19
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:19
 msgid "Optional verification after write"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:20
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:20
 msgid "Windows installer media creation"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:21
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:21
 msgid "Windows To Go support"
 msgstr ""
 
-#: data/com.github.INIT-D43M0N.yaku.metainfo.xml.in:22
+#: data/com.github.init_d43m0n.yaku.metainfo.xml.in:22
 msgid "Safety checks and confirmation dialogs"
 msgstr ""

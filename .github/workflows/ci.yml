@@ -118,10 +118,10 @@ jobs:
           sudo flatpak install -y flathub org.gnome.Platform//46 org.gnome.Sdk//46
 
       - name: Build Flatpak
-        run: flatpak-builder --force-clean build-dir com.github.INIT-D43M0N.yaku.yml
+        run: flatpak-builder --force-clean build-dir com.github.init_d43m0n.yaku.yml
 
       - name: Test Flatpak
-        run: flatpak-builder --run build-dir com.github.INIT-D43M0N.yaku.yml yaku --version
+        run: flatpak-builder --run build-dir com.github.init_d43m0n.yaku.yml yaku --version
 
   release:
     name: Create Release

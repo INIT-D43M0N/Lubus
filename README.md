@@ -10,7 +10,7 @@ Yaku is a Rufus alternative built for the Linux ecosystem with **GTK4**, **Libad
 [![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://python.org)
 [![GTK4](https://img.shields.io/badge/GTK-4.0+-orange.svg)](https://gtk.org)
 [![Libadwaita](https://img.shields.io/badge/Libadwaita-1.3+-green.svg)](https://gnome.pages.gitlab.gnome.org/libadwaita/)
-[![Flatpak](https://img.shields.io/badge/flatpak-com.github.INIT-D43M0N.yaku-purple.svg)](com.github.INIT-D43M0N.yaku.yml)
+[![Flatpak](https://img.shields.io/badge/flatpak-com.github.init_d43m0n.yaku-purple.svg)](com.github.init_d43m0n.yaku.yml)
 
 > **Note:** this project was formerly called *Lubus*. From version 6.1.0 on, every
 > name — the Python package, the app id, the icons, the package files and the
@@ -179,8 +179,8 @@ sudo meson install -C builddir
 ### Flatpak
 
 ```bash
-flatpak-builder --force-clean build-dir com.github.INIT-D43M0N.yaku.yml
-flatpak-builder --run build-dir com.github.INIT-D43M0N.yaku.yml yaku
+flatpak-builder --force-clean build-dir com.github.init_d43m0n.yaku.yml
+flatpak-builder --run build-dir com.github.init_d43m0n.yaku.yml yaku
 ```
 
 ---

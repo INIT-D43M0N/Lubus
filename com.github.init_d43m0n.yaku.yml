@@ -1,4 +1,4 @@
-app-id: com.github.INIT-D43M0N.yaku
+app-id: com.github.init_d43m0n.yaku
 runtime: org.gnome.Platform
 runtime-version: '46'
 sdk: org.gnome.Sdk
@@ -8,7 +8,7 @@ finish-args:
   - --filesystem=host
   - --talk-name=org.freedesktop.UDisks2
   - --talk-name=org.freedesktop.portal.Documents
-  - --own-name=com.github.INIT-D43M0N.yaku
+  - --own-name=com.github.init_d43m0n.yaku
 cleanup:
   - /include
   - /lib/pkgconfig

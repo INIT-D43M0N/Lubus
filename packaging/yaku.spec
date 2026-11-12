@@ -71,17 +71,17 @@ Features:
 %meson_install
 
 %check
-desktop-file-validate %{buildroot}%{_datadir}/applications/com.github.INIT-D43M0N.yaku.desktop
-appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/com.github.INIT-D43M0N.yaku.metainfo.xml
+desktop-file-validate %{buildroot}%{_datadir}/applications/com.github.init_d43m0n.yaku.desktop
+appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/com.github.init_d43m0n.yaku.metainfo.xml
 
 %files
 %license LICENSE
 %doc README.md CHANGELOG.md
 %{_bindir}/yaku
-%{_datadir}/applications/com.github.INIT-D43M0N.yaku.desktop
-%{_datadir}/metainfo/com.github.INIT-D43M0N.yaku.metainfo.xml
-%{_datadir}/icons/hicolor/scalable/apps/com.github.INIT-D43M0N.yaku.svg
-%{_datadir}/icons/hicolor/1024x1024/apps/com.github.INIT-D43M0N.yaku.png
+%{_datadir}/applications/com.github.init_d43m0n.yaku.desktop
+%{_datadir}/metainfo/com.github.init_d43m0n.yaku.metainfo.xml
+%{_datadir}/icons/hicolor/scalable/apps/com.github.init_d43m0n.yaku.svg
+%{_datadir}/icons/hicolor/1024x1024/apps/com.github.init_d43m0n.yaku.png
 %{_datadir}/yaku/
 %{python3_sitelib}/yaku/
 

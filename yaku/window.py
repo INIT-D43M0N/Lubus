@@ -1050,7 +1050,7 @@ class YakuWindow(Adw.ApplicationWindow):
     def _show_about(self, _action, _param):
         dialog = Adw.AboutDialog(
             application_name=_("Yaku"),
-            application_icon="com.github.INIT-D43M0N.yaku",
+            application_icon="com.github.init_d43m0n.yaku",
             version="6.0.0",
             developer_name="Yaku Contributors",
             license_type=Gtk.License.GPL_3_0,

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>com.github.INIT-D43M0N.yaku</id>
+  <id>com.github.init_d43m0n.yaku</id>
   <name>Yaku</name>
   <summary>Create bootable USB drives from ISO images</summary>
   <description>

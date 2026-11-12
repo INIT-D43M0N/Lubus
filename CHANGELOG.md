@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [6.1.0] - 2026-11-11
 
 ### Changed
-- The project is now called **Yaku**. Every name that referred to the old one follows the rename: the Python package (`yaku/`), the data directory (`/usr/share/yaku`), the desktop entry and AppStream metadata (`com.github.INIT-D43M0N.yaku`), the icons, the Flatpak manifest, the `yaku` command, the translation domain, the RPM/DEB package names and the source tarball
+- The project is now called **Yaku**. Every name that referred to the old one follows the rename: the Python package (`yaku/`), the data directory (`/usr/share/yaku`), the desktop entry and AppStream metadata (`com.github.init_d43m0n.yaku`), the icons, the Flatpak manifest, the `yaku` command, the translation domain, the RPM/DEB package names and the source tarball
 - The project pages point to <https://github.com/INIT-D43M0N/Yaku>
 - The GitHub repository was renamed from `Lubus` to `Yaku`; the old URL keeps redirecting to the new one
 

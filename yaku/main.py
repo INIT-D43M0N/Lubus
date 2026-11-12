@@ -73,7 +73,7 @@ class YakuApplication(Adw.Application):
 
     def __init__(self, **kwargs):
         super().__init__(
-            application_id="com.github.INIT-D43M0N.yaku",
+            application_id="com.github.init_d43m0n.yaku",
             flags=Gio.ApplicationFlags.HANDLES_OPEN | Gio.ApplicationFlags.HANDLES_COMMAND_LINE | Gio.ApplicationFlags.NON_UNIQUE,
             **kwargs
         )
@@ -117,7 +117,7 @@ class YakuApplication(Adw.Application):
         """GTK is initialized here: apply the app icon and stylesheet."""
         Adw.Application.do_startup(self)
         # Match the installed desktop icon (X11 window icon / About dialog).
-        Gtk.Window.set_default_icon_name("com.github.INIT-D43M0N.yaku")
+        Gtk.Window.set_default_icon_name("com.github.init_d43m0n.yaku")
         self._load_custom_css()
 
     def _load_custom_css(self):
