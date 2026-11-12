@@ -212,6 +212,18 @@ jobs:
             echo "exists=false" >> "${GITHUB_OUTPUT}"
           fi
 
+      - name: Write the release notes
+        run: |
+          python3 packaging/release-notes.py "${GITHUB_REF_NAME}" > release-notes.md
+          previous="$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)"
+          if [ -n "${previous}" ]; then
+            {
+              echo
+              echo "**Full Changelog**: https://github.com/INIT-D43M0N/Yaku/compare/${previous}...${GITHUB_REF_NAME}"
+            } >> release-notes.md
+          fi
+          cat release-notes.md
+
       - name: Download the packages
         uses: actions/download-artifact@v4
         with:
@@ -222,11 +234,13 @@ jobs:
         if: steps.check.outputs.exists != 'true'
         uses: softprops/action-gh-release@v1
         with:
-          generate_release_notes: true
+          body_path: release-notes.md
           files: packages/*
 
       - name: Attach the packages to the existing release
         if: steps.check.outputs.exists == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${GITHUB_REF_NAME}" packages/* --clobber
+        run: |
+          gh release upload "${GITHUB_REF_NAME}" packages/* --clobber
+          gh release edit "${GITHUB_REF_NAME}" --notes-file release-notes.md
