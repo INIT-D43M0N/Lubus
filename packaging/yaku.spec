@@ -84,6 +84,13 @@ appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/com.githu
 %{_datadir}/icons/hicolor/1024x1024/apps/com.github.init_d43m0n.yaku.png
 %{_datadir}/yaku/
 %{python3_sitelib}/yaku/
+# The bytecode compiled during the build belongs to the build machine and
+# must not be shipped.
+%exclude %{python3_sitelib}/yaku/__pycache__
+%exclude %{python3_sitelib}/yaku/core/__pycache__
+%exclude %{python3_sitelib}/yaku/pages/__pycache__
+%exclude %{python3_sitelib}/yaku/udisks/__pycache__
+%exclude %{python3_sitelib}/yaku/utils/__pycache__
 
 %changelog
 * Thu Nov 12 2026 Yaku Contributors <yaku@github.com> - 6.1.1-1
