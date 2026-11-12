@@ -288,6 +288,8 @@ git archive --format=tar.gz --prefix="yaku-6.1.1/" -o yaku-6.1.1.tar.gz HEAD
 
 The RPM is written to `rpmbuild/RPMS/` and the DEB to `debbuild/`; the artifacts published on the [Releases](https://github.com/INIT-D43M0N/Yaku/releases) page are kept in `dist/`.
 
+Every push builds the packages in containers — the RPM in Fedora and the DEB in Debian — so the artifacts do not depend on the machine that runs the build. Pushing a `v*` tag publishes them together with the release notes.
+
 ---
 
 ## Contributing

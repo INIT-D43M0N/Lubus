@@ -133,8 +133,10 @@ else
     exit 1
 fi
 
-# Find and show the built RPM
-RPM_FILES=$(find "${BUILD_DIR}/RPMS" -name "*.rpm" | grep -v src.rpm || true)
+# Find and show the built RPM. The source RPM is filtered out by name and
+# not by a grep pattern: a dot in a grep pattern matches any character, so
+# "src.rpm" would also discard every file under a path like /src/rpmbuild.
+RPM_FILES=$(find "${BUILD_DIR}/RPMS" -name "*.rpm" ! -name "*.src.rpm" || true)
 if [[ -n "${RPM_FILES}" ]]; then
     echo ""
     echo "=== Build Successful! ==="
